@@ -18,11 +18,11 @@ def autocomplete(shell, line, text, state):
 def help(shell):
     pass
 
-def get_prompt(shell, id, ip, isreadline = True):
+def get_prompt(shell, id, ip, cwd, isreadline = True):
         return "%s%s: %s%s" % (shell.colors.colorize("[", [shell.colors.NORMAL], isreadline),
                                  shell.colors.colorize("koadic", [shell.colors.BOLD], isreadline),
                                  shell.colors.colorize("ZOMBIE %s (%s)" % (id, ip), [shell.colors.CYAN], isreadline),
-                                 shell.colors.colorize(" - cmd.exe]> ", [shell.colors.NORMAL], isreadline))
+                                 shell.colors.colorize(" - %s]> " % (cwd), [shell.colors.NORMAL], isreadline))
 
 def run_cmdshell(shell, session):
     import copy
@@ -45,12 +45,12 @@ def run_cmdshell(shell, session):
     id = str(session.id)
     ip = session.ip
 
-    working_dir = ""
+    emucwd = session.realcwd
 
     while True:
         shell.state = exec_cmd_name
-        shell.prompt = get_prompt(shell, id, ip, True)
-        shell.clean_prompt = get_prompt(shell, id, ip, False)
+        shell.prompt = get_prompt(shell, id, ip, emucwd, True)
+        shell.clean_prompt = get_prompt(shell, id, ip, emucwd, False)
         plugin.options.set("ZOMBIE", id)
 
         try:
@@ -65,7 +65,7 @@ def run_cmdshell(shell, session):
                     old_download_zombie = download_file_plugin.options.get("ZOMBIE")
                     old_download_rfile = download_file_plugin.options.get("RFILE")
                     download_file_plugin.options.set("ZOMBIE", id)
-                    rfile = working_dir
+                    rfile = emucwd
                     if rfile[-1] != "\\":
                         rfile += "\\"
                     rfile += " ".join(cmd.split(" ")[1:])
@@ -77,21 +77,21 @@ def run_cmdshell(shell, session):
                 elif cmd.split(" ")[0].lower() == 'cd' and len(cmd.split(" ")) > 1:
                     dest = " ".join(cmd.split(" ")[1:])
                     if ":" not in dest and ".." not in dest:
-                        if working_dir[-1] != "\\":
-                            working_dir += "\\"
-                        working_dir += dest
+                        if emucwd[-1] != "\\":
+                            emucwd += "\\"
+                        emucwd += dest
                     elif ".." in dest:
                         number = len(dest.split("\\"))
-                        working_dir = "\\".join(working_dir.split("\\")[:(number*-1)])
-                        if len(working_dir.split("\\")) == 1:
-                            working_dir += "\\"
+                        emucwd = "\\".join(emucwd.split("\\")[:(number*-1)])
+                        if len(emucwd.split("\\")) == 1:
+                            emucwd += "\\"
                     else:
-                        working_dir = dest
+                        emucwd = dest
 
-                    cmd = "cd "+working_dir+ " & cd"
+                    cmd = "cd "+emucwd+ " & cd"
                 else:
-                    if working_dir:
-                        cmd = "cd "+working_dir+" & "+cmd
+                    if emucwd:
+                        cmd = "cd "+emucwd+" & "+cmd
 
                 plugin.options.set("CMD", cmd)
                 plugin.run()
