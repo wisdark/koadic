@@ -1,4 +1,4 @@
-DESCRIPTION = "shows info about jobs"
+DESCRIPTION = "kill a job or all jobs"
 
 def autocomplete(shell, line, text, state):
     pass
