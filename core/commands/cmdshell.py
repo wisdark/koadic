@@ -81,8 +81,13 @@ def run_cmdshell(shell, session):
                             emucwd += "\\"
                         emucwd += dest
                     elif ".." in dest:
-                        number = len(dest.split("\\"))
-                        emucwd = "\\".join(emucwd.split("\\")[:(number*-1)])
+                        for d in dest.split("\\"):
+                            if ".." in d:
+                                emucwd = "\\".join(emucwd.split("\\")[:-1])
+                            else:
+                                if emucwd[-1] != "\\":
+                                    emucwd += "\\"
+                                emucwd += d
                         if len(emucwd.split("\\")) == 1:
                             emucwd += "\\"
                     else:
