@@ -27,6 +27,7 @@ class DynWrapXShellcodeJob(core.job.Job):
         if "Authentication Id :" in data and "sekurlsa::logonpasswords" in data:
             from tabulate import tabulate
             nice_data = data.split('\n\n')
+            cred_headers = ["msv","tspkg","wdigest","kerberos","ssp","credman"]
             msv_all = []
             tspkg_all = []
             wdigest_all = []
@@ -42,95 +43,42 @@ class DynWrapXShellcodeJob(core.job.Job):
                     ssp = collections.OrderedDict()
                     credman = collections.OrderedDict()
 
-                    msv_sec = section.split("msv :\t")[1].split("\ttspkg :")[0].splitlines()
-                    for line in msv_sec:
-                        if '\t *' in line:
-                            msv[line.split("* ")[1].split(":")[0].rstrip()] = line.split(": ")[1].split("\n")[0]
-                    if msv:
-                        msv_all.append(msv)
+                    for index, cred_header in enumerate(cred_headers):
+                        cred_dict = locals().get(cred_header)
+                        cred_sec1 = section.split(cred_header+" :\t")[1]
+                        if index < len(cred_headers)-1:
+                            cred_sec = cred_sec1.split("\t"+cred_headers[index+1]+" :")[0].splitlines()
+                        else:
+                            cred_sec = cred_sec1.splitlines()
 
-                    tspkg_sec = section.split("tspkg :\t")[1].split("\twdigest :")[0].splitlines()
-                    for line in tspkg_sec:
-                        if '\t *' in line:
-                            tspkg[line.split("* ")[1].split(":")[0].rstrip()] = line.split(": ")[1].split("\n")[0]
-                    if tspkg:
-                        tspkg_all.append(tspkg)
+                        for line in cred_sec:
+                            if '\t *' in line:
+                                cred_dict[line.split("* ")[1].split(":")[0].rstrip()] = line.split(": ")[1].split("\n")[0]
+                        if cred_dict:
+                            cred_list = locals().get(cred_header+"_all")
+                            cred_list.append(cred_dict)
 
-                    wdigest_sec = section.split("wdigest :\t")[1].split("\tkerberos :")[0].splitlines()
-                    for line in wdigest_sec:
-                        if '\t *' in line:
-                            wdigest[line.split("* ")[1].split(":")[0].rstrip()] = line.split(": ")[1].split("\n")[0]
-                    if wdigest:
-                        wdigest_all.append(wdigest)
-
-                    kerberos_sec = section.split("kerberos :\t")[1].split("\tssp :")[0].splitlines()
-                    for line in kerberos_sec:
-                        if '\t *' in line:
-                            kerberos[line.split("* ")[1].split(":")[0].rstrip()] = line.split(": ")[1].split("\n")[0]
-                    if kerberos:
-                        kerberos_all.append(kerberos)
-
-                    ssp_sec = section.split("ssp :\t")[1].split("\tcredman :")[0].splitlines()
-                    for line in ssp_sec:
-                        if '\t *' in line:
-                            ssp[line.split("* ")[1].split(":")[0].rstrip()] = line.split(": ")[1].split("\n")[0]
-                    if ssp:
-                        ssp_all.append(ssp)
-
-                    credman_sec = section.split("credman :\t")[1].splitlines()
-                    for line in credman_sec:
-                        if '\t *' in line:
-                            credman[line.split("* ")[1].split(":")[0].rstrip()] = line.split(": ")[1].split("\n")[0]
-                    if credman:
-                        credman_all.append(credman)
-
-            msv_all = [collections.OrderedDict(t) for t in set([tuple(d.items()) for d in msv_all])]
-            tspkg_all = [collections.OrderedDict(t) for t in set([tuple(d.items()) for d in tspkg_all])]
-            wdigest_all = [collections.OrderedDict(t) for t in set([tuple(d.items()) for d in wdigest_all])]
-            kerberos_all = [collections.OrderedDict(t) for t in set([tuple(d.items()) for d in kerberos_all])]
-            ssp_all = [collections.OrderedDict(t) for t in set([tuple(d.items()) for d in ssp_all])]
-            credman_all = [collections.OrderedDict(t) for t in set([tuple(d.items()) for d in credman_all])]
+            for cred_header in cred_headers:
+                cred_list = locals().get(cred_header+"_all")
+                tmp = [collections.OrderedDict(t) for t in set([tuple(d.items()) for d in cred_list])]
+                del cred_list[:]
+                cred_list.extend(tmp)
 
             parsed_data = "Results\n\n"
 
-            if msv_all:
-                msv_all = sorted(msv_all, key=lambda k: k['Username'])
-                parsed_data += "msv credentials\n===============\n\n"
-                parsed_data += tabulate(msv_all, headers="keys")
+            for cred_header in cred_headers:
+                banner = cred_header+" credentials\n=================\n\n"
+                cred_dict = locals().get(cred_header+"_all")
+                if not cred_dict:
+                    continue
+                cred_dict = sorted(cred_dict, key=lambda k: k['Username'])
+                keys = []
+                [[keys.append(k) for k in row.keys() if k not in keys] for row in cred_dict]
+                separators = collections.OrderedDict([(k, "-"*len(k)) for k in keys])
+                cred_dict = [separators] + cred_dict
+                parsed_data += banner
+                parsed_data += tabulate(cred_dict, headers="keys", tablefmt="plain")
                 parsed_data += "\n\n"
-
-            if tspkg_all:
-                tspkg_all = sorted(tspkg_all, key=lambda k: k['Username'])
-                parsed_data += "tspkg credentials\n=================\n\n"
-                parsed_data += tabulate(tspkg_all, headers="keys")
-                parsed_data += "\n\n"
-
-            if wdigest_all:
-                wdigest_all = sorted(wdigest_all, key=lambda k: k['Username'])
-                parsed_data += "wdigest credentials\n===================\n\n"
-                parsed_data += tabulate(wdigest_all, headers="keys")
-                parsed_data += "\n\n"
-
-            if kerberos_all:
-                kerberos_all = sorted(kerberos_all, key=lambda k: k['Username' ])
-                parsed_data += "kerberos credentials\n====================\n\n"
-                parsed_data += tabulate(kerberos_all, headers="keys")
-                parsed_data += "\n\n"
-
-            if ssp_all:
-                ssp_all = sorted(ssp_all, key=lambda k: k['Username'])
-                parsed_data += "ssp credentials\n===============\n\n"
-                parsed_data += tabulate(ssp_all, headers="keys")
-                parsed_data += "\n\n"
-
-            if credman_all:
-                credman_all = sorted(credman_all, key=lambda k: k['Username'])
-                parsed_data += "credman credentials\n===================\n\n"
-                parsed_data += tabulate(credman_all, headers="keys")
-                parsed_data += "\n\n"
-
-            # if msv_all:
-            #     print(tabulate(msv_all, headers="keys"))
 
             self.mimi_output = parsed_data
             return
