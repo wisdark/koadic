@@ -74,6 +74,23 @@ class DynWrapXShellcodeJob(core.job.Job):
                 cred_dict = sorted(cred_dict, key=lambda k: k['Username'])
                 keys = []
                 [[keys.append(k) for k in row.keys() if k not in keys] for row in cred_dict]
+                for cred in cred_dict:
+                    c = {}
+                    c["Username"] = cred["Username"]
+                    c["Domain"] = cred["Domain"]
+                    if "Password" in keys:
+                        c["Password"] = cred["Password"]
+                    else:
+                        c["Password"] = ""
+
+                    if "NTLM" in keys:
+                        c["Hash"] = cred["NTLM"]
+                    elif "SHA1" in keys:
+                        c["Hash"] = cred["SHA1"]
+                    else:
+                        c["Hash"] = ""
+
+                    self.shell.creds.append(c)
                 separators = collections.OrderedDict([(k, "-"*len(k)) for k in keys])
                 cred_dict = [separators] + cred_dict
                 parsed_data += banner

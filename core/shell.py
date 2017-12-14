@@ -21,6 +21,7 @@ class Shell(object):
         self.colors = core.colors.Colors()
         self.extant = core.extant.Extant(self)
         self.verbose = False
+        self.creds = []
 
     def run(self):
         self.main_thread_id = threading.current_thread().ident
