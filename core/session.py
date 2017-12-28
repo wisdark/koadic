@@ -58,7 +58,6 @@ class Session(object):
         self.elevated = self.ELEVATED_TRUE if "*" in data[0] else self.ELEVATED_FALSE
         self.computer = data[1]
         self.os = data[2]
-        #self.dc = data[3].split("\\\\")[1] if data[3] else "Unknown"
         self.dc = data[3] if data[3] else "Unknown"
         self.arch = data[4]
         self.realcwd = data[5].rstrip()
