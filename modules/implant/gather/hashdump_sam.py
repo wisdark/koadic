@@ -80,8 +80,8 @@ class HashDumpSAMJob(core.job.Job):
 
         cmd = ['python2', path, '-sam', self.sam_file, '-system', self.system_file, '-security', self.security_file, 'LOCAL']
         p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
-        output = p.stdout.read()
-        self.shell.print_plain(output.decode())
+        output = p.stdout.read().decode()
+        self.shell.print_plain(output)
 
         sam_sec1 = output.split("[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)")[1]
         sam_sec2 = sam_sec1.split("[*] Dumping cached domain logon information (uid:encryptedHash:longDomain:domain)")[0]
