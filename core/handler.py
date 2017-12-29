@@ -168,6 +168,14 @@ class Handler(BaseHTTPRequestHandler):
                 data = self.rfile.read(content_len)
                 self.session.parse_user_info(data)
 
+                module = self.session.stager.options.get('MODULE')
+                if module:
+                    plugin = self.session.shell.plugins[module]
+                    old_zombie = plugin.options.get("ZOMBIE")
+                    plugin.options.set("ZOMBIE", str(self.session.id))
+                    plugin.run()
+                    plugin.options.set("ZOMBIE", old_zombie)
+
                 return self.reply(200)
 
 

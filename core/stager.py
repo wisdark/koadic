@@ -27,6 +27,7 @@ class Stager(core.plugin.Plugin):
         self.options.register('KEYPATH', '',  'Private key for TLS communications', required = False)
         self.options.register('CERTPATH', '', 'Certificate for TLS communications', required = False)
         self.options.register('ENDPOINT', self.random_string(5), 'URL path for callhome operations', required = False, advanced = True)
+        self.options.register('MODULE', '', 'Module to run once zombie is staged', required = False)
 
         # names of query string properties
         self.options.register("JOBNAME", "csrf", "name for jobkey cookie", advanced = True)
