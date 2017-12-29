@@ -36,9 +36,18 @@ def print_creds_detailed(shell, users="*"):
             shell.print_plain("HASH TYPE: "+cred["HashType"])
             shell.print_plain("")
 
-def execute(shell, cmd):
+def condense_creds(shell):
     nodupes = [dict(tmp) for tmp in set(tuple(item.items()) for item in shell.creds)]
-    shell.creds = nodupes
+    tmp = list(nodupes)
+    for c in tmp:
+        if c["Username"] == "(null)" or c["Password"] == "(null)":
+            nodupes.remove(c)
+
+    creds = list(nodupes)
+    return creds
+
+def execute(shell, cmd):
+    shell.creds = condense_creds(shell)
 
     splitted = cmd.strip().split(" ")
 
