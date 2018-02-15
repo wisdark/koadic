@@ -57,6 +57,9 @@ def execute(shell, cmd):
         elif splitted[1] == "-u":
             print_creds_detailed(shell, splitted[2])
         else:
-            shell.print_plain("Error: Unknown option '"+splitted[1]+"'")
+            shell.print_error("Unknown option '"+splitted[1]+"'")
     else:
-        print_creds(shell)
+        if shell.creds:
+            print_creds(shell)
+        else:
+            shell.print_error("No credentials have been gathered yet")
