@@ -14,6 +14,21 @@ def execute(shell, cmd):
         print_all_sessions(shell)
         return
 
+    # Zombie details by IP
+    if len(splitted[1].split(".")) == 4:
+        cur_sessions = []
+        for stager in shell.stagers:
+            for session in stager.sessions:
+                if session.ip == splitted[1]:
+                    cur_sessions.append(session)
+        # If there's only one session, we want to show it
+        if len(cur_sessions) == 1:
+            print_session(shell, cur_sessions[0])
+            return
+        elif len(cur_sessions) > 1:
+            print_all_sessions(shell, splitted[1])
+            return
+
     for stager in shell.stagers:
         for session in stager.sessions:
             if session.id == int(splitted[1]):
@@ -56,7 +71,7 @@ def print_session(shell, session):
     print_jobs(shell, session)
     shell.print_plain("")
 
-def print_all_sessions(shell):
+def print_all_sessions(shell, ip=False):
     formats = "\t{0:<5}{1:<16}{2:<8}{3:16}"
 
     shell.print_plain("")
@@ -68,8 +83,11 @@ def print_all_sessions(shell):
             alive = "Alive" if session.status == 1 else "Dead"
             seen = datetime.datetime.fromtimestamp(session.last_active).strftime('%Y-%m-%d %H:%M:%S')
             elevated = '*' if session.elevated else ''
+            if ip and session.ip != ip:
+                continue
             shell.print_plain(formats.format(str(session.id)+elevated, session.ip, alive, seen))
 
     shell.print_plain("")
     shell.print_plain('Use "zombies %s" for detailed information about a session.' % shell.colors.colorize("ID", [shell.colors.BOLD]))
+    shell.print_plain('Use "zombies %s" for sessions on a particular host.' % shell.colors.colorize("IP", [shell.colors.BOLD]))
     shell.print_plain("")
