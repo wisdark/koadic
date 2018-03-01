@@ -1,3 +1,6 @@
+import collections
+import tabulate
+
 class CredParse(object):
 
     def __init__(self, job):
