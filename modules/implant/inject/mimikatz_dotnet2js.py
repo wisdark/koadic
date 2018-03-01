@@ -1,5 +1,6 @@
 import core.implant
 import core.job
+import core.cred_parser
 import string
 
 class DotNet2JSJob(core.job.Job):
@@ -7,19 +8,8 @@ class DotNet2JSJob(core.job.Job):
         self.fork32Bit = True
 
     def parse_mimikatz(self, data):
-        full_data = data
-        data = data.split("mimikatz(powershell) # ")[1]
-        if "token::elevate" in data and "Impersonated !" in data:
-            self.print_good("token::elevate -> got SYSTEM!")
-            return
-
-        if "privilege::debug" in data and "OK" in data:
-            self.print_good("privilege::debug -> got SeDebugPrivilege!")
-            return
-
-        self.mimi_output = data
-        #self.display()
-        #self.print_good(full_data)
+        cp = core.cred_parser.CredParse(self)
+        self.mimi_output = cp.parse_mimikatz(data)
 
     def report(self, handler, data, sanitize = False):
         data = data.decode('latin-1')
@@ -43,7 +33,7 @@ class DotNet2JSJob(core.job.Job):
             handler.reply(200)
             return
 
-        if data == "Complete":
+        if data == "Complete" and self.errstat != 1:
             super(DotNet2JSJob, self).report(handler, data)
 
         #self.print_good(data)
