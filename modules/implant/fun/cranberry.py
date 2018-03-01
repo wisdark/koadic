@@ -3,15 +3,14 @@ import core.implant
 import uuid
 
 #   we like that it's wrong
-
-class ThunderstruckJob(core.job.Job):
+class CranberryJob(core.job.Job):
     def done(self):
         self.display()
 
     def display(self):
         self.shell.print_plain(self.data)
 
-class ThunderstruckImplant(core.implant.Implant):
+class CranberryImplant(core.implant.Implant):
 
     NAME = "Thunderstruck"
     DESCRIPTION = "Opens hidden IE to the Thunderstruck YouTube video"
