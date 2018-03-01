@@ -6,6 +6,7 @@ import string
 class DotNet2JSJob(core.job.Job):
     def create(self):
         self.fork32Bit = True
+        self.errstat = 0
 
     def parse_mimikatz(self, data):
         cp = core.cred_parser.CredParse(self)
