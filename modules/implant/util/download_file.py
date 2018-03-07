@@ -23,7 +23,7 @@ class DownloadFileImplant(core.implant.Implant):
 
 class DownloadFileJob(core.job.Job):
     def report(self, handler, data, sanitize = False):
-        self.save_fname = self.options.get("LPATH") + "/" + uuid.uuid4().hex
+        self.save_fname = self.options.get("LPATH") + "/" + self.options.get("RFILE").split("\\")[-1]
         self.save_fname = self.save_fname.replace("//", "/")
 
         with open(self.save_fname, "wb") as f:
