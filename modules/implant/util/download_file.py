@@ -2,6 +2,7 @@ import core.job
 import core.implant
 import uuid
 import time
+import os
 
 class DownloadFileImplant(core.implant.Implant):
 
@@ -25,6 +26,9 @@ class DownloadFileJob(core.job.Job):
     def report(self, handler, data, sanitize = False):
         self.save_fname = self.options.get("LPATH") + "/" + self.options.get("RFILE").split("\\")[-1]
         self.save_fname = self.save_fname.replace("//", "/")
+
+        while os.path.isfile(self.save_fname):
+            self.save_fname += "."+uuid.uuid4().hex
 
         with open(self.save_fname, "wb") as f:
             data = self.decode_downloaded_data(data)
