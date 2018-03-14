@@ -22,6 +22,7 @@ class Shell(object):
         self.extant = core.extant.Extant(self)
         self.verbose = False
         self.creds = []
+        self.domain_info = {}
 
     def run(self):
         self.main_thread_id = threading.current_thread().ident

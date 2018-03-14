@@ -45,22 +45,32 @@ class Session(object):
 
 
     def parse_user_info(self, data):
-        self.shell.print_verbose("session::parse_user_info() - %s" % data)
+        try:
+            self.shell.print_verbose("session::parse_user_info() - %s" % data)
 
-        if self.os != "" or self.user != "" or self.computer != "" or self.elevated != self.ELEVATED_UNKNOWN:
-            return False
+            if self.os != "" or self.user != "" or self.computer != "" or self.elevated != self.ELEVATED_UNKNOWN:
+                return False
 
-        data = data.decode().split("~~~")
-        if len(data) != 6:
-            return False
+            data = data.decode().split("~~~")
+            if len(data) != 6:
+                return False
 
-        self.user = data[0]
-        self.elevated = self.ELEVATED_TRUE if "*" in data[0] else self.ELEVATED_FALSE
-        self.computer = data[1]
-        self.os = data[2]
-        self.dc = data[3] if data[3] else "Unknown"
-        self.arch = data[4]
-        self.realcwd = data[5].rstrip()
+            self.user = data[0]
+            self.elevated = self.ELEVATED_TRUE if "*" in data[0] else self.ELEVATED_FALSE
+            self.computer = data[1]
+            self.os = data[2]
+            self.dc = data[3] if data[3] else "Unknown"
+            #self.dc = data[3].split("___")[0] if data[3] else "Unknown"
+            #self.fqdn = data[3].split("___")[1]
+            #self.netbios = data[0].split("\\")[0].lower()
+            #if not (self.fqdn, self.netbios) in self.shell.domain_info:
+            #    self.shell.domain_info[(self.fqdn, self.netbios)] = {}
+                #self.shell.domain_admins[(self.fqdn, self.netbios)] = data[3].split("___")[2:]
+            self.arch = data[4]
+            self.realcwd = data[5].rstrip()
+        except Exception as e:
+            self.shell.print_warning("parsing error")
+            self.shell.print_warning(repr(e))
 
         self.shell.print_good(
             "Zombie %d: %s @ %s -- %s" % (self.id, self.user, self.computer, self.os))

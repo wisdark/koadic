@@ -77,7 +77,11 @@ class CredParse(object):
                 for cred in cred_dict:
                     c = {}
                     c["IP"] = self.session.ip
+                    if "\\" in cred["Username"]:
+                        cred["Username"] = cred["Username"].split("\\")[1]
                     c["Username"] = cred["Username"]
+                    if "\\" in cred["Domain"]:
+                        cred["Domain"] = cred["Domain"].split("\\")[0]
                     c["Domain"] = cred["Domain"]
                     c["Password"] = ""
                     if "Password" in keys:
