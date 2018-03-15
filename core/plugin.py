@@ -35,13 +35,14 @@ class Plugin(object):
         for x in commas:
             s = x.split("-")
             if len(s) == 1:
-                splitted.append(int(x))
+                splitted.append(str(x))
             else:
-                splitted.extend(range(int(s[0]), int(s[1]) + 1))
+                for i in range(int(s[0]), int(s[1]) + 1):
+                    splitted.append(str(i))
 
         for server in self.shell.stagers:
             for session in server.sessions:
-                if target == "ALL" or int(session.id) in splitted:
+                if target == "ALL" or str(session.id) in splitted:
                     if server.stager.WORKLOAD in workloads.keys():
                         workload = workloads[server.stager.WORKLOAD]
                         options = copy.deepcopy(self.options)
