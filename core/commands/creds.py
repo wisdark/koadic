@@ -71,7 +71,7 @@ def condense_creds(shell):
     nodupes = [dict(tmp) for tmp in set(tuple(item.items()) for item in shell.creds)]
     tmp = list(nodupes)
     for c in tmp:
-        if c["Username"] == "(null)" or c["Password"] == "(null)":
+        if c["Username"] == "(null)" or c["Password"] == "(null)" or (not c["Password"] and not c["Hash"]):
             nodupes.remove(c)
 
     creds = list(nodupes)

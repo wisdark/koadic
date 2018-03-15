@@ -104,4 +104,9 @@ class CredParse(object):
                 parsed_data += "\n\n"
 
             return parsed_data
+
+        if "SAMKey :" in data and "lsadump::sam" in data.lower():
+            parsed_data = data.split("\n\n")
+            print(parsed_data)
+
         return data
