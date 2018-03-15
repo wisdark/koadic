@@ -103,7 +103,7 @@ class CredParse(object):
                 parsed_data += tabulate(cred_dict, headers="keys", tablefmt="plain")
                 parsed_data += "\n\n"
 
-            return parsed_data
+            data = parsed_data
 
         if "SAMKey :" in data and "lsadump::sam" in data.lower():
             domain = data.split("Domain : ")[1].split("\n")[0]
