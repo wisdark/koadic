@@ -101,7 +101,7 @@ def run_cmdshell(shell, session):
                 plugin.options.set("CMD", cmd)
                 plugin.run()
         except KeyboardInterrupt:
-            shell.print_plain(shell.prompt)
+            shell.print_plain(shell.clean_prompt)
             return
         finally:
             plugin.options.set("ZOMBIE", old_zombie)
