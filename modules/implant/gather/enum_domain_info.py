@@ -56,7 +56,6 @@ class EnumDomainInfoJob(core.job.Job):
 
         if task == "DomainControllers":
             dcs = data.split("___")[:-2]
-            print(dcs)
             dcs_expand = [dc.split("*") for dc in dcs]
             if not "Domain Controllers" in self.shell.domain_info[self.domain_key]:
                 self.shell.domain_info[self.domain_key]["Domain Controllers"] = dcs_expand
