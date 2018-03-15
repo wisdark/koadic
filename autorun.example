@@ -1,0 +1,6 @@
+# this is a comment
+
+set SRVPORT 9001
+set ENDPOINT test123  # this will be the URL: /test123
+
+run
