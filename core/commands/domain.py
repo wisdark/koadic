@@ -162,6 +162,8 @@ def execute(shell, cmd):
             print_domain_users(shell, splitted[2])
         elif splitted[1] == "-p":
             print_domain_password_policy(shell, splitted[2])
+        elif splitted[1] == "-c":
+            print_domain_controllers(shell, splitted[2])
         elif splitted[1] == "-x":
             export_domain_info(shell, splitted[2])
         elif splitted[1] == "-z":
