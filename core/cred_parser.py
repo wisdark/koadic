@@ -106,7 +106,21 @@ class CredParse(object):
             return parsed_data
 
         if "SAMKey :" in data and "lsadump::sam" in data.lower():
+            domain = data.split("Domain : ")[1].split("\n")[0]
             parsed_data = data.split("\n\n")
-            print(parsed_data)
+            for section in parsed_data:
+                if "RID  :" in section:
+                    c = {}
+                    c["IP"] = self.session.ip
+                    c["Username"] = section.split("User : ")[1].split("\n")[0]
+                    c["Domain"] = domain
+                    c["Password"] = ""
+                    lm = section.split("LM   : ")[1].split("\n")[0]
+                    ntlm = section.split("NTLM : ")[1].split("\n")[0]
+                    c["Hash"] = ntlm if ntlm else ""
+                    c["Hash"] = lm if lm else c["Hash"]
+                    c["HashType"] = "NTLM" if ntlm else ""
+                    c["HashType"] = "LM" if lm else c["HashType"]
+                    self.shell.creds.append(c)
 
         return data
