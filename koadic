@@ -28,8 +28,14 @@ __credits__ = ["zerosum0x0", "jmage", "TheNaterz", "aleph-naught-"]
 
 if __name__ == "__main__":
     import core.shell
+    import argparse
+
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--autorun", help="a file containing commands to autorun at startup")
+    args = parser.parse_args()
+    autorun = open(args.autorun).read().split("\n") if args.autorun else []
 
     banner = open("data/banner.txt", "rb").read().decode("unicode_escape")
 
     shell = core.shell.Shell(banner, __version__)
-    shell.run()
+    shell.run(autorun)

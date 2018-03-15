@@ -24,17 +24,27 @@ class Shell(object):
         self.creds = []
         self.domain_info = {}
 
-    def run(self):
+    def run(self, autorun = []):
         self.main_thread_id = threading.current_thread().ident
 
         self.print_banner()
-
 
         while True:
             try:
                 self.prompt = self.colors.get_prompt(self.state, True)
                 self.clean_prompt = self.colors.get_prompt(self.state, False)
-                cmd = self.get_command(self.prompt, self.autocomplete)
+
+                cmd = ""
+                while len(autorun) > 0:
+                    cmd = autorun.pop(0).split("#")[0].strip()
+                    if len(cmd) > 0:
+                        break
+
+                if len(cmd) == 0:
+                    cmd = self.get_command(self.prompt, self.autocomplete)
+                else:
+                    print(self.prompt + cmd)
+
                 self.run_command(cmd)
 
             except KeyboardInterrupt:
