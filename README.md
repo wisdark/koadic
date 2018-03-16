@@ -43,17 +43,21 @@ implant/elevate/bypassuac_sdclt | Uses enigma0x3's sdclt.exe exploit to bypass U
 implant/fun/zombie | Maxes volume and opens The Cranberries YouTube in a hidden window.
 implant/fun/voice | Plays a message over text-to-speech.
 implant/gather/clipboard | Retrieves the current content of the user clipboard.
+implant/gather/enum_domain_info | Retrieve information about the Windows domain.
 implant/gather/hashdump_sam | Retrieves hashed passwords from the SAM hive.
 implant/gather/hashdump_dc | Domain controller hashes from the NTDS.dit file.
+implant/gather/user_hunter | Locate users logged on to domain computers (using Dynamic Wrapper X).
 implant/inject/mimikatz_dynwrapx | Injects a reflective-loaded DLL to run powerkatz.dll (using Dynamic Wrapper X).
 implant/inject/mimikatz_dotnet2js | Injects a reflective-loaded DLL to run powerkatz.dll (@tirannido DotNetToJS).
 implant/inject/shellcode_excel | Runs arbitrary shellcode payload (if Excel is installed).
 implant/manage/enable_rdesktop | Enables remote desktop on the target.
 implant/manage/exec_cmd | Run an arbitrary command on the target, and optionally receive the output.
+implant/phishing/password_box | Prompt a user to enter their password.
 implant/pivot/stage_wmi | Hook a zombie on another machine using WMI.
 implant/pivot/exec_psexec | Run a command on another machine using psexec from sysinternals.
 implant/scan/tcp | Uses HTTP to scan open TCP ports on the target zombie LAN.
 implant/utils/download_file | Downloads a file from the target zombie.
+implant/utils/multi_module | Run a number of implants in succession.
 implant/utils/upload_file | Uploads a file from the listening server to the target zombies.
 
 ### Disclaimer
