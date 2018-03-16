@@ -116,6 +116,8 @@ class Shell(object):
         # if there is a space, delegate to the commands autocompleter
         if len(splitted) > 1:
             if splitted[0] in self.actions:
+                if splitted[0] == "set" and splitted[1] == "MODULE" and len(splitted) < 4:
+                    return self.actions["use"].autocomplete(self, line, text, state)
                 return self.actions[splitted[0]].autocomplete(self, line, text, state)
             else:
                 return None

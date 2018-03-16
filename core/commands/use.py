@@ -3,7 +3,7 @@ DESCRIPTION = "switch to a different module"
 def autocomplete(shell, line, text, state):
     # todo: make this show shorter paths at a time
     # should never go this big...
-    if len(line.split(" ")) >= 3:
+    if len(line.split(" ")) >= 3 and line.split(" ")[0] != "set":
         return None
 
     options = [x + " " for x in shell.plugins.keys() if x.startswith(text)]
