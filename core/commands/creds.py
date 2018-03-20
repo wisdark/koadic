@@ -12,32 +12,42 @@ def help(shell):
     shell.print_plain("")
 
 def print_creds(shell):
-    formats = "\t{0:17}{1:<20}{2:<20}{3:<25}{4:<42}{5:<6}"
+    formats = "\t{0:9}{1:17}{2:<20}{3:<20}{4:<25}{5:<42}"
     shell.print_plain("")
 
-    shell.print_plain(formats.format("IP", "USERNAME", "DOMAIN", "PASSWORD", "HASH", "HASH TYPE"))
-    shell.print_plain(formats.format("--", "-"*8,  "-"*6, "-"*8, "-"*4, "-"*9))
-    for cred in shell.creds:
-        tmppass = cred["Password"]
-        if len(cred["Password"]) > 23:
-            tmppass = cred["Password"][:20] + "..."
-        if cred["Username"][-1] == '$':
+    shell.print_plain(formats.format("Cred ID", "IP", "USERNAME", "DOMAIN", "PASSWORD", "NTLM"))
+    shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
+    for key in shell.creds_keys:
+        tmpuser = shell.creds[key]["Username"]
+        if len(tmpuser) > 18:
+            tmpuser = tmpuser[:15] + "..."
+        tmpdomain = shell.creds[key]["Domain"]
+        if len(tmpdomain) > 18:
+            tmpdomain = tmpdomain[:15] + "..."
+        tmppass = shell.creds[key]["Password"]
+        if len(tmppass) > 23:
+            tmppass = tmppass[:20] + "..."
+        if shell.creds[key]["Username"][-1] == '$' or (not shell.creds[key]["Password"] and not shell.creds[key]["NTLM"]):
             continue
-        shell.print_plain(formats.format(cred["IP"], cred["Username"], cred["Domain"], tmppass, cred["Hash"], cred["HashType"]))
+        shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], tmpuser, tmpdomain, tmppass, shell.creds[key]["NTLM"]))
 
     shell.print_plain("")
 
 def print_creds_detailed(shell, users="*"):
     shell.print_plain("")
 
-    for cred in shell.creds:
-        if users == "*" or cred["Username"].lower() in [u.lower() for u in users.split(",")]:
-            shell.print_plain("IP: "+cred["IP"])
-            shell.print_plain("USERNAME: "+cred["Username"])
-            shell.print_plain("DOMAIN: "+cred["Domain"])
-            shell.print_plain("PASSWORD: "+cred["Password"])
-            shell.print_plain("HASH: "+cred["Hash"])
-            shell.print_plain("HASH TYPE: "+cred["HashType"])
+    for key in shell.creds_keys:
+        if users == "*" or shell.creds[key]["Username"].lower() in [u.lower() for u in users.split(",")]:
+            shell.print_plain("Cred ID: "+str(shell.creds_keys.index(key)))
+            shell.print_plain("IP: "+shell.creds[key]["IP"])
+            shell.print_plain("USERNAME: "+shell.creds[key]["Username"])
+            shell.print_plain("DOMAIN: "+shell.creds[key]["Domain"])
+            shell.print_plain("PASSWORD: "+shell.creds[key]["Password"]+" "+" ".join(shell.creds[key]["Extra"]["Password"]))
+            shell.print_plain("NTLM: "+shell.creds[key]["NTLM"]+" "+" ".join(shell.creds[key]["Extra"]["NTLM"]))
+            shell.print_plain("LM: "+shell.creds[key]["LM"]+" "+" ".join(shell.creds[key]["Extra"]["LM"]))
+            shell.print_plain("SHA1: "+shell.creds[key]["SHA1"]+" "+" ".join(shell.creds[key]["Extra"]["SHA1"]))
+            shell.print_plain("DCC: "+shell.creds[key]["DCC"]+" "+" ".join(shell.creds[key]["Extra"]["DCC"]))
+            shell.print_plain("DPAPI: "+shell.creds[key]["DPAPI"]+" "+" ".join(shell.creds[key]["Extra"]["DPAPI"]))
             shell.print_plain("")
 
 def print_creds_das(shell, domain):
@@ -53,45 +63,56 @@ def print_creds_das(shell, domain):
         shell.print_error("Domain Admins not gathered for target domain. Please run implant/gather/enum_domain_info")
         return
 
-    formats = "\t{0:17}{1:<20}{2:<20}{3:<25}{4:<42}{5:<6}"
+    das = shell.domain_info[domain_key]["Domain Admins"]
+
+    formats = "\t{0:9}{1:17}{2:<20}{3:<20}{4:<25}{5:<42}"
     shell.print_plain("")
 
-    shell.print_plain(formats.format("IP", "USERNAME", "DOMAIN", "PASSWORD", "HASH", "HASH TYPE"))
-    shell.print_plain(formats.format("--", "-"*8,  "-"*6, "-"*8, "-"*4, "-"*9))
-    for cred in shell.creds:
-        tmppass = cred["Password"]
-        if len(cred["Password"]) > 23:
-            tmppass = cred["Password"][:20] + "..."
-        if cred["Username"].lower() in shell.domain_info[domain_key]["Domain Admins"] and (cred["Domain"].lower() == domain.lower() or cred["Domain"].lower() == alt_domain.lower()):
-            shell.print_plain(formats.format(cred["IP"], cred["Username"], cred["Domain"], tmppass, cred["Hash"], cred["HashType"]))
+    shell.print_plain(formats.format("Cred ID", "IP", "USERNAME", "DOMAIN", "PASSWORD", "HASH"))
+    shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
+    for key in shell.creds_keys:
+        tmppass = shell.creds[key]["Password"]
+        if len(tmppass) > 23:
+            tmppass = tmppass[:20] + "..."
+        creduser = shell.creds[key]["Username"]
+        creddomain = shell.creds[key]["Domain"]
+        credntlm = shell.creds[key]["NTLM"]
+        if creduser.lower() in das and (creddomain.lower() == domain.lower() or creddomain.lower() == alt_domain.lower()) and (tmppass or credntlm):
+            shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], creduser, creddomain, tmppass, shell.creds[key]["NTLM"]))
 
     shell.print_plain("")
 
 def condense_creds(shell):
-    nodupes = [dict(tmp) for tmp in set(tuple(item.items()) for item in shell.creds)]
-    tmp = list(nodupes)
-    for c in tmp:
-        if c["Username"] == "(null)" or c["Password"] == "(null)" or (not c["Password"] and not c["Hash"]):
-            nodupes.remove(c)
+    bad_keys = []
+    for key in shell.creds_keys:
+        if shell.creds[key]["Username"] == "(null)":
+            bad_keys.append(key)
 
-    creds = list(nodupes)
-    return creds
+    if bad_keys:
+        new_creds = dict(shell.creds)
+        for key in bad_keys:
+            del new_creds[key]
+            shell.creds_keys.remove(key)
+        shell.creds = new_creds
 
 def export_creds(shell):
     export = open('/tmp/creds.txt', 'w')
-    for cred in shell.creds:
-        export.write("IP: "+cred["IP"]+"\n")
-        export.write("USERNAME: "+cred["Username"]+"\n")
-        export.write("DOMAIN: "+cred["Domain"]+"\n")
-        export.write("PASSWORD: "+cred["Password"]+"\n")
-        export.write("HASH: "+cred["Hash"]+"\n")
-        export.write("HASH TYPE: "+cred["HashType"]+"\n")
+    for key in shell.creds_keys:
+        export.write("IP: "+shell.creds[key]["IP"]+"\n")
+        export.write("USERNAME: "+shell.creds[key]["Username"]+"\n")
+        export.write("DOMAIN: "+shell.creds[key]["Domain"]+"\n")
+        export.write("PASSWORD: "+shell.creds[key]["Password"]+" "+" ".join(shell.creds[key]["Extra"]["Password"])+"\n")
+        export.write("NTLM: "+shell.creds[key]["NTLM"]+" "+" ".join(shell.creds[key]["Extra"]["NTLM"])+"\n")
+        export.write("LM: "+shell.creds[key]["LM"]+" "+" ".join(shell.creds[key]["Extra"]["LM"])+"\n")
+        export.write("SHA1: "+shell.creds[key]["SHA1"]+" "+" ".join(shell.creds[key]["Extra"]["SHA1"])+"\n")
+        export.write("DCC: "+shell.creds[key]["DCC"]+" "+" ".join(shell.creds[key]["Extra"]["DCC"])+"\n")
+        export.write("DPAPI: "+shell.creds[key]["DPAPI"]+" "+" ".join(shell.creds[key]["Extra"]["DPAPI"])+"\n")
         export.write("\n")
     export.close()
     shell.print_good("Credential store written to /tmp/creds.txt")
 
 def execute(shell, cmd):
-    shell.creds = condense_creds(shell)
+    condense_creds(shell)
 
     splitted = cmd.strip().split(" ")
 
@@ -110,9 +131,6 @@ def execute(shell, cmd):
             else:
                 print_creds_das(shell, splitted[2])
 
-        # need to get rid of this
-        elif splitted[1] == "test":
-            print(shell.domain_info)
         else:
             shell.print_error("Unknown option '"+splitted[1]+"'")
     else:

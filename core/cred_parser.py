@@ -8,6 +8,26 @@ class CredParse(object):
         self.shell = job.shell
         self.session = job.session
 
+    def new_cred(self):
+        cred = {}
+        cred["IP"] = ""
+        cred["Domain"] = ""
+        cred["Username"] = ""
+        cred["Password"] = ""
+        cred["NTLM"] = ""
+        cred["SHA1"] = ""
+        cred["DCC"] = ""
+        cred["DPAPI"] = ""
+        cred["LM"] = ""
+        cred["Extra"] = {}
+        cred["Extra"]["Password"] = []
+        cred["Extra"]["NTLM"] = []
+        cred["Extra"]["SHA1"] = []
+        cred["Extra"]["DCC"] = []
+        cred["Extra"]["DPAPI"] = []
+        cred["Extra"]["LM"] = []
+        return cred
+
     def parse_mimikatz(self, data):
         full_data = data
         data = data.split("mimikatz(powershell) # ")[1]
@@ -72,32 +92,54 @@ class CredParse(object):
                 if not cred_dict:
                     continue
                 cred_dict = sorted(cred_dict, key=lambda k: k['Username'])
-                keys = []
-                [[keys.append(k) for k in row.keys() if k not in keys] for row in cred_dict]
+                ckeys = []
+                [[ckeys.append(k) for k in row.keys() if k not in ckeys] for row in cred_dict]
                 for cred in cred_dict:
-                    c = {}
-                    c["IP"] = self.session.ip
-                    if "\\" in cred["Username"]:
-                        cred["Username"] = cred["Username"].split("\\")[1]
-                    c["Username"] = cred["Username"]
-                    if "\\" in cred["Domain"]:
-                        cred["Domain"] = cred["Domain"].split("\\")[0]
-                    c["Domain"] = cred["Domain"]
-                    c["Password"] = ""
-                    if "Password" in keys:
-                        c["Password"] = cred["Password"]
+                    key = tuple([cred["Domain"].lower(), cred["Username"].lower()])
+                    if key not in self.shell.creds_keys:
+                        self.shell.creds_keys.append(key)
+                        c = self.new_cred()
+                        c["IP"] = self.session.ip
+                        for subkey in cred:
+                            c[subkey] = cred[subkey]
+                        if "\\" in c["Username"]:
+                            c["Username"] = c["Username"].split("\\")[1]
+                        if "\\" in c["Domain"]:
+                            c["Domain"] = c["Domain"].split("\\")[0]
+                        if c["Password"] == "(null)":
+                            c["Password"] = ""
+                        self.shell.creds[key] = c
 
-                    c["Hash"] = ""
-                    c["HashType"] = ""
-                    if "NTLM" in keys:
-                        c["Hash"] = cred["NTLM"]
-                        c["HashType"] = "NTLM"
-                    elif "SHA1" in keys:
-                        c["Hash"] = cred["SHA1"]
-                        c["HashType"] = "SHA1"
+                    else:
+                        if "Password" in cred:
+                            cpass = cred["Password"]
+                            if not self.shell.creds[key]["Password"] and cpass != "(null)" and cpass:
+                                self.shell.creds[key]["Password"] = cpass
+                            elif self.shell.creds[key]["Password"] != cpass and cpass != "(null)" and cpass:
+                                self.shell.creds[key]["Extra"]["Password"].append(cpass)
 
-                    self.shell.creds.append(c)
-                separators = collections.OrderedDict([(k, "-"*len(k)) for k in keys])
+                        if "NTLM" in cred:
+                            cntlm = cred["NTLM"]
+                            if not self.shell.creds[key]["NTLM"]:
+                                self.shell.creds[key]["NTLM"] = cntlm
+                            elif self.shell.creds[key]["NTLM"] != cntlm and cntlm:
+                                self.shell.creds[key]["Extra"]["NTLM"].append(cntlm)
+
+                        if "SHA1" in cred:
+                            csha1 = cred["SHA1"]
+                            if not self.shell.creds[key]["SHA1"]:
+                                self.shell.creds[key]["SHA1"] = csha1
+                            elif self.shell.creds[key]["SHA1"] != csha1 and csha1:
+                                self.shell.creds[key]["Extra"]["SHA1"].append(csha1)
+
+                        if "DPAPI" in cred:
+                            cdpapi = cred["DPAPI"]
+                            if not self.shell.creds[key]["DPAPI"]:
+                                self.shell.creds[key]["DPAPI"] = cdpapi
+                            elif self.shell.creds[key]["DPAPI"] != cdpapi and cdpapi:
+                                self.shell.creds[key]["Extra"]["DPAPI"].append(cdpapi)
+
+                separators = collections.OrderedDict([(k, "-"*len(k)) for k in ckeys])
                 cred_dict = [separators] + cred_dict
                 parsed_data += banner
                 parsed_data += tabulate(cred_dict, headers="keys", tablefmt="plain")
@@ -110,17 +152,27 @@ class CredParse(object):
             parsed_data = data.split("\n\n")
             for section in parsed_data:
                 if "RID  :" in section:
-                    c = {}
+                    c = self.new_cred()
                     c["IP"] = self.session.ip
                     c["Username"] = section.split("User : ")[1].split("\n")[0]
                     c["Domain"] = domain
-                    c["Password"] = ""
                     lm = section.split("LM   : ")[1].split("\n")[0]
                     ntlm = section.split("NTLM : ")[1].split("\n")[0]
-                    c["Hash"] = ntlm if ntlm else ""
-                    c["Hash"] = lm if lm else c["Hash"]
-                    c["HashType"] = "NTLM" if ntlm else ""
-                    c["HashType"] = "LM" if lm else c["HashType"]
-                    self.shell.creds.append(c)
+                    key = tuple([c["Domain"].lower(), c["Username"].lower()])
+                    if key not in self.shell.creds_keys:
+                        self.shell.creds_keys.append(key)
+                        c["NTLM"] = ntlm
+                        c["LM"] = lm
+                        self.shell.creds[key] = c
+                    else:
+                        if not self.shell.creds[key]["NTLM"] and ntlm:
+                            self.shell.creds[key]["NTLM"] = ntlm
+                        elif self.shell.creds[key]["NTLM"] != ntlm and ntlm:
+                            self.shell.creds[key]["Extra"]["NTLM"].append(ntlm)
+
+                        if not self.shell.creds[key]["LM"] and lm:
+                            self.shell.creds[key]["LM"] = lm
+                        elif self.shell.creds[key]["LM"] != lm and lm:
+                            self.shell.creds[key]["Extra"]["LM"].append(lm)
 
         return data

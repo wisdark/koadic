@@ -21,7 +21,8 @@ class Shell(object):
         self.colors = core.colors.Colors()
         self.extant = core.extant.Extant(self)
         self.verbose = False
-        self.creds = []
+        self.creds = {}
+        self.creds_keys = []
         self.domain_info = {}
 
     def run(self, autorun = []):
