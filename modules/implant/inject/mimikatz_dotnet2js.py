@@ -80,7 +80,8 @@ class DotNet2JSImplant(core.implant.Implant):
     def dllb64(self, path):
         import base64
         with open(path, 'rb') as fileobj:
-            text =  base64.b64encode(fileobj.read())
+            text =  base64.b64encode(fileobj.read()).decode()
+            print(text)
             index = 0
             ret = '"';
             for c in text:
@@ -90,7 +91,7 @@ class DotNet2JSImplant(core.implant.Implant):
                     ret += '"+\r\n"'
 
             ret += '";'
-            # print(ret)
+            #print(ret)
             return ret
 
     def run(self):
