@@ -44,7 +44,7 @@ class CredParse(object):
             self.job.errstat = 1
             return
 
-        if "Authentication Id :" in data and "sekurlsa::logonpasswords" in data.lower():
+        if "Authentication Id :" in data and "sekurlsa::logonpasswords" in data.lower() and False:
             from tabulate import tabulate
             nice_data = data.split('\n\n')
             cred_headers = ["msv","tspkg","wdigest","kerberos","ssp","credman"]
@@ -65,7 +65,10 @@ class CredParse(object):
 
                     for index, cred_header in enumerate(cred_headers):
                         cred_dict = locals().get(cred_header)
-                        cred_sec1 = section.split(cred_header+" :\t")[1]
+                        try:
+                            cred_sec1 = section.split(cred_header+" :\t")[1]
+                        except:
+                            continue
                         if index < len(cred_headers)-1:
                             cred_sec = cred_sec1.split("\t"+cred_headers[index+1]+" :")[0].splitlines()
                         else:
