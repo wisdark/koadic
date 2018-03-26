@@ -1,5 +1,6 @@
 import collections
 import tabulate
+import traceback
 
 class CredParse(object):
 
@@ -29,7 +30,6 @@ class CredParse(object):
         return cred
 
     def parse_mimikatz(self, data):
-        full_data = data
         data = data.split("mimikatz(powershell) # ")[1]
         if "token::elevate" in data and "Impersonated !" in data:
             self.job.print_good("token::elevate -> got SYSTEM!")
@@ -44,138 +44,143 @@ class CredParse(object):
             self.job.errstat = 1
             return
 
-        if "Authentication Id :" in data and "sekurlsa::logonpasswords" in data.lower() and False:
-            from tabulate import tabulate
-            nice_data = data.split('\n\n')
-            cred_headers = ["msv","tspkg","wdigest","kerberos","ssp","credman"]
-            msv_all = []
-            tspkg_all = []
-            wdigest_all = []
-            kerberos_all = []
-            ssp_all = []
-            credman_all = []
-            for section in nice_data:
-                if 'Authentication Id' in section:
-                    msv = collections.OrderedDict()
-                    tspkg = collections.OrderedDict()
-                    wdigest = collections.OrderedDict()
-                    kerberos = collections.OrderedDict()
-                    ssp = collections.OrderedDict()
-                    credman = collections.OrderedDict()
+        try:
+            if "Authentication Id :" in data and "sekurlsa::logonpasswords" in data.lower():
+                from tabulate import tabulate
+                nice_data = data.split('\n\n')
+                cred_headers = ["msv","tspkg","wdigest","kerberos","ssp","credman"]
+                msv_all = []
+                tspkg_all = []
+                wdigest_all = []
+                kerberos_all = []
+                ssp_all = []
+                credman_all = []
+                for section in nice_data:
+                    if 'Authentication Id' in section:
+                        msv = collections.OrderedDict()
+                        tspkg = collections.OrderedDict()
+                        wdigest = collections.OrderedDict()
+                        kerberos = collections.OrderedDict()
+                        ssp = collections.OrderedDict()
+                        credman = collections.OrderedDict()
 
-                    for index, cred_header in enumerate(cred_headers):
-                        cred_dict = locals().get(cred_header)
-                        try:
-                            cred_sec1 = section.split(cred_header+" :\t")[1]
-                        except:
-                            continue
-                        if index < len(cred_headers)-1:
-                            cred_sec = cred_sec1.split("\t"+cred_headers[index+1]+" :")[0].splitlines()
+                        for index, cred_header in enumerate(cred_headers):
+                            cred_dict = locals().get(cred_header)
+                            try:
+                                cred_sec1 = section.split(cred_header+" :\t")[1]
+                            except:
+                                continue
+                            if index < len(cred_headers)-1:
+                                cred_sec = cred_sec1.split("\t"+cred_headers[index+1]+" :")[0].splitlines()
+                            else:
+                                cred_sec = cred_sec1.splitlines()
+
+                            for line in cred_sec:
+                                if '\t *' in line:
+                                    cred_dict[line.split("* ")[1].split(":")[0].rstrip()] = line.split(": ")[1].split("\n")[0]
+                            if cred_dict:
+                                cred_list = locals().get(cred_header+"_all")
+                                cred_list.append(cred_dict)
+
+                for cred_header in cred_headers:
+                    cred_list = locals().get(cred_header+"_all")
+                    tmp = [collections.OrderedDict(t) for t in set([tuple(d.items()) for d in cred_list])]
+                    del cred_list[:]
+                    cred_list.extend(tmp)
+
+                parsed_data = "Results\n\n"
+
+                for cred_header in cred_headers:
+                    banner = cred_header+" credentials\n=================\n\n"
+                    cred_dict = locals().get(cred_header+"_all")
+                    if not cred_dict:
+                        continue
+                    cred_dict = sorted(cred_dict, key=lambda k: k['Username'])
+                    ckeys = []
+                    [[ckeys.append(k) for k in row.keys() if k not in ckeys] for row in cred_dict]
+                    for cred in cred_dict:
+                        key = tuple([cred["Domain"].lower(), cred["Username"].lower()])
+                        if key not in self.shell.creds_keys:
+                            self.shell.creds_keys.append(key)
+                            c = self.new_cred()
+                            c["IP"] = self.session.ip
+                            for subkey in cred:
+                                c[subkey] = cred[subkey]
+                            if "\\" in c["Username"]:
+                                c["Username"] = c["Username"].split("\\")[1]
+                            if "\\" in c["Domain"]:
+                                c["Domain"] = c["Domain"].split("\\")[0]
+                            if c["Password"] == "(null)":
+                                c["Password"] = ""
+                            self.shell.creds[key] = c
+
                         else:
-                            cred_sec = cred_sec1.splitlines()
+                            if "Password" in cred:
+                                cpass = cred["Password"]
+                                if not self.shell.creds[key]["Password"] and cpass != "(null)" and cpass:
+                                    self.shell.creds[key]["Password"] = cpass
+                                elif self.shell.creds[key]["Password"] != cpass and cpass != "(null)" and cpass:
+                                    self.shell.creds[key]["Extra"]["Password"].append(cpass)
 
-                        for line in cred_sec:
-                            if '\t *' in line:
-                                cred_dict[line.split("* ")[1].split(":")[0].rstrip()] = line.split(": ")[1].split("\n")[0]
-                        if cred_dict:
-                            cred_list = locals().get(cred_header+"_all")
-                            cred_list.append(cred_dict)
+                            if "NTLM" in cred:
+                                cntlm = cred["NTLM"]
+                                if not self.shell.creds[key]["NTLM"]:
+                                    self.shell.creds[key]["NTLM"] = cntlm
+                                elif self.shell.creds[key]["NTLM"] != cntlm and cntlm:
+                                    self.shell.creds[key]["Extra"]["NTLM"].append(cntlm)
 
-            for cred_header in cred_headers:
-                cred_list = locals().get(cred_header+"_all")
-                tmp = [collections.OrderedDict(t) for t in set([tuple(d.items()) for d in cred_list])]
-                del cred_list[:]
-                cred_list.extend(tmp)
+                            if "SHA1" in cred:
+                                csha1 = cred["SHA1"]
+                                if not self.shell.creds[key]["SHA1"]:
+                                    self.shell.creds[key]["SHA1"] = csha1
+                                elif self.shell.creds[key]["SHA1"] != csha1 and csha1:
+                                    self.shell.creds[key]["Extra"]["SHA1"].append(csha1)
 
-            parsed_data = "Results\n\n"
+                            if "DPAPI" in cred:
+                                cdpapi = cred["DPAPI"]
+                                if not self.shell.creds[key]["DPAPI"]:
+                                    self.shell.creds[key]["DPAPI"] = cdpapi
+                                elif self.shell.creds[key]["DPAPI"] != cdpapi and cdpapi:
+                                    self.shell.creds[key]["Extra"]["DPAPI"].append(cdpapi)
 
-            for cred_header in cred_headers:
-                banner = cred_header+" credentials\n=================\n\n"
-                cred_dict = locals().get(cred_header+"_all")
-                if not cred_dict:
-                    continue
-                cred_dict = sorted(cred_dict, key=lambda k: k['Username'])
-                ckeys = []
-                [[ckeys.append(k) for k in row.keys() if k not in ckeys] for row in cred_dict]
-                for cred in cred_dict:
-                    key = tuple([cred["Domain"].lower(), cred["Username"].lower()])
-                    if key not in self.shell.creds_keys:
-                        self.shell.creds_keys.append(key)
+                    separators = collections.OrderedDict([(k, "-"*len(k)) for k in ckeys])
+                    cred_dict = [separators] + cred_dict
+                    parsed_data += banner
+                    parsed_data += tabulate(cred_dict, headers="keys", tablefmt="plain")
+                    parsed_data += "\n\n"
+
+                data = parsed_data
+
+            if "SAMKey :" in data and "lsadump::sam" in data.lower():
+                domain = data.split("Domain : ")[1].split("\n")[0]
+                parsed_data = data.split("\n\n")
+                for section in parsed_data:
+                    if "RID  :" in section:
                         c = self.new_cred()
                         c["IP"] = self.session.ip
-                        for subkey in cred:
-                            c[subkey] = cred[subkey]
-                        if "\\" in c["Username"]:
-                            c["Username"] = c["Username"].split("\\")[1]
-                        if "\\" in c["Domain"]:
-                            c["Domain"] = c["Domain"].split("\\")[0]
-                        if c["Password"] == "(null)":
-                            c["Password"] = ""
-                        self.shell.creds[key] = c
+                        c["Username"] = section.split("User : ")[1].split("\n")[0]
+                        c["Domain"] = domain
+                        lm = section.split("LM   : ")[1].split("\n")[0]
+                        ntlm = section.split("NTLM : ")[1].split("\n")[0]
+                        key = tuple([c["Domain"].lower(), c["Username"].lower()])
+                        if key not in self.shell.creds_keys:
+                            self.shell.creds_keys.append(key)
+                            c["NTLM"] = ntlm
+                            c["LM"] = lm
+                            self.shell.creds[key] = c
+                        else:
+                            if not self.shell.creds[key]["NTLM"] and ntlm:
+                                self.shell.creds[key]["NTLM"] = ntlm
+                            elif self.shell.creds[key]["NTLM"] != ntlm and ntlm:
+                                self.shell.creds[key]["Extra"]["NTLM"].append(ntlm)
 
-                    else:
-                        if "Password" in cred:
-                            cpass = cred["Password"]
-                            if not self.shell.creds[key]["Password"] and cpass != "(null)" and cpass:
-                                self.shell.creds[key]["Password"] = cpass
-                            elif self.shell.creds[key]["Password"] != cpass and cpass != "(null)" and cpass:
-                                self.shell.creds[key]["Extra"]["Password"].append(cpass)
+                            if not self.shell.creds[key]["LM"] and lm:
+                                self.shell.creds[key]["LM"] = lm
+                            elif self.shell.creds[key]["LM"] != lm and lm:
+                                self.shell.creds[key]["Extra"]["LM"].append(lm)
 
-                        if "NTLM" in cred:
-                            cntlm = cred["NTLM"]
-                            if not self.shell.creds[key]["NTLM"]:
-                                self.shell.creds[key]["NTLM"] = cntlm
-                            elif self.shell.creds[key]["NTLM"] != cntlm and cntlm:
-                                self.shell.creds[key]["Extra"]["NTLM"].append(cntlm)
-
-                        if "SHA1" in cred:
-                            csha1 = cred["SHA1"]
-                            if not self.shell.creds[key]["SHA1"]:
-                                self.shell.creds[key]["SHA1"] = csha1
-                            elif self.shell.creds[key]["SHA1"] != csha1 and csha1:
-                                self.shell.creds[key]["Extra"]["SHA1"].append(csha1)
-
-                        if "DPAPI" in cred:
-                            cdpapi = cred["DPAPI"]
-                            if not self.shell.creds[key]["DPAPI"]:
-                                self.shell.creds[key]["DPAPI"] = cdpapi
-                            elif self.shell.creds[key]["DPAPI"] != cdpapi and cdpapi:
-                                self.shell.creds[key]["Extra"]["DPAPI"].append(cdpapi)
-
-                separators = collections.OrderedDict([(k, "-"*len(k)) for k in ckeys])
-                cred_dict = [separators] + cred_dict
-                parsed_data += banner
-                parsed_data += tabulate(cred_dict, headers="keys", tablefmt="plain")
-                parsed_data += "\n\n"
-
-            data = parsed_data
-
-        if "SAMKey :" in data and "lsadump::sam" in data.lower():
-            domain = data.split("Domain : ")[1].split("\n")[0]
-            parsed_data = data.split("\n\n")
-            for section in parsed_data:
-                if "RID  :" in section:
-                    c = self.new_cred()
-                    c["IP"] = self.session.ip
-                    c["Username"] = section.split("User : ")[1].split("\n")[0]
-                    c["Domain"] = domain
-                    lm = section.split("LM   : ")[1].split("\n")[0]
-                    ntlm = section.split("NTLM : ")[1].split("\n")[0]
-                    key = tuple([c["Domain"].lower(), c["Username"].lower()])
-                    if key not in self.shell.creds_keys:
-                        self.shell.creds_keys.append(key)
-                        c["NTLM"] = ntlm
-                        c["LM"] = lm
-                        self.shell.creds[key] = c
-                    else:
-                        if not self.shell.creds[key]["NTLM"] and ntlm:
-                            self.shell.creds[key]["NTLM"] = ntlm
-                        elif self.shell.creds[key]["NTLM"] != ntlm and ntlm:
-                            self.shell.creds[key]["Extra"]["NTLM"].append(ntlm)
-
-                        if not self.shell.creds[key]["LM"] and lm:
-                            self.shell.creds[key]["LM"] = lm
-                        elif self.shell.creds[key]["LM"] != lm and lm:
-                            self.shell.creds[key]["Extra"]["LM"].append(lm)
-
-        return data
+            return data
+        except Exception as e:
+            data += "\n\n\n"
+            data += traceback.format_exc()
+            return data
