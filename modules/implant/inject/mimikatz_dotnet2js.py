@@ -81,7 +81,6 @@ class DotNet2JSImplant(core.implant.Implant):
         import base64
         with open(path, 'rb') as fileobj:
             text =  base64.b64encode(fileobj.read()).decode()
-            print(text)
             index = 0
             ret = '"';
             for c in text:
