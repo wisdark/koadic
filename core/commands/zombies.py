@@ -63,12 +63,16 @@ def print_data(shell, title, data):
 
 def print_jobs(shell, session):
 
-    formats = "\t{0:<5}{1:<32}{2:<8}{3:<8}"
+    formats = "\t{0:<5}{1:<32}{2:<10}{3:<8}"
     shell.print_plain(formats.format("JOB", "NAME", "STATUS", "ERRNO"))
     shell.print_plain(formats.format("----", "---------", "-------", "-------"))
 
     for job in session.jobs:
-        shell.print_plain(formats.format(job.id, job.name, job.status_string(), job.errno))
+        last = job.name.split("/")[-1]
+        jobname = [n[0:3] for n in job.name.split("/")[:-1]]
+        jobname.append(last)
+        jobname = "/".join(jobname)
+        shell.print_plain(formats.format(job.id, jobname, job.status_string(), job.errno))
 
 
 def print_session(shell, session):
