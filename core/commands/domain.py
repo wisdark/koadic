@@ -153,32 +153,32 @@ def execute(shell, cmd):
 
     splitted = cmd.strip().split(" ")
 
-    if len(splitted) > 2:
-        if splitted[1] == "-a":
-            print_domain_detailed(shell, splitted[2])
-        elif splitted[1] == "-d":
-            print_domain_admins(shell, splitted[2])
-        elif splitted[1] == "-u":
-            print_domain_users(shell, splitted[2])
-        elif splitted[1] == "-p":
-            print_domain_password_policy(shell, splitted[2])
-        elif splitted[1] == "-c":
-            print_domain_controllers(shell, splitted[2])
-        elif splitted[1] == "-x":
-            export_domain_info(shell, splitted[2])
-        elif splitted[1] == "-z":
-            plugin = shell.plugins["implant/gather/enum_domain_info"]
-            old_zombie = plugin.options.get("ZOMBIE")
-            plugin.options.set("ZOMBIE", splitted[2])
-            plugin.run()
-            plugin.options.set("ZOMBIE", old_zombie)
+    if shell.domain_info:
+        if len(splitted) > 2:
+            if splitted[1] == "-a":
+                print_domain_detailed(shell, splitted[2])
+            elif splitted[1] == "-d":
+                print_domain_admins(shell, splitted[2])
+            elif splitted[1] == "-u":
+                print_domain_users(shell, splitted[2])
+            elif splitted[1] == "-p":
+                print_domain_password_policy(shell, splitted[2])
+            elif splitted[1] == "-c":
+                print_domain_controllers(shell, splitted[2])
+            elif splitted[1] == "-x":
+                export_domain_info(shell, splitted[2])
+            elif splitted[1] == "-z":
+                plugin = shell.plugins["implant/gather/enum_domain_info"]
+                old_zombie = plugin.options.get("ZOMBIE")
+                plugin.options.set("ZOMBIE", splitted[2])
+                plugin.run()
+                plugin.options.set("ZOMBIE", old_zombie)
+            else:
+                shell.print_error("Unknown option '"+splitted[1]+"'")
+        elif len(splitted) > 1 and splitted[1] == "-x":
+            export_domain_info(shell)
         else:
-            shell.print_error("Unknown option '"+splitted[1]+"'")
-    elif len(splitted) > 1 and splitted[1] == "-x":
-        export_domain_info(shell)
-    else:
-        if shell.domain_info:
             print_domains(shell)
-        else:
-            shell.print_error("No domain information gathered. Please run implant/gather/enum_domain_info.")
+    else:
+        shell.print_error("No domain information gathered. Please run implant/gather/enum_domain_info.")
 

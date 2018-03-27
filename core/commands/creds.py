@@ -124,12 +124,15 @@ def execute(shell, cmd):
         elif splitted[1] == "-x":
             export_creds(shell)
         elif splitted[1] == "-d":
-            if len(splitted) < 3:
-                shell.print_good("Gathered domains")
-                for d in shell.domain_info:
-                    shell.print_plain("\tLong: "+d[0]+", Short: "+d[1])
+            if shell.domain_info:
+                if len(splitted) < 3:
+                    shell.print_good("Gathered domains")
+                    for d in shell.domain_info:
+                        shell.print_plain("\tLong: "+d[0]+", Short: "+d[1])
+                else:
+                    print_creds_das(shell, splitted[2])
             else:
-                print_creds_das(shell, splitted[2])
+                shell.print_error("No domain information gathered. Please run implant/gather/enum_domain_info.")
 
         else:
             shell.print_error("Unknown option '"+splitted[1]+"'")
