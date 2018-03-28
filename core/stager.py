@@ -54,6 +54,9 @@ class Stager(core.plugin.Plugin):
         self.stage = self.loader.load_script("data/stager/js/stage.js")
 
     def run(self):
+        self.options.set('SRVHOST', self.options.get('SRVHOST').strip())
+        self.options.set('SRVPORT', self.options.get('SRVPORT').strip())
+        self.options.set('ENDPOINT', self.options.get('ENDPOINT').strip())
         self.options.set("_STDLIB_", self.stdlib)
         self.options.set("_TEMPLATE_", self.template)
         self.options.set("_STAGECMD_", self.stagecmd)
