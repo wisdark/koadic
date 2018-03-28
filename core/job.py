@@ -145,7 +145,7 @@ class Job(object):
             # don't ask for permission, ask for forgiveness
             try:
                 b_list.append(mapping[ord(i)])
-            except:
+            except KeyError:
                 escape_flag = True
                 # EAT the slash
                 continue
