@@ -142,11 +142,10 @@ class Job(object):
                 b_list.append(special_char[i])
                 continue
 
-            if ord(i) in mapping:
-                b_list.append(mapping[ord(i)])
-            else:
-                escape_flag = True
+            if i == '\\':
                 # EAT the slash
-                continue
+                escape_flag = True
+            else:
+                b_list.append(mapping[ord(i)])
 
         return b"".join(b_list)
