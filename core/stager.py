@@ -43,6 +43,7 @@ class Stager(core.plugin.Plugin):
         self.options.register("_STAGE_", "", "stage worker", hidden = True)
         self.options.register("_STAGECMD_", "", "path to stage file", hidden = True)
         self.options.register("_FORKCMD_", "", "path to fork file", hidden = True)
+        self.options.register("CLASSICMODE", "", ";)", hidden = True)
 
         # is this one needed, hmm, I dunno
         #fname = self.random_string(5)
@@ -58,6 +59,9 @@ class Stager(core.plugin.Plugin):
         self.options.set("_STAGECMD_", self.stagecmd)
         self.options.set("_FORKCMD_", self.forkcmd)
         self.options.set("_STAGE_", self.stage)
+
+        if self.options.get("CLASSICMODE"):
+            self.options.set("ENDPOINT", self.random_string(4000))
 
         self.start_server(core.handler.Handler)
 
