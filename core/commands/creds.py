@@ -27,7 +27,7 @@ def print_creds(shell):
         tmppass = shell.creds[key]["Password"]
         if len(tmppass) > 23:
             tmppass = tmppass[:20] + "..."
-        if shell.creds[key]["Username"][-1] == '$' or (not shell.creds[key]["Password"] and not shell.creds[key]["NTLM"]):
+        if shell.creds[key]["Username"][-1] == '$' or (not shell.creds[key]["Password"] and not shell.creds[key]["NTLM"]) or shell.creds[key]["NTLM"] == '31d6cfe0d16ae931b73c59d7e0c089c0':
             continue
         shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], tmpuser, tmpdomain, tmppass, shell.creds[key]["NTLM"]))
 
