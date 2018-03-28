@@ -29,6 +29,50 @@ class CredParse(object):
         cred["Extra"]["LM"] = []
         return cred
 
+    def parse_hashdump_sam(self, data):
+
+        output = data
+
+        sam_sec1 = output.split("[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)\n")[1]
+        sam_sec2 = sam_sec1.split("[*] Dumping cached domain logon information (uid:encryptedHash:longDomain:domain)")[0]
+        sam_sec = sam_sec2.splitlines()
+        cached_sec1 = output.split("[*] Dumping cached domain logon information (uid:encryptedHash:longDomain:domain)\n")[1]
+        cached_sec2 = cached_sec1.split("[*] Dumping LSA Secrets")[0]
+        cached_sec = cached_sec2.splitlines()
+
+        for htype in ["sam", "cached"]:
+            hsec = locals().get(htype+"_sec")
+            if hsec and hsec[0].split()[0] == "[-]":
+                continue
+            for h in hsec:
+                c = self.new_cred()
+                c["IP"] = self.session.ip
+                hparts = h.split(":")
+                c["Username"] = hparts[0]
+                if htype == "sam":
+                    c["NTLM"] = hparts[3]
+                    c["Domain"] = self.session.computer
+                else:
+                    c["DCC"] = hparts[1]
+                    c["Domain"] = hparts[3]
+
+                key = tuple([c["Domain"].lower(), c["Username"].lower()])
+                if key in self.shell.creds_keys:
+                    if not self.shell.creds[key]["NTLM"] and c["NTLM"]:
+                        self.shell.creds[key]["NTLM"] = c["NTLM"]
+                    elif self.shell.creds[key]["NTLM"] != c["NTLM"] and c["NTLM"]:
+                        self.shell.creds[key]["Extra"]["NTLM"].append(c["NTLM"])
+
+                    if not self.shell.creds[key]["DCC"] and c["DCC"]:
+                        self.shell.creds[key]["DCC"] = c["DCC"]
+                    elif self.shell.creds[key]["DCC"] != c["DCC"] and c["DCC"]:
+                        self.shell.creds[key]["Extra"]["DCC"].append(c["DCC"])
+                else:
+                    self.shell.creds_keys.append(key)
+                    self.shell.creds[key] = c
+
+        return
+
     def parse_mimikatz(self, data):
         data = data.split("mimikatz(powershell) # ")[1]
         if "token::elevate" in data and "Impersonated !" in data:
