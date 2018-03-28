@@ -142,9 +142,10 @@ class Job(object):
                 b_list.append(special_char[i])
                 continue
 
-            if ord(i) in mapping.keys():
+            # don't ask for permission, ask for forgiveness
+            try:
                 b_list.append(mapping[ord(i)])
-            else:
+            except:
                 escape_flag = True
                 # EAT the slash
                 continue
