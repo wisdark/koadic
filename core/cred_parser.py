@@ -89,12 +89,12 @@ class CredParse(object):
             return
 
         try:
-            if "Authentication Id :" in data and ("sekurlsa::logonpasswords"
-                    or "sekurlsa::msv"
-                    or "sekurlsa::tspkg"
-                    or "sekurlsa::wdigest"
-                    or "sekurlsa::kerberos"
-                    or "sekurlsa::ssp"
+            if "Authentication Id :" in data and ("sekurlsa::logonpasswords" in data.lower()
+                    or "sekurlsa::msv" in data.lower()
+                    or "sekurlsa::tspkg" in data.lower()
+                    or "sekurlsa::wdigest" in data.lower()
+                    or "sekurlsa::kerberos" in data.lower()
+                    or "sekurlsa::ssp" in data.lower()
                     or "sekurlsa::credman" in data.lower()):
                 from tabulate import tabulate
                 nice_data = data.split('\n\n')
