@@ -43,7 +43,7 @@ class Plugin(object):
         for server in self.shell.stagers:
             for session in server.sessions:
                 if target == "ALL" or str(session.id) in splitted:
-                    if server.stager.WORKLOAD in workloads.keys():
+                    if server.stager.WORKLOAD in workloads:
                         workload = workloads[server.stager.WORKLOAD]
                         options = copy.deepcopy(self.options)
                         j = job(self.shell, session, self.shell.state, workload, options)

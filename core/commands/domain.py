@@ -22,7 +22,7 @@ def print_domains(shell):
     shell.print_plain("")
 
 def print_domain_detailed(shell, domain):
-    domains = [j for i in shell.domain_info.keys() for j in i]
+    domains = [j for i in shell.domain_info for j in i]
     if not domain.lower() in domains:
         shell.print_error("Supplied domain not known")
         return
@@ -33,12 +33,12 @@ def print_domain_detailed(shell, domain):
     print_domain_controllers(shell, domain)
 
 def print_domain_admins(shell, domain):
-    domains = [j for i in shell.domain_info.keys() for j in i]
+    domains = [j for i in shell.domain_info for j in i]
     if not domain.lower() in domains:
         shell.print_error("Supplied domain not known")
         return
 
-    domain_key = [i for i in shell.domain_info.keys() if domain.lower() in i][0]
+    domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
 
     if not "Domain Admins" in shell.domain_info[domain_key]:
         shell.print_error("Domain Admins not gathered for target domain. Please run implant/gather/enum_domain_info")
@@ -54,12 +54,12 @@ def print_domain_admins(shell, domain):
     shell.print_plain("")
 
 def print_domain_users(shell, domain):
-    domains = [j for i in shell.domain_info.keys() for j in i]
+    domains = [j for i in shell.domain_info for j in i]
     if not domain.lower() in domains:
         shell.print_error("Supplied domain not known")
         return
 
-    domain_key = [i for i in shell.domain_info.keys() if domain.lower() in i][0]
+    domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
 
     if not "Domain Users" in shell.domain_info[domain_key]:
         shell.print_error("Domain Users not gathered for target domain. Please run implant/gather/enum_domain_info")
@@ -75,12 +75,12 @@ def print_domain_users(shell, domain):
     shell.print_plain("")
 
 def print_domain_password_policy(shell, domain):
-    domains = [j for i in shell.domain_info.keys() for j in i]
+    domains = [j for i in shell.domain_info for j in i]
     if not domain.lower() in domains:
         shell.print_error("Supplied domain not known")
         return
 
-    domain_key = [i for i in shell.domain_info.keys() if domain.lower() in i][0]
+    domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
 
     if not "Password Policy" in shell.domain_info[domain_key]:
         shell.print_error("Password Policy not gathered for target domain. Please run implant/gather/enum_domain_info")
@@ -103,12 +103,12 @@ def print_domain_password_policy(shell, domain):
     shell.print_plain("")
 
 def print_domain_controllers(shell, domain):
-    domains = [j for i in shell.domain_info.keys() for j in i]
+    domains = [j for i in shell.domain_info for j in i]
     if not domain.lower() in domains:
         shell.print_error("Supplied domain not known")
         return
 
-    domain_key = [i for i in shell.domain_info.keys() if domain.lower() in i][0]
+    domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
 
     if not "Domain Controllers" in shell.domain_info[domain_key]:
         shell.print_error("Domain Controllers not gathered for target domain. Please run implant/gather/enum_domain_info")
@@ -123,7 +123,7 @@ def print_domain_controllers(shell, domain):
 
 def export_domain_info(shell, domain="*"):
     if domain != "*":
-        domains = [j for i in shell.domain_info.keys() for j in i]
+        domains = [j for i in shell.domain_info for j in i]
         if not domain.lower() in domains:
             shell.print_error("Supplied domain not known")
             return
@@ -133,7 +133,7 @@ def export_domain_info(shell, domain="*"):
         domain_key = "*"
     else:
         export = open('/tmp/'+domain+'_domain_info.txt', 'w')
-        domain_key = [i for i in shell.domain_info.keys() if domain.lower() in i][0]
+        domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
 
     for key in shell.domain_info:
         if domain == "*" or domain_key == key:

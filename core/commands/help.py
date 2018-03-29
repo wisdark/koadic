@@ -7,7 +7,7 @@ def autocomplete(shell, line, text, state):
     if len(line.split(" ")) >= 3:
         return None
 
-    options = [x + " " for x in shell.actions.keys() if x.startswith(text)]
+    options = [x + " " for x in shell.actions if x.startswith(text)]
 
     try:
         return options[state]

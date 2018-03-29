@@ -13,7 +13,7 @@ def help(shell):
 
 def execute(shell, cmd):
     count = 0
-    for key in shell.plugins.keys():
+    for key in shell.plugins:
         _key = key
 
         try:

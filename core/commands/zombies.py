@@ -29,9 +29,9 @@ def execute(shell, cmd):
             print_all_sessions(shell, cur_sessions)
             return
 
-    domains = [j for i in shell.domain_info.keys() for j in i]
+    domains = [j for i in shell.domain_info for j in i]
     if splitted[1].lower() in domains:
-        domain_key = [i for i in shell.domain_info.keys() if splitted[1].lower() in i][0]
+        domain_key = [i for i in shell.domain_info if splitted[1].lower() in i][0]
         alt_domain = [i for i in domain_key if i != splitted[1].lower()][0]
         cur_sessions = []
         for stager in shell.stagers:

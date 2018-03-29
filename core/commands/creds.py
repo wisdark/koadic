@@ -51,12 +51,12 @@ def print_creds_detailed(shell, users="*"):
             shell.print_plain("")
 
 def print_creds_das(shell, domain):
-    domains = [j for i in shell.domain_info.keys() for j in i]
+    domains = [j for i in shell.domain_info for j in i]
     if not domain.lower() in domains:
         shell.print_error("Supplied domain not known")
         return
 
-    domain_key = [i for i in shell.domain_info.keys() if domain.lower() in i][0]
+    domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
     alt_domain = [i for i in domain_key if i != domain][0]
 
     if not "Domain Admins" in shell.domain_info[domain_key]:

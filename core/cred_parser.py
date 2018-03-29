@@ -89,7 +89,13 @@ class CredParse(object):
             return
 
         try:
-            if "Authentication Id :" in data and "sekurlsa::logonpasswords" in data.lower():
+            if "Authentication Id :" in data and ("sekurlsa::logonpasswords"
+                    or "sekurlsa::msv"
+                    or "sekurlsa::tspkg"
+                    or "sekurlsa::wdigest"
+                    or "sekurlsa::kerberos"
+                    or "sekurlsa::ssp"
+                    or "sekurlsa::credman" in data.lower()):
                 from tabulate import tabulate
                 nice_data = data.split('\n\n')
                 cred_headers = ["msv","tspkg","wdigest","kerberos","ssp","credman"]
@@ -135,13 +141,13 @@ class CredParse(object):
                 parsed_data = "Results\n\n"
 
                 for cred_header in cred_headers:
-                    banner = cred_header+" credentials\n=================\n\n"
+                    banner = cred_header+" credentials\n"+(len(cred_header)+12)*"="+"\n\n"
                     cred_dict = locals().get(cred_header+"_all")
                     if not cred_dict:
                         continue
                     cred_dict = sorted(cred_dict, key=lambda k: k['Username'])
                     ckeys = []
-                    [[ckeys.append(k) for k in row.keys() if k not in ckeys] for row in cred_dict]
+                    [[ckeys.append(k) for k in row if k not in ckeys] for row in cred_dict]
                     for cred in cred_dict:
                         key = tuple([cred["Domain"].lower(), cred["Username"].lower()])
                         if key not in self.shell.creds_keys:

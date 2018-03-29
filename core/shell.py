@@ -124,7 +124,7 @@ class Shell(object):
                 return None
 
         # no space, autocomplete will be the basic commands:
-        options = [x + " " for x in self.actions.keys() if x.startswith(text)]
+        options = [x + " " for x in self.actions if x.startswith(text)]
         try:
             return options[state]
         except:
@@ -133,9 +133,9 @@ class Shell(object):
     def print_banner(self):
         os.system("clear")
 
-        implant_len = len([a for a in self.plugins.keys()
+        implant_len = len([a for a in self.plugins
                            if a.startswith("implant")])
-        stager_len = len([a for a in self.plugins.keys()
+        stager_len = len([a for a in self.plugins
                           if a.startswith("stager")])
         print(self.banner % (self.version, stager_len, implant_len))
 
