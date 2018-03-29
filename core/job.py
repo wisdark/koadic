@@ -135,17 +135,19 @@ class Job(object):
             '\\': slash_char
         }
 
+        append = b_list.append
+
         for i in data.decode('utf-8'):
             # Decide on slash char
             if escape_flag:
                 escape_flag = False
-                b_list.append(special_char[i])
+                append(special_char[i])
                 continue
 
             if i == '\\':
                 # EAT the slash
                 escape_flag = True
             else:
-                b_list.append(mapping[ord(i)])
+                append(mapping[ord(i)])
 
         return b"".join(b_list)
