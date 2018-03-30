@@ -7,7 +7,7 @@ function DumpHive(name, uuid)
     var data = Koadic.file.readBinary(path);
 
     data = data.replace(/\\/g, "\\\\");
-    data = data.replace(/\0/g, "\\0")
+    data = data.replace(/\0/g, "\\0");
 
     var headers = {};
     headers["Task"] = name;
