@@ -90,12 +90,13 @@ class HashDumpSAMJob(core.job.Job):
     def finish_up(self):
 
         from subprocess import Popen, PIPE, STDOUT
-        p = Popen(["which", "secretsdump.py"], stdout=PIPE)
-        path = p.communicate()[0].strip()
-        path = path.decode() if type(path) is bytes else path
-        if not path:
-            print("Error decoding: secretsdump.py not in PATH!")
-            return
+        # p = Popen(["which", "secretsdump.py"], stdout=PIPE)
+        # path = p.communicate()[0].strip()
+        # path = path.decode() if type(path) is bytes else path
+        # if not path:
+        #     print("Error decoding: secretsdump.py not in PATH!")
+        #     return
+        path = "data/bin/secretsdump/secretsdump.py"
 
         self.sam_file = self.save_file(self.sam_data)
         self.print_status("decoded SAM hive (%s)" % self.sam_file)
