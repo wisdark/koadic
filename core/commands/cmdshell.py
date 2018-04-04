@@ -59,7 +59,7 @@ def run_cmdshell(shell, session):
             cmd = shell.get_command(shell.prompt)
 
             if len(cmd) > 0:
-                if cmd.lower() == 'exit':
+                if cmd.lower() in ['exit','quit']:
                     return
                 elif cmd.split(" ")[0].lower() == 'download' and len(cmd.split(" ")) > 1:
                     old_download_zombie = download_file_plugin.options.get("ZOMBIE")
