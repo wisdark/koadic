@@ -73,7 +73,10 @@ class Shell(object):
         remap = {
             "?": "help",
             "exploit": "run",
-            "execute": "run"
+            "execute": "run",
+            "options": "info",
+            "quit": "exit",
+            "sessions": "zombies",
         }
         if action in self.actions:
             self.actions[action].execute(self, cmd)
