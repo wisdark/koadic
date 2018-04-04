@@ -77,7 +77,7 @@ class Stager(core.plugin.Plugin):
             server.start()
 
             self.shell.print_good("Spawned a stager at %s" % (server.options.get("URL")))
-            self.shell.print_warning("Avoid manually editing this URL!!!")
+            self.shell.print_warning("Don't edit this URL! (See: 'help portfwd')")
             server.print_payload()
         except OSError as e:
             port = str(self.options.get("SRVPORT"))
