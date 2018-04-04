@@ -116,14 +116,11 @@ class HashDumpSAMJob(core.job.Job):
         for f in [self.system_jd_file, self.system_skew1_file, self.system_gbg_file, self.system_data_file]:
             with open(f, 'rb') as sysfile:
                 file_contents = sysfile.read()
-            tmp_syskey += file_contents[4220]
-            tmp_syskey += file_contents[4222]
-            tmp_syskey += file_contents[4224]
-            tmp_syskey += file_contents[4226]
-            tmp_syskey += file_contents[4228]
-            tmp_syskey += file_contents[4230]
-            tmp_syskey += file_contents[4232]
-            tmp_syskey += file_contents[4234]
+
+            i = 4220
+            while i < 4235:
+                tmp_syskey += file_contents[i:i+1].decode()
+                i += 2
 
         tmp_syskey = list(map(''.join, zip(*[iter(tmp_syskey)]*2)))
 
