@@ -167,6 +167,7 @@ class Handler(BaseHTTPRequestHandler):
 
                 data = self.rfile.read(content_len)
                 self.session.parse_user_info(data)
+                self.shell.play_sound('STAGED')
 
                 module = self.session.stager.options.get('MODULE')
                 if module:

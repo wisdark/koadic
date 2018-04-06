@@ -58,6 +58,7 @@ class Job(object):
         self.print_error()
 
     def print_error(self):
+        self.shell.play_sound('FAIL')
         self.shell.print_error("Zombie %d: Job %d (%s) failed!" % (
             self.session.id, self.id, self.name))
         self.shell.print_error("%s (%08x): %s " % (
@@ -90,6 +91,7 @@ class Job(object):
         if handler:
             handler.reply(202)
 
+        self.shell.play_sound('SUCCESS')
         self.shell.print_good("Zombie %d: Job %d (%s) completed." % (
             self.session.id, self.id, self.name))
 

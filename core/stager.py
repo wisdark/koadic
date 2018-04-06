@@ -76,6 +76,7 @@ class Stager(core.plugin.Plugin):
             self.shell.stagers.append(server)
             server.start()
 
+            self.shell.play_sound('STAGER')
             self.shell.print_good("Spawned a stager at %s" % (server.options.get("URL")))
             self.shell.print_warning("Don't edit this URL! (See: 'help portfwd')")
             server.print_payload()

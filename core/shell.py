@@ -24,6 +24,7 @@ class Shell(object):
         self.creds = {}
         self.creds_keys = []
         self.domain_info = {}
+        self.sounds = {}
 
     def run(self, autorun = []):
         self.main_thread_id = threading.current_thread().ident
@@ -180,3 +181,20 @@ class Shell(object):
 
     def print_hash(self, text, redraw = False):
         self.print_text(self.colors.colorize("[#]", [self.colors.BOLD]), text, redraw)
+
+    def play_sound(self, enum):
+        if enum in self.sounds:
+            sound = self.sounds[enum]
+            if type(sound) is list:
+                import random
+                sound = random.choice(sound)
+
+            threading.Thread(target=self.play_audio_file, args=[sound]).start()
+
+    def play_audio_file(self, audio_file):
+        from playsound import playsound
+        try:
+            playsound(audio_file)
+        except:
+            if not os.path.isfile(audio_file):
+                self.print_error('Could not play sound file %s. Check if path to file is correct.' % audio_file)
