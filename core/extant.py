@@ -29,7 +29,9 @@ class Extant(object):
 
                 if session.status == core.session.Session.ALIVE:
                     if delta > max_delta:
+                        self.shell.play_sound('TIMEOUT')
                         session.set_dead()
                 else:
                     if delta < max_delta:
+                        self.shell.play_sound('RECONNECT')
                         session.set_reconnect()
