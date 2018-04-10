@@ -37,4 +37,5 @@ def execute(shell, cmd):
             shell.print_error("Failed to load %s" % _key)
             pass
 
+    shell.play_sound('LOAD')
     shell.print_good("Successfully loaded %d modules." % count)
