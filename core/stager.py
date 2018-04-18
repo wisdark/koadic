@@ -60,7 +60,7 @@ class Stager(core.plugin.Plugin):
         self.options.set("_STDLIB_", self.stdlib)
         self.options.set("_TEMPLATE_", self.template)
         self.options.set("_STAGECMD_", self.stagecmd)
-        self.options.set("_FORKCMD_", self.forkcmd)
+        self.options.set("_FORKCMD_", self.forkcmd.decode().replace("\"", "\\\"").encode())
         self.options.set("_STAGE_", self.stage)
 
         if self.options.get("CLASSICMODE"):
