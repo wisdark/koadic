@@ -268,6 +268,7 @@ Koadic.work.applyDefaultHeaders = function(headers)
 Koadic.work.report = function(data, headers)
 {
     //var headers = Koadic.work.applyDefaultHeaders(headers);
+    //alert("In report\n" + data)
     return Koadic.http.post(Koadic.work.make_url(), data, headers);
 }
 
@@ -355,7 +356,8 @@ Koadic.http.create = function()
 
     try
     {
-        http = new ActiveXObject("Microsoft.XMLHTTP");
+        http = new ActiveXObject("Msxml2.ServerXMLHTTP.6.0");
+        //http = new ActiveXObject("Microsoft.XMLHTTP");
     }
     catch (e)
     {
@@ -387,13 +389,11 @@ Koadic.http.addHeaders = function(http, headers)
 Koadic.http.post = function(url, data, headers)
 {
     var data = (typeof(data) !== "undefined") ? data : "";
-
     var http = Koadic.http.create();
 
     http.open("POST", url, false);
     Koadic.http.addHeaders(http, headers);
     http.send(data);
-
     return http;
 }
 

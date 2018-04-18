@@ -15,6 +15,7 @@ try
         try {
           Koadic.work.fork("");
         } catch (e) {
+          alert("Fork Fail")
           Koadic.work.error(e)
         }
         Koadic.exit();
@@ -55,6 +56,7 @@ function DoWork()
     }
     catch (e)
     {
+        alert("Workloop Error")
         return false;
     }
 
