@@ -28,9 +28,10 @@ Stagers hook target zombies and allow you to use implants.
 
 Module | Description
 --------|------------
-stager/js/mshta | serves payloads in memory using MSHTA.exe HTML Applications
-stager/js/regsvr | serves payloads in memory using regsvr32.exe COM+ scriptlets
-stager/js/rundll32_js | serves payloads in memory using rundll32.exe
+stager/js/mshta | serves payloads using MSHTA.exe HTML Applications
+stager/js/regsvr | serves payloads using regsvr32.exe COM+ scriptlets
+stager/js/wmic | serves payloads using WMIC XSL
+stager/js/rundll32_js | serves payloads using rundll32.exe
 stager/js/disk | serves payloads using files on disk
 
 ### Implants
