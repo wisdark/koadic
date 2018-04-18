@@ -12,7 +12,11 @@ try
 
         Koadic.work.report(Koadic.user.info());
 
-        Koadic.work.fork("");
+        try {
+          Koadic.work.fork("");
+        } catch (e) {
+          Koadic.work.error(e)
+        }
         Koadic.exit();
     }
     else
@@ -26,6 +30,7 @@ try
 catch (e)
 {
     // todo: critical error reporting
+    Koadic.work.error(e);
 }
 
 function DoWork()
