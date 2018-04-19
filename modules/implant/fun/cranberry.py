@@ -2,8 +2,7 @@ import core.job
 import core.implant
 import uuid
 
-#   we like that it's wrong
-class CranberryJob(core.job.Job):
+class ThunderstruckJob(core.job.Job):
     def done(self):
         self.display()
 
@@ -22,7 +21,7 @@ class CranberryImplant(core.implant.Implant):
     def run(self):
 
         payloads = {}
-        payloads["vbs"] = self.load_script("data/implant/fun/thunderstruck.vbs", self.options)
+        payloads["vbs"] = self.loader.load_script("data/implant/fun/thunderstruck.vbs", self.options)
         #payloads["js"] = self.load_script("data/implant/manage/exec_cmd.js", self.options)
 
         self.dispatch(payloads, ThunderstruckJob)
