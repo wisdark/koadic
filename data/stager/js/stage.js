@@ -15,7 +15,6 @@ try
         try {
           Koadic.work.fork("");
         } catch (e) {
-          alert("Fork Fail")
           Koadic.work.error(e)
         }
         Koadic.exit();
@@ -39,7 +38,6 @@ function DoWork()
     try
     {
         var work = Koadic.work.get();
-
         // 201 = x64 or x86
         // 202 = force x86
         if (work.status == 201 || work.status == 202)
@@ -56,7 +54,7 @@ function DoWork()
     }
     catch (e)
     {
-        alert("Workloop Error")
+        alert("Workloop Error: " + e.message);
         return false;
     }
 

@@ -1,0 +1,5 @@
+verbose on
+use stager/js/rundll32_js
+run
+use stager/js/mshta
+run

@@ -131,6 +131,7 @@ class Handler(BaseHTTPRequestHandler):
             jobkey = self.options.get("JOBNAME")
             if jobkey in self.get_params:
                 if self.get_params[jobkey][0] != "stage":
+                    self.shell.print_verbose("Getting stage")
                     self.job = self.session.get_job(self.get_params[jobkey][0])
 
                 if self.job:
