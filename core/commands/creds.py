@@ -114,7 +114,7 @@ def export_creds(shell):
 def execute(shell, cmd):
     condense_creds(shell)
 
-    splitted = cmd.strip().split(" ")
+    splitted = cmd.split()
 
     if len(splitted) > 1:
         if splitted[1] == "-a":

@@ -33,7 +33,7 @@ def print_all_jobs(shell):
 
 def execute(shell, cmd):
 
-    splitted = cmd.strip().split(" ")
+    splitted = cmd.split()
 
     if len(splitted) > 1:
         id = splitted[1]

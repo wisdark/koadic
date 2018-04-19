@@ -1,7 +1,7 @@
 DESCRIPTION = "command shell to interact with a zombie"
 
 def autocomplete(shell, line, text, state):
-    if len(line.split(" ")) >= 2:
+    if len(line.split()) > 1:
         return None
 
     options = []
@@ -61,7 +61,7 @@ def run_cmdshell(shell, session):
             if len(cmd) > 0:
                 if cmd.lower() in ['exit','quit']:
                     return
-                elif cmd.split(" ")[0].lower() == 'download' and len(cmd.split(" ")) > 1:
+                elif cmd.split()[0].lower() == 'download' and len(cmd.split()) > 1:
                     old_download_zombie = download_file_plugin.options.get("ZOMBIE")
                     old_download_rfile = download_file_plugin.options.get("RFILE")
                     download_file_plugin.options.set("ZOMBIE", id)
@@ -74,7 +74,7 @@ def run_cmdshell(shell, session):
                     download_file_plugin.options.set("ZOMBIE", old_download_zombie)
                     download_file_plugin.options.set("RFILE", old_download_rfile)
                     continue
-                elif cmd.split(" ")[0].lower() == 'cd' and len(cmd.split(" ")) > 1:
+                elif cmd.split[0].lower() == 'cd' and len(cmd.split()) > 1:
                     dest = " ".join(cmd.split(" ")[1:])
                     if ":" not in dest and ".." not in dest:
                         if emucwd[-1] != "\\":
@@ -113,8 +113,8 @@ def run_cmdshell(shell, session):
 
 
 def execute(shell, cmd):
-    splitted = cmd.split(" ")
-    if len(splitted) >= 2:
+    splitted = cmd.split()
+    if len(splitted) > 1:
         target = splitted[1]
 
         for server in shell.stagers:

@@ -151,7 +151,7 @@ def export_domain_info(shell, domain="*"):
 
 def execute(shell, cmd):
 
-    splitted = cmd.strip().split(" ")
+    splitted = cmd.split()
 
     if shell.domain_info:
         if len(splitted) > 2:

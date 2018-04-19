@@ -68,9 +68,9 @@ class Shell(object):
             self.run_command("exit")
 
     def run_command(self, cmd):
-        action = cmd.split(" ")[0].lower()
-        if not action:
+        if not cmd:
             return
+        action = cmd.split()[0].lower()
         remap = {
             "?": "help",
             "exploit": "run",
@@ -116,7 +116,7 @@ class Shell(object):
     def autocomplete(self, text, state):
         import readline
         line = readline.get_line_buffer()
-        splitted = line.split(" ")
+        splitted = line.lstrip().split(" ")
 
         # if there is a space, delegate to the commands autocompleter
         if len(splitted) > 1:

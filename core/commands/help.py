@@ -4,7 +4,7 @@ DESCRIPTION = "displays help info for a command"
 def autocomplete(shell, line, text, state):
 
     # should never go this big...
-    if len(line.split(" ")) >= 3:
+    if len(line.split()) > 2:
         return None
 
     options = [x + " " for x in shell.actions if x.startswith(text)]
@@ -22,12 +22,12 @@ def help(shell):
 
 def execute(shell, cmd):
 
-    splitted = cmd.split(" ")
+    splitted = cmd.split()
 
     if len(splitted) == 1:
         return help_all(shell)
 
-    if len(splitted) >= 2:
+    if len(splitted) > 1:
         return help_command(shell, splitted[1])
 
 

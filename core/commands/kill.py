@@ -25,7 +25,7 @@ def kill_zombie(shell, id):
 
 def execute(shell, cmd):
 
-    splitted = cmd.strip().split(" ")
+    splitted = cmd.split()
 
     if len(splitted) > 1:
         id = splitted[1]

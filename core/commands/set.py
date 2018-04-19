@@ -3,7 +3,7 @@ DESCRIPTION = "sets a variable for the current module"
 def autocomplete(shell, line, text, state):
 
     # todo, here we can provide some defaults for bools/enums? i.e. True/False
-    if len(line.split(" ")) >= 3:
+    if len(line.split()) > 2:
         return None
 
     env = shell.plugins[shell.state]
@@ -21,16 +21,16 @@ def help(shell):
 def execute(shell, cmd):
     env = shell.plugins[shell.state]
 
-    splitted = cmd.split(" ")
-    if len(splitted) >= 2:
+    splitted = cmd.split()
+    if len(splitted) > 1:
         key = splitted[1].upper()
 
         value = env.options.get(key)
         if value != None:
 
-            # if it's >=3, we set the third argument
-            if len(splitted) >= 3:
-                value = " ".join(splitted[2:])
+            # if it's >2, we set the third argument
+            if len(splitted) > 2:
+                value = cmd.split(None, 2)[2]
                 if not env.options.set(key, value):
                     shell.print_error("That value is invalid")
                     return

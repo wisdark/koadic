@@ -7,10 +7,10 @@ def help(shell):
     pass
 
 def execute(shell, cmd):
-    splitted = cmd.strip().split(" ")
+    splitted = cmd.split()
 
     if len(splitted) > 1:
-        sw = splitted[1].strip().lower()
+        sw = splitted[1].lower()
         if sw == "1" or sw == "true" or sw == "on":
             shell.verbose = True
         else:

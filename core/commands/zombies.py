@@ -9,7 +9,7 @@ def help(shell):
     pass
 
 def execute(shell, cmd):
-    splitted = cmd.strip().split(" ")
+    splitted = cmd.split()
     all_sessions = []
     for stager in shell.stagers:
         all_sessions.extend(stager.sessions)
