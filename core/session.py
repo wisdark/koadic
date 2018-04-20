@@ -73,7 +73,10 @@ class Session(object):
             #if not (self.fqdn, self.netbios) in self.shell.domain_info:
             #    self.shell.domain_info[(self.fqdn, self.netbios)] = {}
                 #self.shell.domain_admins[(self.fqdn, self.netbios)] = data[3].split("___")[2:]
-            self.arch = data[4]
+            if data[4] != "Unknown":
+                self.arch = "64" if data[4] == "AMD64" else "32"
+            else:
+                self.arch = data[4]
             self.realcwd = data[5].rstrip()
         except Exception as e:
             self.shell.print_warning("parsing error")

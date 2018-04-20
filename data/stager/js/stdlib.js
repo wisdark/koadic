@@ -141,12 +141,12 @@ Koadic.user.OS = function()
 {
     try
     {
-        var wmi = GetObject("winmgmts:\\\\.\\root\\CIMV2");
-        var colItems = wmi.ExecQuery("SELECT * FROM Win32_OperatingSystem");
-
-        var enumItems = new Enumerator(colItems);
-        var objItem = enumItems.item();
-        return objItem.Caption;
+        // var wmi = GetObject("winmgmts:\\\\.\\root\\CIMV2");
+        // var colItems = wmi.ExecQuery("SELECT * FROM Win32_OperatingSystem");
+        // var enumItems = new Enumerator(colItems);
+        // var objItem = enumItems.item();
+        var osver = Koadic.WS.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProductName")
+        return osver;
     }
     catch(e){}
 
@@ -203,12 +203,13 @@ Koadic.user.Arch = function()
 {
     try
     {
-        var wmi = GetObject("winmgmts:\\\\.\\root\\CIMV2");
-        var colItems = wmi.ExecQuery("SELECT * FROM Win32_OperatingSystem");
+        // var wmi = GetObject("winmgmts:\\\\.\\root\\CIMV2");
+        // var colItems = wmi.ExecQuery("SELECT * FROM Win32_OperatingSystem");
 
-        var enumItems = new Enumerator(colItems);
-        var objItem = enumItems.item();
-        return objItem.OSArchitecture;
+        // var enumItems = new Enumerator(colItems);
+        // var objItem = enumItems.item();
+        var arch = Koadic.WS.RegRead("HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\\PROCESSOR_ARCHITECTURE");
+        return arch;
     }
     catch(e){}
 

