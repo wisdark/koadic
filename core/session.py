@@ -115,7 +115,7 @@ class Session(object):
         for job in self.jobs:
             #if job.completed != Job.COMPLETE:
             if job.completed == Job.CREATED:
-                self.shell.print_verbose("session::et_created_job - fetched job.key = %s" % (job.key))
+                self.shell.print_verbose("session::get_created_job - fetched job.key = %s" % (job.key))
                 return job
 
         return None

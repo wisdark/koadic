@@ -6,6 +6,8 @@ class RunDLL32JSStager(core.stager.Stager):
     DESCRIPTION = "Listens for new sessions, using JavaScript for payloads"
     AUTHORS = ['zerosum0x0']
 
+    WORKLOAD = "js"
+
     def load(self):
         #self.options.set("SRVPORT", 9997)
         self.port = 9997
