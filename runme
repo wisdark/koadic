@@ -1,7 +1,0 @@
-verbose on
-use stager/js/rundll32_js
-set ENDPOINT aaaa
-run
-use stager/js/mshta
-set ENDPOINT aaaa
-run

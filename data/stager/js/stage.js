@@ -54,7 +54,6 @@ function DoWork()
     }
     catch (e)
     {
-        alert("Workloop Error: " + e.message);
         return false;
     }
 
