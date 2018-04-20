@@ -74,7 +74,7 @@ def run_cmdshell(shell, session):
                     download_file_plugin.options.set("ZOMBIE", old_download_zombie)
                     download_file_plugin.options.set("RFILE", old_download_rfile)
                     continue
-                elif cmd.split[0].lower() == 'cd' and len(cmd.split()) > 1:
+                elif cmd.split()[0].lower() == 'cd' and len(cmd.split()) > 1:
                     dest = " ".join(cmd.split(" ")[1:])
                     if ":" not in dest and ".." not in dest:
                         if emucwd[-1] != "\\":
