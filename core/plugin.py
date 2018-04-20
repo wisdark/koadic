@@ -44,6 +44,7 @@ class Plugin(object):
             for session in server.sessions:
                 if (target == "ALL" or str(session.id) in splitted) and not session.killed:
                     if server.stager.WORKLOAD in workloads:
+                        self.shell.print_verbose("Server: %s Sesson %s" % (server,session))
                         workload = workloads[server.stager.WORKLOAD]
                         options = copy.deepcopy(self.options)
                         j = job(self.shell, session, self.shell.state, workload, options)
