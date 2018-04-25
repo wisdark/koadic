@@ -8,7 +8,7 @@ class LootFinderJob(core.job.Job):
 
     def display(self):
         self.shell.print_good("Loot findings:")
-        if self.data.splitlines() > 10:
+        if len(self.data.splitlines()) > 10:
             self.shell.print_warning("Lots of loot! Only printing first 10 lines...")
             self.shell.print_plain("\n".join(self.data.splitlines()[:10]))
         else:
@@ -18,7 +18,7 @@ class LootFinderJob(core.job.Job):
         with open(save_file, "w") as f:
             f.write(self.data)
 
-        self.shell.print_good("Saved full loot list to "+save_file)
+        self.shell.print_good("Saved loot list to "+save_file)
 
 class LootFinderImplant(core.implant.Implant):
 
