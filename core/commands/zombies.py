@@ -123,7 +123,7 @@ def print_all_sessions(shell, all_sessions):
     for session in all_sessions:
         alive = "Alive" if session.status == 1 else "Dead"
         seen = datetime.datetime.fromtimestamp(session.last_active).strftime('%Y-%m-%d %H:%M:%S')
-        elevated = '*' if session.elevated else ''
+        elevated = '*' if session.elevated == session.ELEVATED_TRUE else ''
         shell.print_plain(formats.format(str(session.id)+elevated, session.ip, alive, seen))
 
     shell.print_plain("")
