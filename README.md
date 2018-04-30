@@ -76,6 +76,7 @@ Code samples are provided for educational purposes. Adequate defenses can only b
 - cclaus
 - Arno0x
 - delirious-lettuce
+- 6IX7ine
 
 ### Acknowledgements
 Special thanks to research done by the following individuals:
