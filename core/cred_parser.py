@@ -31,23 +31,36 @@ class CredParse(object):
 
     def parse_hashdump_sam(self, data):
 
+        # these are the strings to match on for secretsdump output
+        s_sec_start = "[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)\n"
+        s_sec_end = "[*] Dumping cached domain logon information (uid:encryptedHash:longDomain:domain)"
+        c_sec_start = "[*] Dumping cached domain logon information (uid:encryptedHash:longDomain:domain)\n"
+        c_sec_end = "[*] Dumping LSA Secrets"
+
         output = data
 
-        sam_sec1 = output.split("[*] Dumping local SAM hashes (uid:rid:lmhash:nthash)\n")[1]
-        sam_sec2 = sam_sec1.split("[*] Dumping cached domain logon information (uid:encryptedHash:longDomain:domain)")[0]
-        sam_sec = sam_sec2.splitlines()
-        cached_sec1 = output.split("[*] Dumping cached domain logon information (uid:encryptedHash:longDomain:domain)\n")[1]
-        cached_sec2 = cached_sec1.split("[*] Dumping LSA Secrets")[0]
-        cached_sec = cached_sec2.splitlines()
+        sam_sec = ""
+        if s_sec_start in output:
+            sam_sec1 = output.split(s_sec_start)[1]
+            sam_sec2 = sam_sec1.split(s_sec_end)[0]
+            sam_sec = sam_sec2.splitlines()
+
+        cached_sec = ""
+        if c_sec_start in output:
+            cached_sec1 = output.split(c_sec_start)[1]
+            cached_sec2 = cached_sec1.split(c_sec_end)[0]
+            cached_sec = cached_sec2.splitlines()
 
         for htype in ["sam", "cached"]:
             hsec = locals().get(htype+"_sec")
-            if hsec and hsec[0].split()[0] == "[-]":
+            if not hsec or hsec[0].split()[0] == "[-]":
                 continue
             for h in hsec:
                 c = self.new_cred()
                 c["IP"] = self.session.ip
                 hparts = h.split(":")
+                if len(hparts) < 4 or hparts[0][0] == '[':
+                    continue
                 c["Username"] = hparts[0]
                 if htype == "sam":
                     c["NTLM"] = hparts[3]
