@@ -75,7 +75,7 @@ class HashDumpSAMJob(core.job.Job):
         # if not path:
         #     print("Error decoding: secretsdump.py not in PATH!")
         #     return
-        path = "data/bin/secretsdump/secretsdump.py"
+        path = "data/impacket/examples/secretsdump.py"
 
         self.sam_file = self.save_file(self.sam_data)
         self.print_status("decoded SAM hive (%s)" % self.sam_file)
