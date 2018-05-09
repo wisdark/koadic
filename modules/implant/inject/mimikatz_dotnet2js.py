@@ -103,12 +103,9 @@ class DotNet2JSImplant(core.implant.Implant):
                     ret += '"+\r\n"'
 
             ret += '";'
-            #print(ret)
             return ret
 
     def run(self):
-        # self.shell.print_error("Plugin is busted. See GitHub issue #1.")
-        # return
 
         import uuid
         self.options.set("DLLUUID", uuid.uuid4().hex)
