@@ -175,6 +175,10 @@ class CredParse(object):
                                 c["Domain"] = c["Domain"].split("\\")[0]
                             if c["Password"] == "(null)":
                                 c["Password"] = ""
+                            if c["NTLM"].lower() == "d5024392098eb98bcc70051c47c6fbb2":
+                                # https://twitter.com/TheColonial/status/993599227686088704
+                                # Did you think this was some kind of game, OJ?
+                                c["Password"] = "(null)"
                             self.shell.creds[key] = c
 
                         else:
@@ -189,6 +193,8 @@ class CredParse(object):
                                 cntlm = cred["NTLM"]
                                 if not self.shell.creds[key]["NTLM"]:
                                     self.shell.creds[key]["NTLM"] = cntlm
+                                    if cntlm.lower() == "d5024392098eb98bcc70051c47c6fbb2":
+                                        self.shell.creds[key]["Password"] = "(null)"
                                 elif self.shell.creds[key]["NTLM"] != cntlm and cntlm:
                                     self.shell.creds[key]["Extra"]["NTLM"].append(cntlm)
 
