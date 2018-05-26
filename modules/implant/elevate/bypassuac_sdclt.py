@@ -17,7 +17,7 @@ class SDCLTImplant(core.implant.Implant):
     AUTHORS = ["zerosum0x0", "@enigma0x3"]
 
     def load(self):
-        self.options.register("PAYLOAD", "", "run payloads for a list")
+        self.options.register("PAYLOAD", "", "run listeners for a list of IDs")
         self.options.register("PAYLOAD_DATA", "", "the actual data", hidden=True)
 
     def run(self):
