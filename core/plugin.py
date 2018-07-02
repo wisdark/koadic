@@ -42,7 +42,7 @@ class Plugin(object):
 
         for server in self.shell.stagers:
             for session in server.sessions:
-                if (target == "ALL" or str(session.id) in splitted) and not session.killed:
+                if (target.lower().strip() == "ALL" or str(session.id) in splitted) and not session.killed:
                     if server.stager.WORKLOAD in workloads:
                         self.shell.print_verbose("Server: %s Sesson %s" % (server,session))
                         workload = workloads[server.stager.WORKLOAD]
