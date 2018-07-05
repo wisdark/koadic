@@ -153,6 +153,17 @@ def execute(shell, cmd):
 
     splitted = cmd.split()
 
+    if len(splitted) > 1 and splitted[1] == "-z":
+        if len(splitted) < 3:
+            shell.print_error("Need to provide a zombie ID!")
+            return
+        plugin = shell.plugins["implant/gather/enum_domain_info"]
+        old_zombie = plugin.options.get("ZOMBIE")
+        plugin.options.set("ZOMBIE", splitted[2])
+        plugin.run()
+        plugin.options.set("ZOMBIE", old_zombie)
+        return
+
     if shell.domain_info:
         if len(splitted) > 2:
             if splitted[1] == "-a":
@@ -167,12 +178,6 @@ def execute(shell, cmd):
                 print_domain_controllers(shell, splitted[2])
             elif splitted[1] == "-x":
                 export_domain_info(shell, splitted[2])
-            elif splitted[1] == "-z":
-                plugin = shell.plugins["implant/gather/enum_domain_info"]
-                old_zombie = plugin.options.get("ZOMBIE")
-                plugin.options.set("ZOMBIE", splitted[2])
-                plugin.run()
-                plugin.options.set("ZOMBIE", old_zombie)
             else:
                 shell.print_error("Unknown option '"+splitted[1]+"'")
         elif len(splitted) > 1 and splitted[1] == "-x":
