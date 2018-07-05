@@ -8,11 +8,11 @@ class DotNet2JSJob(core.job.Job):
         # cant change this earlier, has to be job specific
         # i dont like it, but this is how we do this to make payload smaller
         if self.session.arch == "64":
-            self.script = self.script.replace("~SHIMB64~", self.options.get("SHIMX64B64"))
-            self.script = self.script.replace("~SHIMOFFSET~", self.options.get("SHIMX64OFFSET"))
+            self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX64B64").encode())
+            self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX64OFFSET").encode())
         else:
-            self.script = self.script.replace("~SHIMB64~", self.options.get("SHIMX86B64"))
-            self.script = self.script.replace("~SHIMOFFSET~", self.options.get("SHIMX86OFFSET"))
+            self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
+            self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
         self.errstat = 0
 
     def parse_mimikatz(self, data):
