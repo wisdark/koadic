@@ -70,16 +70,35 @@ class CredParse(object):
                     c["Domain"] = hparts[3]
 
                 key = tuple([c["Domain"].lower(), c["Username"].lower()])
-                if key in self.shell.creds_keys:
-                    if not self.shell.creds[key]["NTLM"] and c["NTLM"]:
-                        self.shell.creds[key]["NTLM"] = c["NTLM"]
-                    elif self.shell.creds[key]["NTLM"] != c["NTLM"] and c["NTLM"]:
-                        self.shell.creds[key]["Extra"]["NTLM"].append(c["NTLM"])
 
-                    if not self.shell.creds[key]["DCC"] and c["DCC"]:
-                        self.shell.creds[key]["DCC"] = c["DCC"]
-                    elif self.shell.creds[key]["DCC"] != c["DCC"] and c["DCC"]:
-                        self.shell.creds[key]["Extra"]["DCC"].append(c["DCC"])
+                domains = [j for i in self.shell.domain_info for j in i]
+                if c["Domain"].lower() in domains:
+                    domain_key = list([i for i in self.shell.domain_info if domain.lower() in i][0])
+                    domain_key.remove(c["Domain"].lower())
+                    other_domain = domain_key[0]
+                else:
+                    other_domain = ""
+
+                other_key = tuple([other_domain, c["Username"].lower()])
+
+                my_key = ""
+                for creds_key in self.shell.creds_keys:
+                    if creds_key == key or creds_key == other_key:
+                        my_key = creds_key
+                        break
+
+                if my_key:
+                    if not self.shell.creds[my_key]["NTLM"] and c["NTLM"]:
+                        self.shell.creds[my_key]["NTLM"] = c["NTLM"]
+                    elif self.shell.creds[my_key]["NTLM"] != c["NTLM"] and c["NTLM"]:
+                        if c["NTLM"] not in self.shell.creds[my_key]["Extra"]["NTLM"]:
+                            self.shell.creds[my_key]["Extra"]["NTLM"].append(c["NTLM"])
+
+                    if not self.shell.creds[my_key]["DCC"] and c["DCC"]:
+                        self.shell.creds[my_key]["DCC"] = c["DCC"]
+                    elif self.shell.creds[my_key]["DCC"] != c["DCC"] and c["DCC"]:
+                        if c["DCC"] not in self.shell.creds[my_key]["Extra"]["DCC"]:
+                            self.shell.creds[my_key]["Extra"]["DCC"].append(c["DCC"])
                 else:
                     self.shell.creds_keys.append(key)
                     self.shell.creds[key] = c
@@ -163,7 +182,23 @@ class CredParse(object):
                     [[ckeys.append(k) for k in row if k not in ckeys] for row in cred_dict]
                     for cred in cred_dict:
                         key = tuple([cred["Domain"].lower(), cred["Username"].lower()])
-                        if key not in self.shell.creds_keys:
+
+                        domains = [j for i in self.shell.domain_info for j in i]
+                        if cred["Domain"].lower() in domains:
+                            domain_key = list([i for i in self.shell.domain_info if domain.lower() in i][0])
+                            domain_key.remove(cred["Domain"].lower())
+                            other_domain = domain_key[0]
+                        else:
+                            other_domain = ""
+
+                        other_key = tuple([other_domain, cred["Username"].lower()])
+
+                        my_key = ""
+                        for creds_key in self.shell.creds_keys:
+                            if creds_key == key or creds_key == other_key:
+                                my_key = creds_key
+
+                        if not my_key:
                             self.shell.creds_keys.append(key)
                             c = self.new_cred()
                             c["IP"] = self.session.ip
@@ -182,12 +217,14 @@ class CredParse(object):
                             self.shell.creds[key] = c
 
                         else:
+                            key = my_key
                             if "Password" in cred:
                                 cpass = cred["Password"]
                                 if not self.shell.creds[key]["Password"] and cpass != "(null)" and cpass:
                                     self.shell.creds[key]["Password"] = cpass
                                 elif self.shell.creds[key]["Password"] != cpass and cpass != "(null)" and cpass:
-                                    self.shell.creds[key]["Extra"]["Password"].append(cpass)
+                                    if cpass not in self.shell.creds[key]["Extra"]["Password"]:
+                                        self.shell.creds[key]["Extra"]["Password"].append(cpass)
 
                             if "NTLM" in cred:
                                 cntlm = cred["NTLM"]
@@ -196,21 +233,24 @@ class CredParse(object):
                                     if cntlm.lower() == "d5024392098eb98bcc70051c47c6fbb2":
                                         self.shell.creds[key]["Password"] = "(null)"
                                 elif self.shell.creds[key]["NTLM"] != cntlm and cntlm:
-                                    self.shell.creds[key]["Extra"]["NTLM"].append(cntlm)
+                                    if cntlm not in self.shell.creds[key]["Extra"]["NTLM"]:
+                                        self.shell.creds[key]["Extra"]["NTLM"].append(cntlm)
 
                             if "SHA1" in cred:
                                 csha1 = cred["SHA1"]
                                 if not self.shell.creds[key]["SHA1"]:
                                     self.shell.creds[key]["SHA1"] = csha1
                                 elif self.shell.creds[key]["SHA1"] != csha1 and csha1:
-                                    self.shell.creds[key]["Extra"]["SHA1"].append(csha1)
+                                    if csha1 not in self.shell.creds[key]["Extra"]["SHA1"]:
+                                        self.shell.creds[key]["Extra"]["SHA1"].append(csha1)
 
                             if "DPAPI" in cred:
                                 cdpapi = cred["DPAPI"]
                                 if not self.shell.creds[key]["DPAPI"]:
                                     self.shell.creds[key]["DPAPI"] = cdpapi
                                 elif self.shell.creds[key]["DPAPI"] != cdpapi and cdpapi:
-                                    self.shell.creds[key]["Extra"]["DPAPI"].append(cdpapi)
+                                    if cdpapi not in self.shell.creds[key]["Extra"]["DPAPI"]:
+                                        self.shell.creds[key]["Extra"]["DPAPI"].append(cdpapi)
 
                     separators = collections.OrderedDict([(k, "-"*len(k)) for k in ckeys])
                     cred_dict = [separators] + cred_dict
@@ -232,21 +272,40 @@ class CredParse(object):
                         lm = section.split("LM   : ")[1].split("\n")[0]
                         ntlm = section.split("NTLM : ")[1].split("\n")[0]
                         key = tuple([c["Domain"].lower(), c["Username"].lower()])
-                        if key not in self.shell.creds_keys:
+
+                        domains = [j for i in self.shell.domain_info for j in i]
+                        if c["Domain"].lower() in domains:
+                            domain_key = list([i for i in self.shell.domain_info if domain.lower() in i][0])
+                            domain_key.remove(c["Domain"].lower())
+                            other_domain = domain_key[0]
+                        else:
+                            other_domain = ""
+
+                        other_key = tuple([other_domain, c["Username"].lower()])
+
+                        my_key = ""
+                        for creds_key in self.shell.creds_keys:
+                            if creds_key == key or creds_key == other_key:
+                                my_key = creds_key
+
+                        if not my_key:
                             self.shell.creds_keys.append(key)
                             c["NTLM"] = ntlm
                             c["LM"] = lm
                             self.shell.creds[key] = c
                         else:
+                            key = my_key
                             if not self.shell.creds[key]["NTLM"] and ntlm:
                                 self.shell.creds[key]["NTLM"] = ntlm
                             elif self.shell.creds[key]["NTLM"] != ntlm and ntlm:
-                                self.shell.creds[key]["Extra"]["NTLM"].append(ntlm)
+                                if ntlm not in self.shell.creds[key]["Extra"]["NTLM"]:
+                                    self.shell.creds[key]["Extra"]["NTLM"].append(ntlm)
 
                             if not self.shell.creds[key]["LM"] and lm:
                                 self.shell.creds[key]["LM"] = lm
                             elif self.shell.creds[key]["LM"] != lm and lm:
-                                self.shell.creds[key]["Extra"]["LM"].append(lm)
+                                if lm not in self.shell.creds[key]["Extra"]["LM"]:
+                                    self.shell.creds[key]["Extra"]["LM"].append(lm)
 
             return data
         except Exception as e:
