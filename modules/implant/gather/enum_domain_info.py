@@ -70,6 +70,7 @@ class EnumDomainInfoJob(core.job.Job):
             return
 
         if data == "Complete":
+            self.consolidate_creds(self.domain_key)
             super(EnumDomainInfoJob, self).report(handler, data)
 
         handler.reply(200)
@@ -79,6 +80,30 @@ class EnumDomainInfoJob(core.job.Job):
 
     def display(self):
         pass
+
+    def consolidate_creds(self, domain_key):
+        domain_key = list(domain_key)
+        domain1 = domain_key[0]
+        domain2 = domain_key[1]
+
+        tmp_creds_keys = list(self.shell.creds_keys)
+        tmp_creds_keys2 = list(tmp_creds_keys)
+        tmp_creds = dict(self.shell.creds)
+        for creds_key in tmp_creds_keys:
+            if domain1 in creds_key:
+                user = list(creds_key)[1]
+                if tuple([domain2, user]) in tmp_creds_keys2:
+                    tmp_creds_keys2.remove(tuple([domain2, user]))
+                    del tmp_creds[tuple([domain2, user])]
+            elif domain2 in creds_key:
+                user = list(creds_key)[1]
+                if tuple([domain1, user]) in tmp_creds_keys2:
+                    tmp_creds_keys2.remove(tuple([domain1, user]))
+                    del tmp_creds[tuple([domain1, user])]
+
+        self.shell.creds_keys = tmp_creds_keys2
+        self.shell.creds = tmp_creds
+
 
 class EnumDomainInfoImplant(core.implant.Implant):
 
