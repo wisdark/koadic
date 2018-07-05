@@ -37,7 +37,10 @@ def print_creds_detailed(shell, users="*"):
     shell.print_plain("")
 
     for key in shell.creds_keys:
-        if users == "*" or shell.creds[key]["Username"].lower() in [u.lower() for u in users.split(",")]:
+        if (users == "*" or
+            shell.creds[key]["Username"].lower() in [u.lower() for u in users.split(",")] or
+            str(shell.creds_keys.index(key)) in [u.lower() for u in users.split(",")]):
+
             shell.print_plain("Cred ID: "+str(shell.creds_keys.index(key)))
             shell.print_plain("IP: "+shell.creds[key]["IP"])
             shell.print_plain("USERNAME: "+shell.creds[key]["Username"])
