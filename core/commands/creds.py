@@ -33,13 +33,16 @@ def print_creds(shell):
 
     shell.print_plain("")
 
-def print_creds_detailed(shell, users="*"):
+def print_creds_detailed(shell, users="*", like_flag=False):
     shell.print_plain("")
 
     for key in shell.creds_keys:
         if (users == "*" or
             shell.creds[key]["Username"].lower() in [u.lower() for u in users.split(",")] or
-            str(shell.creds_keys.index(key)) in [u.lower() for u in users.split(",")]):
+            (str(shell.creds_keys.index(key)) in [u.lower() for u in users.split(",")] and
+            not like_flag) or
+            (len([u for u in users.split(",") if u.lower() in shell.creds[key]["Username"].lower()]) > 0 and
+            like_flag)):
 
             shell.print_plain("Cred ID: "+str(shell.creds_keys.index(key)))
             shell.print_plain("IP: "+shell.creds[key]["IP"])
@@ -123,7 +126,12 @@ def execute(shell, cmd):
         if splitted[1] == "-a":
             print_creds_detailed(shell)
         elif splitted[1] == "-u":
-            print_creds_detailed(shell, splitted[2])
+            if len(splitted) < 3:
+                shell.print_error("Need to provide a username or a Cred ID!")
+            elif len(splitted) == 4 and "--like" == splitted[-1]:
+                print_creds_detailed(shell, splitted[2], True)
+            else:
+                print_creds_detailed(shell, splitted[2])
         elif splitted[1] == "-x":
             export_creds(shell)
         elif splitted[1] == "-d":
