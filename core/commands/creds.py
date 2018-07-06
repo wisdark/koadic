@@ -11,30 +11,46 @@ def help(shell):
     shell.print_plain("Use %s to write credentials to a file" % (shell.colors.colorize("creds -x", shell.colors.BOLD)))
     shell.print_plain("")
 
-def print_creds(shell):
+def print_creds(shell, sortcol="Normal"):
     formats = "\t{0:9}{1:17}{2:<20}{3:<20}{4:<25}{5:<42}"
     shell.print_plain("")
 
     shell.print_plain(formats.format("Cred ID", "IP", "USERNAME", "DOMAIN", "PASSWORD", "NTLM"))
     shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
 
+    results = []
+
     for key in shell.creds_keys:
-        tmpuser = shell.creds[key]["Username"]
-        if len(tmpuser) > 18:
-            tmpuser = tmpuser[:15] + "..."
-        tmpdomain = shell.creds[key]["Domain"]
-        if len(tmpdomain) > 18:
-            tmpdomain = tmpdomain[:15] + "..."
-        tmppass = shell.creds[key]["Password"]
-        if len(tmppass) > 23:
-            tmppass = tmppass[:20] + "..."
-        if shell.creds[key]["Username"][-1] == '$' or
+        if (shell.creds[key]["Username"][-1] == '$' or
             (not shell.creds[key]["Password"] and
                 not shell.creds[key]["NTLM"]) or
-            shell.creds[key]["NTLM"] == '31d6cfe0d16ae931b73c59d7e0c089c0':
+            shell.creds[key]["NTLM"] == '31d6cfe0d16ae931b73c59d7e0c089c0'):
 
             continue
-        shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], tmpuser, tmpdomain, tmppass, shell.creds[key]["NTLM"]))
+        else:
+            result_cred = shell.creds[key]
+            result_cred["Cred ID"] = str(shell.creds_keys.index(key))
+            results.append(result_cred)
+
+    if sortcol != "Normal":
+        colname = [c for c in list(results[0].keys()) if c.lower() == sortcol.lower()]
+        if not colname:
+            shell.print_error("Column '"+sortcol+"' does not exist!")
+            return
+        results = sorted(results, key=lambda k: k[colname[0]])
+
+    for r in results:
+        tmpuser = r["Username"]
+        if len(tmpuser) > 18:
+            tmpuser = tmpuser[:15] + "..."
+        tmpdomain = r["Domain"]
+        if len(tmpdomain) > 18:
+            tmpdomain = tmpdomain[:15] + "..."
+        tmppass = r["Password"]
+        if len(tmppass) > 23:
+            tmppass = tmppass[:20] + "..."
+
+        shell.print_plain(formats.format(r["Cred ID"], r["IP"], tmpuser, tmpdomain, tmppass, r["NTLM"]))
 
     shell.print_plain("")
 
@@ -88,11 +104,11 @@ def print_creds_das(shell, domain):
         creduser = shell.creds[key]["Username"]
         creddomain = shell.creds[key]["Domain"]
         credntlm = shell.creds[key]["NTLM"]
-        if creduser.lower() in das and
+        if (creduser.lower() in das and
             (creddomain.lower() == domain.lower() or
                 creddomain.lower() == alt_domain.lower()) and
             (tmppass or
-                credntlm):
+                credntlm)):
 
             shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], creduser, creddomain, tmppass, shell.creds[key]["NTLM"]))
 
@@ -154,6 +170,12 @@ def execute(shell, cmd):
                     print_creds_das(shell, splitted[2])
             else:
                 shell.print_error("No domain information gathered. Please run implant/gather/enum_domain_info.")
+
+        elif splitted[1] == "--sort":
+            if len(splitted) < 3:
+                shell.print_error("Need to provide a column name to sort on!")
+            else:
+                print_creds(shell, splitted[2])
 
         else:
             shell.print_error("Unknown option '"+splitted[1]+"'")
