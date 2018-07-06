@@ -73,9 +73,8 @@ class CredParse(object):
 
                 domains = [j for i in self.shell.domain_info for j in i]
                 if c["Domain"].lower() in domains:
-                    domain_key = list([i for i in self.shell.domain_info if domain.lower() in i][0])
-                    domain_key.remove(c["Domain"].lower())
-                    other_domain = domain_key[0]
+                    domain_key = [i for i in self.shell.domain_info if domain.lower() in i][0]
+                    other_domain = [i for i in domain_key if i != domain][0]
                 else:
                     other_domain = ""
 
@@ -185,9 +184,8 @@ class CredParse(object):
 
                         domains = [j for i in self.shell.domain_info for j in i]
                         if cred["Domain"].lower() in domains:
-                            domain_key = list([i for i in self.shell.domain_info if domain.lower() in i][0])
-                            domain_key.remove(cred["Domain"].lower())
-                            other_domain = domain_key[0]
+                            domain_key = [i for i in self.shell.domain_info if domain.lower() in i][0]
+                            other_domain = [i for i in domain_key if i != domain][0]
                         else:
                             other_domain = ""
 
@@ -275,9 +273,8 @@ class CredParse(object):
 
                         domains = [j for i in self.shell.domain_info for j in i]
                         if c["Domain"].lower() in domains:
-                            domain_key = list([i for i in self.shell.domain_info if domain.lower() in i][0])
-                            domain_key.remove(c["Domain"].lower())
-                            other_domain = domain_key[0]
+                            domain_key = [i for i in self.shell.domain_info if domain.lower() in i][0]
+                            other_domain = [i for i in domain_key if i != domain][0]
                         else:
                             other_domain = ""
 
