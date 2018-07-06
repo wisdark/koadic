@@ -17,6 +17,7 @@ def print_creds(shell):
 
     shell.print_plain(formats.format("Cred ID", "IP", "USERNAME", "DOMAIN", "PASSWORD", "NTLM"))
     shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
+
     for key in shell.creds_keys:
         tmpuser = shell.creds[key]["Username"]
         if len(tmpuser) > 18:
@@ -27,7 +28,11 @@ def print_creds(shell):
         tmppass = shell.creds[key]["Password"]
         if len(tmppass) > 23:
             tmppass = tmppass[:20] + "..."
-        if shell.creds[key]["Username"][-1] == '$' or (not shell.creds[key]["Password"] and not shell.creds[key]["NTLM"]) or shell.creds[key]["NTLM"] == '31d6cfe0d16ae931b73c59d7e0c089c0':
+        if shell.creds[key]["Username"][-1] == '$' or
+            (not shell.creds[key]["Password"] and
+                not shell.creds[key]["NTLM"]) or
+            shell.creds[key]["NTLM"] == '31d6cfe0d16ae931b73c59d7e0c089c0':
+
             continue
         shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], tmpuser, tmpdomain, tmppass, shell.creds[key]["NTLM"]))
 
@@ -40,9 +45,9 @@ def print_creds_detailed(shell, users="*", like_flag=False):
         if (users == "*" or
             shell.creds[key]["Username"].lower() in [u.lower() for u in users.split(",")] or
             (str(shell.creds_keys.index(key)) in [u.lower() for u in users.split(",")] and
-            not like_flag) or
+                not like_flag) or
             (len([u for u in users.split(",") if u.lower() in shell.creds[key]["Username"].lower()]) > 0 and
-            like_flag)):
+                like_flag)):
 
             shell.print_plain("Cred ID: "+str(shell.creds_keys.index(key)))
             shell.print_plain("IP: "+shell.creds[key]["IP"])
@@ -83,7 +88,12 @@ def print_creds_das(shell, domain):
         creduser = shell.creds[key]["Username"]
         creddomain = shell.creds[key]["Domain"]
         credntlm = shell.creds[key]["NTLM"]
-        if creduser.lower() in das and (creddomain.lower() == domain.lower() or creddomain.lower() == alt_domain.lower()) and (tmppass or credntlm):
+        if creduser.lower() in das and
+            (creddomain.lower() == domain.lower() or
+                creddomain.lower() == alt_domain.lower()) and
+            (tmppass or
+                credntlm):
+
             shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], creduser, creddomain, tmppass, shell.creds[key]["NTLM"]))
 
     shell.print_plain("")
