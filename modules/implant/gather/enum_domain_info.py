@@ -87,19 +87,57 @@ class EnumDomainInfoJob(core.job.Job):
         domain2 = domain_key[1]
 
         tmp_creds_keys = list(self.shell.creds_keys)
-        tmp_creds_keys2 = list(tmp_creds_keys)
         tmp_creds = dict(self.shell.creds)
-        for creds_key in tmp_creds_keys:
-            if domain1 in creds_key:
+        duplicates = []
+
+        for index, creds_key in enumerate(tmp_creds_keys):
+            if domain1 in creds_key or domain2 in creds_key:
                 user = list(creds_key)[1]
-                if tuple([domain2, user]) in tmp_creds_keys2:
-                    tmp_creds_keys2.remove(tuple([domain2, user]))
-                    del tmp_creds[tuple([domain2, user])]
-            elif domain2 in creds_key:
-                user = list(creds_key)[1]
-                if tuple([domain1, user]) in tmp_creds_keys2:
-                    tmp_creds_keys2.remove(tuple([domain1, user]))
-                    del tmp_creds[tuple([domain1, user])]
+                match_creds_key = False
+                for next_creds_key in tmp_creds_keys[index+1:]:
+                    if user in next_creds_key and (domain1 in next_creds_key or domain2 in next_creds_key):
+                        match_creds_key = next_creds_key
+                        duplicates.append(match_creds_key)
+                        break
+                if match_creds_key:
+                    for key in tmp_creds[match_creds_key]:
+                        match_val = tmp_creds[match_creds_key][key]
+                        orig_val = tmp_creds[creds_key][key]
+                        if match_val and not orig_val:
+                            # if its not in the original, then we're gonna add it
+                            orig_val = match_val
+                        if match_val and orig_val and match_val != orig_val:
+                            # if we have values for both and they're not the same, add to the originals extras
+                            tmp_creds[creds_key]["Extra"][key].append(match_val)
+                            # flatten the list in case we append a list
+                            tmp_creds[creds_key]["Extra"][key] = [item for sublist in tmp_creds[creds_key]["Extra"][key] for item in sublist]
+                            # and if we actually flatten the list, remove the duplicates
+                            tmp_creds[creds_key]["Extra"][key] = list(set(tmp_creds[creds_key]["Extra"][key]))
+
+        for key in duplicates:
+            del tmp_creds[key]
+            tmp_creds_keys.remove(key)
+
+        self.shell.creds_keys = tmp_creds_keys
+        self.shell.creds = tmp_creds
+
+
+
+
+        # tmp_creds_keys = list(self.shell.creds_keys)
+        # tmp_creds_keys2 = list(tmp_creds_keys)
+        # tmp_creds = dict(self.shell.creds)
+        # for creds_key in tmp_creds_keys:
+        #     if domain1 in creds_key:
+        #         user = list(creds_key)[1]
+        #         if tuple([domain2, user]) in tmp_creds_keys2:
+        #             tmp_creds_keys2.remove(tuple([domain2, user]))
+        #             del tmp_creds[tuple([domain2, user])]
+        #     elif domain2 in creds_key:
+        #         user = list(creds_key)[1]
+        #         if tuple([domain1, user]) in tmp_creds_keys2:
+        #             tmp_creds_keys2.remove(tuple([domain1, user]))
+        #             del tmp_creds[tuple([domain1, user])]
 
         self.shell.creds_keys = tmp_creds_keys2
         self.shell.creds = tmp_creds

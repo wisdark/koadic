@@ -66,7 +66,7 @@ def print_creds_detailed(shell, users="*", like_flag=False):
                 like_flag)):
 
             shell.print_plain("Cred ID: "+str(shell.creds_keys.index(key)))
-            shell.print_plain("IP: "+shell.creds[key]["IP"])
+            shell.print_plain("IP: "+shell.creds[key]["IP"]+" "+" ".join(shell.creds[key]["Extra"]["IP"]))
             shell.print_plain("USERNAME: "+shell.creds[key]["Username"])
             shell.print_plain("DOMAIN: "+shell.creds[key]["Domain"])
             shell.print_plain("PASSWORD: "+shell.creds[key]["Password"]+" "+" ".join(shell.creds[key]["Extra"]["Password"]))
@@ -130,7 +130,7 @@ def condense_creds(shell):
 def export_creds(shell):
     export = open('/tmp/creds.txt', 'w')
     for key in shell.creds_keys:
-        export.write("IP: "+shell.creds[key]["IP"]+"\n")
+        export.write("IP: "+shell.creds[key]["IP"]+" "+" ".join(shell.creds[key]["Extra"]["IP"])+"\n")
         export.write("USERNAME: "+shell.creds[key]["Username"]+"\n")
         export.write("DOMAIN: "+shell.creds[key]["Domain"]+"\n")
         export.write("PASSWORD: "+shell.creds[key]["Password"]+" "+" ".join(shell.creds[key]["Extra"]["Password"])+"\n")

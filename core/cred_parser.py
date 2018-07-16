@@ -21,6 +21,7 @@ class CredParse(object):
         cred["DPAPI"] = ""
         cred["LM"] = ""
         cred["Extra"] = {}
+        cred["Extra"]["IP"] = []
         cred["Extra"]["Password"] = []
         cred["Extra"]["NTLM"] = []
         cred["Extra"]["SHA1"] = []
@@ -87,6 +88,9 @@ class CredParse(object):
                         break
 
                 if my_key:
+                    if c["IP"] not in self.shell.creds[my_key]["Extra"]["IP"]:
+                        self.shell.creds[my_key]["Extra"]["IP"].append(c["IP"])
+
                     if not self.shell.creds[my_key]["NTLM"] and c["NTLM"]:
                         self.shell.creds[my_key]["NTLM"] = c["NTLM"]
                     elif self.shell.creds[my_key]["NTLM"] != c["NTLM"] and c["NTLM"]:
@@ -216,6 +220,9 @@ class CredParse(object):
 
                         else:
                             key = my_key
+                            if self.session.ip not in self.shell.creds[key]["Extra"]["IP"]:
+                                self.shell.creds[key]["Extra"]["IP"].append(self.session.ip)
+
                             if "Password" in cred:
                                 cpass = cred["Password"]
                                 if not self.shell.creds[key]["Password"] and cpass != "(null)" and cpass:
@@ -292,6 +299,9 @@ class CredParse(object):
                             self.shell.creds[key] = c
                         else:
                             key = my_key
+                            if c["IP"] not in self.shell.creds[key]["Extra"]["IP"]:
+                                self.shell.creds[key]["Extra"]["IP"].append(c["IP"])
+
                             if not self.shell.creds[key]["NTLM"] and ntlm:
                                 self.shell.creds[key]["NTLM"] = ntlm
                             elif self.shell.creds[key]["NTLM"] != ntlm and ntlm:
