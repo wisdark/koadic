@@ -107,7 +107,7 @@ class EnumDomainInfoJob(core.job.Job):
                         orig_val = tmp_creds[creds_key][key]
                         if match_val and not orig_val:
                             # if its not in the original, then we're gonna add it
-                            orig_val = match_val
+                            tmp_creds[creds_key][key] = match_val
                         if match_val and orig_val and match_val != orig_val:
                             # if we have values for both and they're not the same, add to the originals extras
                             tmp_creds[creds_key]["Extra"][key].append(match_val)
