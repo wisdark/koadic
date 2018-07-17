@@ -101,6 +101,8 @@ class EnumDomainInfoJob(core.job.Job):
                         break
                 if match_creds_key:
                     for key in tmp_creds[match_creds_key]:
+                        if key == "Username" or key == "Domain":
+                            continue
                         match_val = tmp_creds[match_creds_key][key]
                         orig_val = tmp_creds[creds_key][key]
                         if match_val and not orig_val:
