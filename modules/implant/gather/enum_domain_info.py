@@ -141,8 +141,8 @@ class EnumDomainInfoJob(core.job.Job):
         #             tmp_creds_keys2.remove(tuple([domain1, user]))
         #             del tmp_creds[tuple([domain1, user])]
 
-        self.shell.creds_keys = tmp_creds_keys2
-        self.shell.creds = tmp_creds
+        # self.shell.creds_keys = tmp_creds_keys2
+        # self.shell.creds = tmp_creds
 
 
 class EnumDomainInfoImplant(core.implant.Implant):
