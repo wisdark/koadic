@@ -99,7 +99,7 @@ class DotNet2JSImplant(core.implant.Implant):
             for c in text:
                 ret += str(c)
                 index += 1
-                if index % 100 == 0:
+                if index % 150 == 0:
                     ret += '"+\r\n"'
 
             ret += '";'
