@@ -103,6 +103,22 @@ class EnumDomainInfoJob(core.job.Job):
                     for key in tmp_creds[match_creds_key]:
                         if key == "Username" or key == "Domain":
                             continue
+                        if key == "Extra":
+                            for extra_key in tmp_creds[match_creds_key][key]:
+                                if not tmp_creds[match_creds_key][key][extra_key]:
+                                    continue
+                                tmp_creds[creds_key][key][extra_key].append(tmp_creds[match_creds_key][key][extra_key])
+                                new_extras = []
+                                for item in tmp_creds[creds_key][key][extra_key]:
+                                    if isinstance(item,str):
+                                        new_extras.append(item)
+                                    else:
+                                        for subitem in item:
+                                            new_extras.append(subitem)
+                                tmp_creds[creds_key][key][extra_key] = new_extras
+                                tmp_creds[creds_key][key][extra_key] = list(set(tmp_creds[creds_key][key][extra_key]))
+                            continue
+
                         match_val = tmp_creds[match_creds_key][key]
                         orig_val = tmp_creds[creds_key][key]
                         if match_val and not orig_val:
@@ -111,9 +127,7 @@ class EnumDomainInfoJob(core.job.Job):
                         if match_val and orig_val and match_val != orig_val:
                             # if we have values for both and they're not the same, add to the originals extras
                             tmp_creds[creds_key]["Extra"][key].append(match_val)
-                            # flatten the list in case we append a list
-                            tmp_creds[creds_key]["Extra"][key] = [item for sublist in tmp_creds[creds_key]["Extra"][key] for item in sublist]
-                            # and if we actually flatten the list, remove the duplicates
+                            # remove the duplicates
                             tmp_creds[creds_key]["Extra"][key] = list(set(tmp_creds[creds_key]["Extra"][key]))
 
         for key in duplicates:
