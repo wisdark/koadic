@@ -18,9 +18,9 @@ class HashDumpSAMImplant(core.implant.Implant):
 
 class HashDumpSAMJob(core.job.Job):
 
-    def save_file(self, data):
+    def save_file(self, data, name):
         import uuid
-        save_fname = self.options.get("LPATH") + "/" + uuid.uuid4().hex
+        save_fname = self.options.get("LPATH") + "/" + name + "." + self.session.ip + "." + uuid.uuid4().hex
         save_fname = save_fname.replace("//", "/")
 
         with open(save_fname, "wb") as f:
@@ -77,15 +77,15 @@ class HashDumpSAMJob(core.job.Job):
         #     return
         path = "data/impacket/examples/secretsdump.py"
 
-        self.sam_file = self.save_file(self.sam_data)
+        self.sam_file = self.save_file(self.sam_data, "SAM")
         self.print_status("decoded SAM hive (%s)" % self.sam_file)
 
-        self.security_file = self.save_file(self.security_data)
+        self.security_file = self.save_file(self.security_data, "SECURITY")
         self.print_status("decoded SECURITY hive (%s)" % self.security_file)
 
-        # self.system_file = self.save_file(self.system_data)
+        # self.system_file = self.save_file(self.system_data, "SYSTEM")
         # self.print_status("decoded SYSTEM hive (%s)" % self.system_file)
-        self.syskey_data_file = self.save_file(self.syskey_data)
+        self.syskey_data_file = self.save_file(self.syskey_data, "SYSKEY")
 
         tmp_syskey = ""
         self.syskey = ""
