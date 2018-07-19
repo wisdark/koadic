@@ -5,10 +5,13 @@ def autocomplete(shell, line, text, state):
 
 def help(shell):
     shell.print_plain("")
+    shell.print_plain("Use %s to sort on a column name" % (shell.colors.colorize("creds --sort column_name", shell.colors.BOLD)))
     shell.print_plain("Use %s for full credential details" % (shell.colors.colorize("creds -a", shell.colors.BOLD)))
     shell.print_plain("Use %s for specific user credentials" % (shell.colors.colorize("creds -u user1,user2,user3,...", shell.colors.BOLD)))
     shell.print_plain("Use %s for domain admin credentials" % (shell.colors.colorize("creds -d domain", shell.colors.BOLD)))
     shell.print_plain("Use %s to write credentials to a file" % (shell.colors.colorize("creds -x", shell.colors.BOLD)))
+    shell.print_plain("")
+    shell.print_plain("NOTE: A listing that ends in [+] means extra information is available.")
     shell.print_plain("")
 
 def print_creds(shell, sortcol="Normal"):
@@ -49,8 +52,14 @@ def print_creds(shell, sortcol="Normal"):
         tmppass = r["Password"]
         if len(tmppass) > 23:
             tmppass = tmppass[:20] + "..."
+        extraflag = ""
+        for key in r["Extra"]:
+            if r["Extra"][key]:
+                extraflag = "[+]"
+                break
 
-        shell.print_plain(formats.format(r["Cred ID"], r["IP"], tmpuser, tmpdomain, tmppass, r["NTLM"]))
+
+        shell.print_plain(formats.format(r["Cred ID"], r["IP"], tmpuser, tmpdomain, tmppass, r["NTLM"]+" "+extraflag))
 
     shell.print_plain("")
 
