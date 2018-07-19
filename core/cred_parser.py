@@ -88,7 +88,7 @@ class CredParse(object):
                         break
 
                 if my_key:
-                    if c["IP"] not in self.shell.creds[my_key]["Extra"]["IP"]:
+                    if c["IP"] != self.shell.creds[my_key]["IP"] and c["IP"] not in self.shell.creds[my_key]["Extra"]["IP"]:
                         self.shell.creds[my_key]["Extra"]["IP"].append(c["IP"])
 
                     if not self.shell.creds[my_key]["NTLM"] and c["NTLM"]:
@@ -220,7 +220,7 @@ class CredParse(object):
 
                         else:
                             key = my_key
-                            if self.session.ip not in self.shell.creds[key]["Extra"]["IP"]:
+                            if self.session.ip != self.shell.creds[key]["IP"] and self.session.ip not in self.shell.creds[key]["Extra"]["IP"]:
                                 self.shell.creds[key]["Extra"]["IP"].append(self.session.ip)
 
                             if "Password" in cred:
@@ -299,7 +299,7 @@ class CredParse(object):
                             self.shell.creds[key] = c
                         else:
                             key = my_key
-                            if c["IP"] not in self.shell.creds[key]["Extra"]["IP"]:
+                            if c["IP"] != self.shell.creds[key]["IP"] and c["IP"] not in self.shell.creds[key]["Extra"]["IP"]:
                                 self.shell.creds[key]["Extra"]["IP"].append(c["IP"])
 
                             if not self.shell.creds[key]["NTLM"] and ntlm:
