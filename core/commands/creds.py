@@ -16,10 +16,6 @@ def help(shell):
 
 def print_creds(shell, sortcol="Normal"):
     formats = "\t{0:9}{1:17}{2:<20}{3:<20}{4:<25}{5:<42}"
-    shell.print_plain("")
-
-    shell.print_plain(formats.format("Cred ID", "IP", "USERNAME", "DOMAIN", "PASSWORD", "NTLM"))
-    shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
 
     results = []
 
@@ -41,6 +37,11 @@ def print_creds(shell, sortcol="Normal"):
             shell.print_error("Column '"+sortcol+"' does not exist!")
             return
         results = sorted(results, key=lambda k: k[colname[0]])
+
+    shell.print_plain("")
+
+    shell.print_plain(formats.format("Cred ID", "IP", "USERNAME", "DOMAIN", "PASSWORD", "NTLM"))
+    shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
 
     for r in results:
         tmpuser = r["Username"]
