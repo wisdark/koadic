@@ -274,8 +274,12 @@ class CredParse(object):
                         c["IP"] = self.session.ip
                         c["Username"] = section.split("User : ")[1].split("\n")[0]
                         c["Domain"] = domain
-                        lm = section.split("LM   : ")[1].split("\n")[0]
-                        ntlm = section.split("NTLM : ")[1].split("\n")[0]
+                        lm = ""
+                        ntlm = ""
+                        if "Hash LM: " in section:
+                            lm = section.split("Hash LM: ")[1].split("\n")[0]
+                        if "Hash NTLM: " in section:
+                            ntlm = section.split("Hash NTLM: ")[1].split("\n")[0]
                         key = tuple([c["Domain"].lower(), c["Username"].lower()])
 
                         domains = [j for i in self.shell.domain_info for j in i]
