@@ -103,6 +103,9 @@ def run_cmdshell(shell, session):
         except KeyboardInterrupt:
             shell.print_plain(shell.clean_prompt)
             return
+        except EOFError:
+            shell.print_plain(shell.clean_prompt)
+            return
         finally:
             plugin.options.set("ZOMBIE", old_zombie)
             plugin.options.set("cmd", old_cmd)
