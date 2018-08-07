@@ -46,10 +46,16 @@ def print_domain_admins(shell, domain):
 
     das = shell.domain_info[domain_key]["Domain Admins"]
 
+    max_len = len(sorted(das, key=len)[-1])+2
+    formats = "{{0:{0}}}{{1:{0}}}{{2:{0}}}{{3:{0}}}".format(max_len) # does this make me an idiot or a genius?
+
     shell.print_plain("")
     shell.print_plain("Domain Admins")
     shell.print_plain("-------------")
-    shell.print_plain("\n".join(["   ".join(da_row) for da_row in [das[x:x+4] for x in range(0, len(das), 4)]]))
+    for da_row in [das[x:x+4] for x in range(0, len(das), 4)]:
+        for i in range(0, 4-len(da_row)):
+            da_row.append("")
+        shell.print_plain(formats.format(da_row[0], da_row[1], da_row[2], da_row[3]))
 
     shell.print_plain("")
 
@@ -67,10 +73,16 @@ def print_domain_users(shell, domain):
 
     users = shell.domain_info[domain_key]["Domain Users"]
 
+    max_len = len(sorted(users, key=len)[-1])+3
+    formats = "{{0:{0}}}{{1:{0}}}{{2:{0}}}{{3:{0}}}".format(max_len) # does this make me an idiot or a genius?
+
     shell.print_plain("")
     shell.print_plain("Domain Users")
-    shell.print_plain("------------")
-    shell.print_plain("\n".join(["   ".join(user_row) for user_row in [users[x:x+4] for x in range(0, len(users), 4)]]))
+    shell.print_plain("-------------")
+    for user_row in [users[x:x+4] for x in range(0, len(users), 4)]:
+        for i in range(0, 4-len(user_row)):
+            user_row.append("")
+        shell.print_plain(formats.format(user_row[0], user_row[1], user_row[2], user_row[3]))
 
     shell.print_plain("")
 
