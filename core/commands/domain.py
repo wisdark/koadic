@@ -46,7 +46,7 @@ def print_domain_admins(shell, domain):
 
     das = shell.domain_info[domain_key]["Domain Admins"]
 
-    max_len = len(sorted(das, key=len)[-1])+2
+    max_len = len(sorted(das, key=len)[-1])+8
     formats = "{{0:{0}}}{{1:{0}}}{{2:{0}}}{{3:{0}}}".format(max_len) # does this make me an idiot or a genius?
 
     shell.print_plain("")
@@ -73,7 +73,7 @@ def print_domain_users(shell, domain):
 
     users = shell.domain_info[domain_key]["Domain Users"]
 
-    max_len = len(sorted(users, key=len)[-1])+3
+    max_len = len(sorted(users, key=len)[-1])+8
     formats = "{{0:{0}}}{{1:{0}}}{{2:{0}}}{{3:{0}}}".format(max_len) # does this make me an idiot or a genius?
 
     shell.print_plain("")
