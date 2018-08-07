@@ -59,8 +59,7 @@ def print_creds(shell, sortcol="Normal"):
                 extraflag = "[+]"
                 break
 
-
-        shell.print_plain(formats.format(r["Cred ID"], r["IP"], tmpuser, tmpdomain, tmppass, r["NTLM"]+" "+extraflag))
+        shell.print_plain(formats.format(r["Cred ID"], r["IP"], tmpuser, tmpdomain, tmppass, r["NTLM"])+extraflag)
 
     shell.print_plain("")
 
@@ -153,6 +152,165 @@ def export_creds(shell):
     export.close()
     shell.print_good("Credential store written to /tmp/creds.txt")
 
+def creds_edit_shell(shell):
+    old_prompt = shell.prompt
+    old_clean_prompt = shell.clean_prompt
+
+    print("Choose a Cred ID to edit or type 'new' to add a credential:")
+    shell.prompt = "> "
+    shell.clean_prompt = shell.prompt
+
+    try:
+        import readline
+        readline.set_completer(None)
+        option = shell.get_command(shell.prompt)
+
+        try:
+            int(option)
+        except ValueError:
+            if option.lower() != "new" and option.lower() != "del":
+                shell.print_error("I don't understand")
+                return
+
+        if option.lower() == "new":
+            shell.prompt = "new > "
+            shell.clean_prompt = shell.prompt
+            if shell.domain_info:
+                shell.print_plain("Available Domains:")
+                for domain in shell.domain_info:
+                    shell.print_plain("\tFQDN: "+domain[0]+" | NetBIOS: "+domain[1])
+                shell.print_plain("")
+            shell.print_plain("Domain? (required)")
+            domain = shell.get_command(shell.prompt)
+            shell.print_plain("Username? (required)")
+            user = shell.get_command(shell.prompt)
+            new_key = (domain.lower(), user.lower())
+            if new_key in shell.creds_keys:
+                shell.print_error("User already in creds")
+                return
+            shell.creds_keys.append(new_key)
+            shell.print_plain("Password?")
+            password = shell.get_command(shell.prompt)
+            shell.print_plain("NTLM?")
+            ntlm = shell.get_command(shell.prompt)
+            shell.print_plain("LM?")
+            lm = shell.get_command(shell.prompt)
+            shell.print_plain("SHA1?")
+            sha1 = shell.get_command(shell.prompt)
+            shell.print_plain("DCC?")
+            dcc = shell.get_command(shell.prompt)
+            shell.print_plain("DPAPI?")
+            dpapi = shell.get_command(shell.prompt)
+            c = {}
+            c["Username"] = user
+            c["Domain"] = domain
+            c["Password"] = password
+            c["NTLM"] = ntlm
+            c["LM"] = lm
+            c["SHA1"] = sha1
+            c["DCC"] = dcc
+            c["DPAPI"] = dpapi
+            c["IP"] = "Manually added"
+            c["Extra"] = {}
+            c["Extra"]["IP"] = []
+            c["Extra"]["Password"] = []
+            c["Extra"]["NTLM"] = []
+            c["Extra"]["SHA1"] = []
+            c["Extra"]["DCC"] = []
+            c["Extra"]["DPAPI"] = []
+            c["Extra"]["LM"] = []
+            shell.creds[new_key] = c
+
+        elif option.lower() == "del":
+            shell.prompt = "del > "
+            shell.clean_prompt = shell.prompt
+            shell.print_plain("Which Cred ID do you want to delete?")
+            cred = shell.get_command(shell.prompt)
+            if int(cred) < len(shell.creds_keys) and int(cred) >= 0:
+                key = shell.creds_keys[int(cred)]
+                shell.print_plain("IP: "+shell.creds[key]["IP"])
+                shell.print_plain("USERNAME: "+shell.creds[key]["Username"])
+                shell.print_plain("DOMAIN: "+shell.creds[key]["Domain"])
+                shell.print_plain("PASSWORD: "+shell.creds[key]["Password"])
+                shell.print_plain("NTLM: "+shell.creds[key]["NTLM"])
+                shell.print_plain("LM: "+shell.creds[key]["LM"])
+                shell.print_plain("SHA1: "+shell.creds[key]["SHA1"])
+                shell.print_plain("DCC: "+shell.creds[key]["DCC"])
+                shell.print_plain("DPAPI: "+shell.creds[key]["DPAPI"])
+                shell.print_plain("")
+
+                shell.print_plain("Are you sure you want to delete these creds?")
+                confirm = shell.get_command(shell.prompt)
+                if confirm.lower() == "y":
+                    del shell.creds[key]
+                    shell.creds_keys.remove(key)
+                else:
+                    return
+
+
+
+        elif int(option) < len(shell.creds_keys) and int(option) >= 0:
+            key = shell.creds_keys[int(option)]
+            cred = shell.creds[key]
+            shell.prompt = option+" > "
+            shell.clean_prompt = shell.prompt
+
+            shell.print_plain("IP: "+shell.creds[key]["IP"])
+            shell.print_plain("USERNAME: "+shell.creds[key]["Username"])
+            shell.print_plain("DOMAIN: "+shell.creds[key]["Domain"])
+            shell.print_plain("PASSWORD: "+shell.creds[key]["Password"])
+            shell.print_plain("NTLM: "+shell.creds[key]["NTLM"])
+            shell.print_plain("LM: "+shell.creds[key]["LM"])
+            shell.print_plain("SHA1: "+shell.creds[key]["SHA1"])
+            shell.print_plain("DCC: "+shell.creds[key]["DCC"])
+            shell.print_plain("DPAPI: "+shell.creds[key]["DPAPI"])
+            shell.print_plain("")
+
+            shell.print_plain("Which section would you like to edit?")
+            option = shell.get_command(shell.prompt)
+            if option.lower() in [k.lower() for k in shell.creds[key]]:
+                for subkey in shell.creds[key]:
+                    if option.lower() == subkey.lower():
+                        break
+                if shell.creds[key]["Extra"][subkey]:
+                    shell.print_plain("Extras\n------")
+                    for item in shell.creds[key]["Extra"][subkey]:
+                        shell.print_plain("  "+item)
+                    shell.print_plain("")
+                shell.print_plain("New value?")
+                val = shell.get_command(shell.prompt)
+                shell.print_plain("Are you sure you want to change the value to '"+val+"'?")
+                confirm = shell.get_command(shell.prompt)
+                if confirm.lower() == "y":
+                    if val in shell.creds[key]["Extra"][subkey]:
+                        shell.creds[key]["Extra"][subkey].remove(val)
+
+                    if shell.creds[key][subkey]:
+                        shell.creds[key]["Extra"][subkey].append(shell.creds[key][subkey])
+                    shell.creds[key][subkey] = val
+                else:
+                    return
+
+            else:
+                shell.print_error("Not a real section")
+                return
+
+            return
+
+        else:
+            shell.print_error("Not a valid Cred ID")
+            return
+
+
+
+    except KeyboardInterrupt:
+        shell.print_plain(shell.clean_prompt)
+        return
+    finally:
+        shell.prompt = old_prompt
+        shell.clean_prompt = old_clean_prompt
+
+
 def execute(shell, cmd):
     condense_creds(shell)
 
@@ -186,6 +344,9 @@ def execute(shell, cmd):
                 shell.print_error("Need to provide a column name to sort on!")
             else:
                 print_creds(shell, splitted[2])
+
+        elif splitted[1] == "--edit":
+            creds_edit_shell(shell)
 
         else:
             shell.print_error("Unknown option '"+splitted[1]+"'")
