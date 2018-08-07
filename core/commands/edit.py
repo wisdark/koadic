@@ -33,5 +33,6 @@ def execute(shell, cmd):
         editcmd = [editor, file]
     else:
         editcmd = [editor, py_file]
-        subprocess.call(editcmd)
-        shell.run_command('load')
+    
+    subprocess.call(editcmd)
+    shell.run_command('load')
