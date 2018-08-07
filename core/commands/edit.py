@@ -10,7 +10,7 @@ def execute(shell, cmd):
     import subprocess, os
 
     if not os.environ['EDITOR']:
-        shell.print_error("$EDITOR env variable not setting, falling back to vi!")
+        shell.print_error("$EDITOR env variable not set, falling back to vi!")
         editor = 'vi'
     else:
         editor = os.environ['EDITOR']
