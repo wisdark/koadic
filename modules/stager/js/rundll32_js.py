@@ -12,6 +12,6 @@ class RunDLL32JSStager(core.stager.Stager):
         #self.options.set("SRVPORT", 9997)
         self.port = 9997
 
-        self.template = "~SCRIPT~"
+        self.template = b"~SCRIPT~"
         self.stagecmd = self.loader.load_script("data/stager/js/rundll32_js/rundll32_js.cmd")
         self.forkcmd = self.stagecmd
