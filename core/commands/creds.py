@@ -10,6 +10,7 @@ def help(shell):
     shell.print_plain("Use %s for specific user credentials (add --like for partial names)" % (shell.colors.colorize("creds -u user1,user2,user3,...", shell.colors.BOLD)))
     shell.print_plain("Use %s for domain admin credentials" % (shell.colors.colorize("creds -d domain", shell.colors.BOLD)))
     shell.print_plain("Use %s to write credentials to a file" % (shell.colors.colorize("creds -x", shell.colors.BOLD)))
+    shell.print_plain("Use %s to edit credentials" % (shell.colors.colorize("creds --edit", shell.colors.BOLD)))
     shell.print_plain("")
     shell.print_plain("NOTE: A listing that ends in [+] means extra information is available.")
     shell.print_plain("")
@@ -27,7 +28,7 @@ def print_creds(shell, sortcol="Normal"):
 
             continue
         else:
-            result_cred = shell.creds[key]
+            result_cred = dict(shell.creds[key])
             result_cred["Cred ID"] = str(shell.creds_keys.index(key))
             results.append(result_cred)
 
@@ -250,7 +251,8 @@ def creds_edit_shell(shell):
 
 
         elif int(option) < len(shell.creds_keys) and int(option) >= 0:
-            key = shell.creds_keys[int(option)]
+            cid = int(option)
+            key = shell.creds_keys[cid]
             cred = shell.creds[key]
             shell.prompt = option+" > "
             shell.clean_prompt = shell.prompt
@@ -272,7 +274,9 @@ def creds_edit_shell(shell):
                 for subkey in shell.creds[key]:
                     if option.lower() == subkey.lower():
                         break
-                if shell.creds[key]["Extra"][subkey]:
+                if subkey == "Username" or subkey == "Domain":
+                    pass
+                elif shell.creds[key]["Extra"][subkey]:
                     shell.print_plain("Extras\n------")
                     for item in shell.creds[key]["Extra"][subkey]:
                         shell.print_plain("  "+item)
@@ -282,6 +286,59 @@ def creds_edit_shell(shell):
                 shell.print_plain("Are you sure you want to change the value to '"+val+"'?")
                 confirm = shell.get_command(shell.prompt)
                 if confirm.lower() == "y":
+                    if subkey == "Username" or subkey == "Domain":
+                        new_key_list = list(key)
+                        if subkey == "Domain":
+                            new_key_list[0] = val.lower()
+                        else:
+                            new_key_list[1] = val.lower()
+
+                        new_key = tuple(new_key_list)
+
+                        if new_key in shell.creds_keys:
+                            shell.print_warning("There is already a credential with this key. Continuing will merge the creds. Continue?")
+                            confirm = shell.get_command(shell.prompt)
+                            if confirm.lower() == "y":
+                                for k in shell.creds[key]:
+                                    if k == "Username" or k == "Domain":
+                                        continue
+                                    if k == "Extra":
+                                        for extra_key in shell.creds[key][k]:
+                                            if not shell.creds[key][k][extra_key]:
+                                                continue
+                                            shell.creds[new_key][k][extra_key].append(shell.creds[key][k][extra_key])
+                                            new_extras = []
+                                            for item in shell.creds[new_key][k][extra_key]:
+                                                if isinstance(item,str):
+                                                    new_extras.append(item)
+                                                else:
+                                                    for subitem in item:
+                                                        new_extras.append(subitem)
+                                            shell.creds[new_key][k][extra_key] = new_extras
+                                            shell.creds[new_key][k][extra_key] = list(set(shell.creds[new_key][k][extra_key]))
+                                        continue
+
+                                    match_val = shell.creds[key][k]
+                                    orig_val = shell.creds[new_key][k]
+                                    if match_val and not orig_val:
+                                        # if its not in the original, then we're gonna add it
+                                        shell.creds[new_key][k] = match_val
+                                    if match_val and orig_val and match_val != orig_val:
+                                        # if we have values for both and they're not the same, add to the originals extras
+                                        shell.creds[new_key]["Extra"][k].append(match_val)
+                                        # remove the duplicates
+                                        shell.creds[new_key]["Extra"][k] = list(set(shell.creds[new_key]["Extra"][k]))
+                                del shell.creds[key]
+                                shell.creds_keys.remove(key)
+
+
+                        else:
+                            shell.creds[new_key] = shell.creds.pop(key)
+                            shell.creds_keys[cid] = new_key
+                            shell.creds[new_key][subkey] = val
+                        return
+
+
                     if val in shell.creds[key]["Extra"][subkey]:
                         shell.creds[key]["Extra"][subkey].remove(val)
 
