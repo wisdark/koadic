@@ -157,7 +157,7 @@ def creds_edit_shell(shell):
     old_prompt = shell.prompt
     old_clean_prompt = shell.clean_prompt
 
-    print("Choose a Cred ID to edit or type 'new' to add a credential:")
+    print("Choose a Cred ID to edit. Type 'new' to add a credential. Type 'del' to delete a credential:")
     shell.prompt = "> "
     shell.clean_prompt = shell.prompt
 
