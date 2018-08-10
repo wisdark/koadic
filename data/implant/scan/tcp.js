@@ -57,7 +57,7 @@ try
     {
         var ip = ips[idx];
         // ghetto check if the IP is up
-        var test = TestPort(ip, 0);
+        var test = TestPort(ip, 1);
         if (test.status == "closed")
         {
             for (var pdx in ports)
