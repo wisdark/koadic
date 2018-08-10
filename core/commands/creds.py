@@ -138,20 +138,29 @@ def condense_creds(shell):
         shell.creds = new_creds
 
 def export_creds(shell):
-    export = open('/tmp/creds.txt', 'w')
-    for key in shell.creds_keys:
-        export.write("IP: "+shell.creds[key]["IP"]+" "+" ".join(shell.creds[key]["Extra"]["IP"])+"\n")
-        export.write("USERNAME: "+shell.creds[key]["Username"]+"\n")
-        export.write("DOMAIN: "+shell.creds[key]["Domain"]+"\n")
-        export.write("PASSWORD: "+shell.creds[key]["Password"]+" "+" ".join(shell.creds[key]["Extra"]["Password"])+"\n")
-        export.write("NTLM: "+shell.creds[key]["NTLM"]+" "+" ".join(shell.creds[key]["Extra"]["NTLM"])+"\n")
-        export.write("LM: "+shell.creds[key]["LM"]+" "+" ".join(shell.creds[key]["Extra"]["LM"])+"\n")
-        export.write("SHA1: "+shell.creds[key]["SHA1"]+" "+" ".join(shell.creds[key]["Extra"]["SHA1"])+"\n")
-        export.write("DCC: "+shell.creds[key]["DCC"]+" "+" ".join(shell.creds[key]["Extra"]["DCC"])+"\n")
-        export.write("DPAPI: "+shell.creds[key]["DPAPI"]+" "+" ".join(shell.creds[key]["Extra"]["DPAPI"])+"\n")
-        export.write("\n")
-    export.close()
-    shell.print_good("Credential store written to /tmp/creds.txt")
+    import json
+    exportjson = open('/tmp/creds.json', 'w')
+    exporttxt = open('/tmp/creds.txt', 'w')
+
+    json_dict = {}
+
+    for index, key in enumerate(shell.creds_keys):
+        json_dict[str(index)] = shell.creds[key]
+        exporttxt.write("IP: "+shell.creds[key]["IP"]+" "+" ".join(shell.creds[key]["Extra"]["IP"])+"\n")
+        exporttxt.write("USERNAME: "+shell.creds[key]["Username"]+"\n")
+        exporttxt.write("DOMAIN: "+shell.creds[key]["Domain"]+"\n")
+        exporttxt.write("PASSWORD: "+shell.creds[key]["Password"]+" "+" ".join(shell.creds[key]["Extra"]["Password"])+"\n")
+        exporttxt.write("NTLM: "+shell.creds[key]["NTLM"]+" "+" ".join(shell.creds[key]["Extra"]["NTLM"])+"\n")
+        exporttxt.write("LM: "+shell.creds[key]["LM"]+" "+" ".join(shell.creds[key]["Extra"]["LM"])+"\n")
+        exporttxt.write("SHA1: "+shell.creds[key]["SHA1"]+" "+" ".join(shell.creds[key]["Extra"]["SHA1"])+"\n")
+        exporttxt.write("DCC: "+shell.creds[key]["DCC"]+" "+" ".join(shell.creds[key]["Extra"]["DCC"])+"\n")
+        exporttxt.write("DPAPI: "+shell.creds[key]["DPAPI"]+" "+" ".join(shell.creds[key]["Extra"]["DPAPI"])+"\n")
+        exporttxt.write("\n")
+
+    exportjson.write(json.dumps(json_dict) + "\n")
+    exporttxt.close()
+    exportjson.close()
+    shell.print_good("Credential store written to /tmp/creds.txt and /tmp/creds.json")
 
 def creds_edit_shell(shell):
     old_prompt = shell.prompt
