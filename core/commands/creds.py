@@ -55,7 +55,7 @@ def print_creds(shell, sortcol="Normal"):
         if len(tmppass) > 23:
             tmppass = tmppass[:20] + "..."
         extraflag = ""
-        for key in r["Extra"]:
+        for key in ["Password", "SHA1", "DCC", "DPAPI", "LM"]:
             if r["Extra"][key]:
                 extraflag = "[+]"
                 break
