@@ -70,8 +70,12 @@ class Stager(core.plugin.Plugin):
 
         if self.options.get("EXPIRES"):
             from datetime import datetime
+            import time
             dtime = datetime.strptime(self.options.get("EXPIRES"), '%m/%d/%Y')
             etime = int(round((dtime - datetime.utcfromtimestamp(0)).total_seconds()*1000))
+            if etime < int(round(time.time() * 1000)):
+                self.shell.print_error("Expiration date cannot be today or in the past")
+                return
             self.options.set("_EXPIREEPOCH_", etime)
         else:
             self.options.set("_EXPIREEPOCH_", "999999999999999")
