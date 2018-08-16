@@ -35,6 +35,14 @@ catch (e)
 
 function DoWork()
 {
+
+    var epoch = new Date().getTime();
+    var expire = parseInt(Koadic.EXPIRE);
+    if (epoch > expire)
+    {
+        return false;
+    }
+
     try
     {
         var work = Koadic.work.get();

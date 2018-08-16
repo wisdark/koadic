@@ -43,6 +43,7 @@ class Stager(core.plugin.Plugin):
         self.options.register("_STAGE_", "", "stage worker", hidden = True)
         self.options.register("_STAGECMD_", "", "path to stage file", hidden = True)
         self.options.register("_FORKCMD_", "", "path to fork file", hidden = True)
+        self.options.register("_EXPIREEPOCH_", "", "time to expire", hidden = True)
         self.options.register("CLASSICMODE", "", ";)", hidden = True)
 
         # is this one needed, hmm, I dunno
@@ -66,6 +67,16 @@ class Stager(core.plugin.Plugin):
 
         if self.options.get("CLASSICMODE"):
             self.options.set("ENDPOINT", self.random_string(4000))
+
+        if self.options.get("EXPIRES"):
+            from datetime import datetime
+            dtime = datetime.strptime(self.options.get("EXPIRES"), '%m/%d/%Y')
+            etime = int(round((dtime - datetime.utcfromtimestamp(0)).total_seconds()*1000))
+            self.options.set("_EXPIREEPOCH_", etime)
+        else:
+            self.options.set("_EXPIREEPOCH_", "999999999999999")
+
+
 
         self.start_server(core.handler.Handler)
 
