@@ -22,7 +22,8 @@ try
   UNC += " -accepteula ~CMD~";
 
   // crappy hack to make sure it mounts
-  var output = Koadic.shell.exec("net use * " + rpath, "~DIRECTORY~\\~FILE~.txt");
+
+  var output = Koadic.shell.exec("net use * " + rpath, "~DIRECTORY~\\"+Koadic.uuid()+".txt");
 
   if (output.indexOf("Drive") != -1)
   {

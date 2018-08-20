@@ -29,11 +29,11 @@ class PsExecLiveImplant(core.implant.Implant):
         #self.options.register("PAYLOAD", "", "payload to stage")
         self.options.register("RPATH", "\\\\\\\\live.sysinternals.com@SSL\\\\tools\\\\", "path to psexec.exe")
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory for output", required=False)
-        self.options.register("FILE", "", "random uuid for file name", hidden=True)
+        # self.options.register("FILE", "", "random uuid for file name", hidden=True)
 
     def run(self):
         # generate new file every time this is run
-        self.options.set("FILE", uuid.uuid4().hex)
+        # self.options.set("FILE", uuid.uuid4().hex)
         cred_id = self.options.get("CREDID")
         if cred_id:
             key = self.shell.creds_keys[int(cred_id)]
