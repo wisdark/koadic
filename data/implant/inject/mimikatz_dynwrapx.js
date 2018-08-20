@@ -61,4 +61,5 @@ catch (e)
     Koadic.work.error(e);
 }
 
+Koadic.file.deleteFile(manifestPath);
 Koadic.exit();
