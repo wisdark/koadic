@@ -29,6 +29,7 @@ class Session(object):
         self.user = ""
         self.computer = ""
         self.dc = ""
+        self.domain = ""
         self.arch = ""
         self.realcwd = ""
 
@@ -63,6 +64,7 @@ class Session(object):
                 return False
 
             self.user = data[0]
+            self.domain = data[0].split("\\")[0]
             self.elevated = self.ELEVATED_TRUE if "*" in data[0] else self.ELEVATED_FALSE
             self.computer = data[1]
             self.os = data[2]
