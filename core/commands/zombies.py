@@ -55,7 +55,7 @@ def execute(shell, cmd):
         alt_domain = [i for i in domain_key if i != splitted[1].lower()][0]
         cur_sessions = []
         for session in all_sessions:
-            d = session.user.split("\\")[0].lower()
+            d = session.domain.lower()
             if (d == splitted[1].lower() or d == alt_domain.lower()) and not session.killed:
                 cur_sessions.append(session)
 
