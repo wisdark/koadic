@@ -31,10 +31,9 @@ class Job(object):
             self.id = Job.JOB_ID
             Job.JOB_ID += 1
 
-        self.create()
-
-        self.shell.print_status("Zombie %d: Job %d (%s) created." % (
-            self.session.id, self.id, self.name))
+        if self.create() != False:
+            self.shell.print_status("Zombie %d: Job %d (%s) created." % (
+                self.session.id, self.id, self.name))
 
     def create(self):
         pass
