@@ -5,6 +5,11 @@ import string
 
 class DotNet2JSJob(core.job.Job):
     def create(self):
+        self.mimi_output = ""
+        if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":
+            self.error("0", "This job requires an elevated session. Set IGNOREADMIN to true to run anyway.", "Not elevated", "")
+            return False
+
         # cant change this earlier, has to be job specific
         # i dont like it, but this is how we do this to make payload smaller
         if self.session.arch == "64":
@@ -52,10 +57,10 @@ class DotNet2JSJob(core.job.Job):
         self.display()
 
     def display(self):
-        try:
+        if self.mimi_output:
             self.print_good(self.mimi_output)
-        except:
-            pass
+        else:
+            self.print_error()
         #self.shell.print_plain(str(self.errno))
 
 class DotNet2JSImplant(core.implant.Implant):
