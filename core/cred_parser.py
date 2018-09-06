@@ -184,16 +184,24 @@ class CredParse(object):
                     ckeys = []
                     [[ckeys.append(k) for k in row if k not in ckeys] for row in cred_dict]
                     for cred in cred_dict:
-                        key = tuple([cred["Domain"].lower(), cred["Username"].lower()])
+                        key_d = cred["Domain"]
+                        key_u = cred["Username"]
+                        if "\\" in cred["Domain"]:
+                            key_d = cred["Domain"].split("\\")[0]
+                            key_u = cred["Domain"].split("\\")[1]
+                        elif "\\" in cred["Username"]:
+                            key_d = cred["Username"].split("\\")[0]
+                            key_u = cred["Username"].split("\\")[1]
+                        key = tuple([key_d.lower(), key_u.lower()])
 
                         domains = [j for i in self.shell.domain_info for j in i]
-                        if cred["Domain"].lower() in domains:
-                            domain_key = [i for i in self.shell.domain_info if cred["Domain"].lower() in i][0]
-                            other_domain = [i for i in domain_key if i != cred["Domain"].lower()][0]
+                        if key_d.lower() in domains:
+                            domain_key = [i for i in self.shell.domain_info if key_d.lower() in i][0]
+                            other_domain = [i for i in domain_key if i != key_d.lower()][0]
                         else:
                             other_domain = ""
 
-                        other_key = tuple([other_domain, cred["Username"].lower()])
+                        other_key = tuple([other_domain, key_u.lower()])
 
                         my_key = ""
                         for creds_key in self.shell.creds_keys:
