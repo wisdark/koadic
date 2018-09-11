@@ -5,6 +5,7 @@ def autocomplete(shell, line, text, state):
 
 def help(shell):
     shell.print_plain("")
+    shell.print_plain("Use %s for a useful overview of gathered domain details" % (shell.colors.colorize("domain DOMAIN", shell.colors.BOLD)))
     shell.print_plain("Use %s for full domain details" % (shell.colors.colorize("domain -a DOMAIN", shell.colors.BOLD)))
     shell.print_plain("Use %s for domain admins" % (shell.colors.colorize("domain -d DOMAIN", shell.colors.BOLD)))
     shell.print_plain("Use %s for domain users" % (shell.colors.colorize("domain -u DOMAIN", shell.colors.BOLD)))
@@ -21,25 +22,13 @@ def print_domains(shell):
         shell.print_plain("\tFQDN: "+domain[0]+" | NetBIOS: "+domain[1])
     shell.print_plain("")
 
-def print_domain_detailed(shell, domain):
-    domains = [j for i in shell.domain_info for j in i]
-    if not domain.lower() in domains:
-        shell.print_error("Supplied domain not known")
-        return
+def print_domain_detailed(shell, domain_key):
+    print_domain_admins(shell, domain_key)
+    print_domain_users(shell, domain_key)
+    print_domain_password_policy(shell, domain_key)
+    print_domain_controllers(shell, domain_key)
 
-    print_domain_admins(shell, domain)
-    print_domain_users(shell, domain)
-    print_domain_password_policy(shell, domain)
-    print_domain_controllers(shell, domain)
-
-def print_domain_admins(shell, domain):
-    domains = [j for i in shell.domain_info for j in i]
-    if not domain.lower() in domains:
-        shell.print_error("Supplied domain not known")
-        return
-
-    domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
-
+def print_domain_admins(shell, domain_key):
     if not "Domain Admins" in shell.domain_info[domain_key]:
         shell.print_error("Domain Admins not gathered for target domain. Please run implant/gather/enum_domain_info")
         return
@@ -48,6 +37,17 @@ def print_domain_admins(shell, domain):
 
     max_len = len(sorted(das, key=len)[-1])+8
     formats = "{{0:{0}}}{{1:{0}}}{{2:{0}}}{{3:{0}}}".format(max_len) # does this make me an idiot or a genius?
+
+    for da in das:
+        c_key = ""
+        if (domain_key[0], da) in shell.creds_keys:
+            c_key = (domain_key[0], da)
+        elif (domain_key[1], da) in shell.creds_keys:
+            c_key = (domain_key[1], da)
+
+        if c_key and (shell.creds[c_key]["Password"] or shell.creds[c_key]["NTLM"]):
+            loc = das.index(da)
+            das[loc] = da+"*"
 
     shell.print_plain("")
     shell.print_plain("Domain Admins")
@@ -58,15 +58,10 @@ def print_domain_admins(shell, domain):
         shell.print_plain(formats.format(da_row[0], da_row[1], da_row[2], da_row[3]))
 
     shell.print_plain("")
+    shell.print_plain("* = credentials in cred store")
+    shell.print_plain("")
 
-def print_domain_users(shell, domain):
-    domains = [j for i in shell.domain_info for j in i]
-    if not domain.lower() in domains:
-        shell.print_error("Supplied domain not known")
-        return
-
-    domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
-
+def print_domain_users(shell, domain_key):
     if not "Domain Users" in shell.domain_info[domain_key]:
         shell.print_error("Domain Users not gathered for target domain. Please run implant/gather/enum_domain_info")
         return
@@ -75,6 +70,17 @@ def print_domain_users(shell, domain):
 
     max_len = len(sorted(users, key=len)[-1])+8
     formats = "{{0:{0}}}{{1:{0}}}{{2:{0}}}{{3:{0}}}".format(max_len) # does this make me an idiot or a genius?
+
+    for user in users:
+        c_key = ""
+        if (domain_key[0], user) in shell.creds_keys:
+            c_key = (domain_key[0], user)
+        elif (domain_key[1], user) in shell.creds_keys:
+            c_key = (domain_key[1], user)
+
+        if c_key and (shell.creds[c_key]["Password"] or shell.creds[c_key]["NTLM"]):
+            loc = users.index(user)
+            users[loc] = user+"*"
 
     shell.print_plain("")
     shell.print_plain("Domain Users")
@@ -85,15 +91,10 @@ def print_domain_users(shell, domain):
         shell.print_plain(formats.format(user_row[0], user_row[1], user_row[2], user_row[3]))
 
     shell.print_plain("")
+    shell.print_plain("* = credentials in cred store")
+    shell.print_plain("")
 
-def print_domain_password_policy(shell, domain):
-    domains = [j for i in shell.domain_info for j in i]
-    if not domain.lower() in domains:
-        shell.print_error("Supplied domain not known")
-        return
-
-    domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
-
+def print_domain_password_policy(shell, domain_key):
     if not "Password Policy" in shell.domain_info[domain_key]:
         shell.print_error("Password Policy not gathered for target domain. Please run implant/gather/enum_domain_info")
         return
@@ -114,14 +115,7 @@ def print_domain_password_policy(shell, domain):
 
     shell.print_plain("")
 
-def print_domain_controllers(shell, domain):
-    domains = [j for i in shell.domain_info for j in i]
-    if not domain.lower() in domains:
-        shell.print_error("Supplied domain not known")
-        return
-
-    domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
-
+def print_domain_controllers(shell, domain_key):
     if not "Domain Controllers" in shell.domain_info[domain_key]:
         shell.print_error("Domain Controllers not gathered for target domain. Please run implant/gather/enum_domain_info")
         return
@@ -133,36 +127,50 @@ def print_domain_controllers(shell, domain):
 
     shell.print_plain("")
 
-def export_domain_info(shell, domain="*"):
-    if domain != "*":
-        domains = [j for i in shell.domain_info for j in i]
-        if not domain.lower() in domains:
-            shell.print_error("Supplied domain not known")
-            return
+def print_opti_info(shell, domain):
 
-    if domain == "*":
+    domains = [j for i in shell.domain_info for j in i]
+    if not domain.lower() in domains:
+        shell.print_error("Supplied domain not known")
+        return
+    domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
+
+    if "Domain Admins" in shell.domain_info[domain_key]:
+        print_domain_admins(shell, domain_key)
+
+    if "Domain Controllers" in shell.domain_info[domain_key]:
+        print_domain_controllers(shell, domain_key)
+
+    shell.print_plain("Information gathered for domain "+str(domain_key)+":")
+    for h in shell.domain_info[domain_key]:
+        shell.print_plain("\t"+h)
+    shell.print_plain("")
+    shell.print_plain("See 'help domain' to access full details.")
+    shell.print_plain("")
+
+
+
+def export_domain_info(shell, domain_key="*"):
+    if domain_key == "*":
         export = open('/tmp/domain_info.txt', 'w')
-        domain_key = "*"
+        keys = list(shell.domain_info.keys())
     else:
-        export = open('/tmp/'+domain+'_domain_info.txt', 'w')
-        domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
+        export = open('/tmp/'+domain_key[0]+'_domain_info.txt', 'w')
+        keys = [domain_key]
 
-    for key in shell.domain_info:
-        if domain == "*" or domain_key == key:
-            export.write(str(key)+"\n")
-            for subkey in shell.domain_info[key]:
-                export.write(str(key)+"-"+subkey+"\n")
-                for value in shell.domain_info[key][subkey]:
-                    export.write(str(value)+"\n")
-                export.write("/"+str(key)+"-"+subkey+"\n")
-            export.write("/"+str(key)+"\n")
-
+    for key in keys:
+        export.write(str(key)+"\n")
+        for subkey in shell.domain_info[key]:
+            export.write(str(key)+"-"+subkey+"\n")
+            for value in shell.domain_info[key][subkey]:
+                export.write(str(value)+"\n")
+            export.write("/"+str(key)+"-"+subkey+"\n")
+        export.write("/"+str(key)+"\n")
 
     shell.print_good("Domain info written to "+export.name)
     export.close()
 
 def execute(shell, cmd):
-
     splitted = cmd.split()
 
     if len(splitted) > 1 and splitted[1] == "-z":
@@ -178,24 +186,32 @@ def execute(shell, cmd):
 
     if shell.domain_info:
         if len(splitted) > 2:
+            domain = splitted[2]
+            domains = [j for i in shell.domain_info for j in i]
+            if not domain.lower() in domains:
+                shell.print_error("Supplied domain not known")
+                return
+            domain_key = [i for i in shell.domain_info if domain.lower() in i][0]
+
             if splitted[1] == "-a":
-                print_domain_detailed(shell, splitted[2])
+                print_domain_detailed(shell, domain_key)
             elif splitted[1] == "-d":
-                print_domain_admins(shell, splitted[2])
+                print_domain_admins(shell, domain_key)
             elif splitted[1] == "-u":
-                print_domain_users(shell, splitted[2])
+                print_domain_users(shell, domain_key)
             elif splitted[1] == "-p":
-                print_domain_password_policy(shell, splitted[2])
+                print_domain_password_policy(shell, domain_key)
             elif splitted[1] == "-c":
-                print_domain_controllers(shell, splitted[2])
+                print_domain_controllers(shell, domain_key)
             elif splitted[1] == "-x":
-                export_domain_info(shell, splitted[2])
+                export_domain_info(shell, domain_key)
             else:
                 shell.print_error("Unknown option '"+splitted[1]+"'")
         elif len(splitted) > 1 and splitted[1] == "-x":
             export_domain_info(shell)
+        elif len(splitted) > 1:
+            print_opti_info(shell, splitted[1])
         else:
             print_domains(shell)
     else:
         shell.print_error("No domain information gathered. Please run implant/gather/enum_domain_info.")
-
