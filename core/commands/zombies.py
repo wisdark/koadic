@@ -97,6 +97,7 @@ def print_session(shell, session):
     shell.print_plain("")
     print_data(shell, "ID", session.id)
     print_data(shell, "Status", "Alive" if session.status == session.ALIVE else "Dead")
+    print_data(shell, "First Seen", datetime.datetime.fromtimestamp(session.first_seen).strftime('%Y-%m-%d %H:%M:%S'))
     print_data(shell, "Last Seen", datetime.datetime.fromtimestamp(session.last_active).strftime('%Y-%m-%d %H:%M:%S'))
     shell.print_plain("")
     print_data(shell, "IP", session.ip)

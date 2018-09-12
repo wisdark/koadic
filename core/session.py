@@ -39,6 +39,7 @@ class Session(object):
         self.stager = stager
         self.shell = stager.shell
         self.status = Session.ALIVE
+        self.first_seen = time.time()
         self.update_active()
 
         self.shell.print_good(
