@@ -20,6 +20,10 @@ try
     var output = Koadic.shell.exec(add_user_command, "~DIRECTORY~\\"+Koadic.uuid()+".txt");
     headers["Task"] = "CreateUser";
     Koadic.work.report(output, headers);
+    if (output.indexOf("error") != -1)
+    {
+      throw "";
+    }
 
     if (~ADMIN~)
     {
