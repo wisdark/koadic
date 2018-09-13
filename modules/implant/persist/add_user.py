@@ -18,7 +18,7 @@ class AddUserJob(core.job.Job):
             elif "The account already exists." in data:
                 self.shell.print_warning("User '%s' already exists." % self.options.get("USERNAME"))
             else:
-                self.shell.print_error("User '%s' could not be created:\n" % (self.options.get("USERNAME"), data))
+                self.shell.print_error("User '%s' could not be created:\n%s" % (self.options.get("USERNAME"), data))
             return
 
         if task == "MakeAdmin":
@@ -28,7 +28,7 @@ class AddUserJob(core.job.Job):
             elif "The specified account name is already a member of the group." in data:
                 self.shell.print_warning("User '%s' is already an administrator." % self.options.get("USERNAME"))
             else:
-                self.shell.print_error("User '%s' could not be added as an administrator:\n" % (self.options.get("USERNAME"), data))
+                self.shell.print_error("User '%s' could not be added as an administrator:\n%s" % (self.options.get("USERNAME"), data))
             return
 
         if task == "DeleteUser":
@@ -38,7 +38,7 @@ class AddUserJob(core.job.Job):
             elif "The user name could not be found." in data:
                 self.shell.print_warning("User '%s' does not exist." % self.options.get("USERNAME"))
             else:
-                self.shell.print_error("User '%s' could not be deleted or does not exist:\n" % (self.options.get("USERNAME"), data))
+                self.shell.print_error("User '%s' could not be deleted or does not exist:\n%s" % (self.options.get("USERNAME"), data))
             return
 
         if data == "Complete":
@@ -68,13 +68,14 @@ class AddUserJob(core.job.Job):
         c["Extra"]["DCC"] = []
         c["Extra"]["DPAPI"] = []
         c["Extra"]["LM"] = []
-        self.shell.creds_keys.append((c["Domain"].lower(), c["Username"]).lower())
-        self.shell.creds[(c["Domain"].lower(), c["Username"].lower())] = c
+        c_key = (c["Domain"].lower(), c["Username"].lower())
+        if c_key not in self.shell.creds_keys:
+            self.shell.creds_keys.append(c_key)
+        self.shell.creds[c_key] = c
         self.display()
 
     def display(self):
-        self.shell.print_plain(self.data)
-        # pass
+        pass
 
 class AddUserImplant(core.implant.Implant):
 
