@@ -192,6 +192,9 @@ class CredParse(object):
                         elif "\\" in cred["Username"]:
                             key_d = cred["Username"].split("\\")[0]
                             key_u = cred["Username"].split("\\")[1]
+                        if cred["Domain"] == ".":
+                            key_d = self.session.computer
+
                         key = tuple([key_d.lower(), key_u.lower()])
 
                         domains = [j for i in self.shell.domain_info for j in i]
