@@ -32,7 +32,7 @@ class RegistryJob(core.job.Job):
 
         if data == "Complete":
             super(RegistryJob, self).report(handler, data)
-            
+
         handler.reply(200)
 
     def done(self):

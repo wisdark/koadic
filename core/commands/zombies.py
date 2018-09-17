@@ -22,6 +22,7 @@ def execute(shell, cmd):
         print_all_sessions(shell, cur_sessions)
         return
 
+    # Zombie details for killed zombies
     if splitted[1] == "killed":
         cur_sessions = []
         for session in all_sessions:
@@ -49,6 +50,7 @@ def execute(shell, cmd):
             print_all_sessions(shell, cur_sessions)
             return
 
+    # Zombie details by Domain
     domains = [j for i in shell.domain_info for j in i]
     if splitted[1].lower() in domains:
         domain_key = [i for i in shell.domain_info if splitted[1].lower() in i][0]
@@ -65,6 +67,8 @@ def execute(shell, cmd):
         elif len(cur_sessions) > 1:
             print_all_sessions(shell, cur_sessions)
             return
+
+    # Zombie details by ID
     try:
         for session in all_sessions:
             if session.id == int(splitted[1]):

@@ -4,7 +4,13 @@ def autocomplete(shell, line, text, state):
     return None
 
 def help(shell):
-    pass
+    shell.print_plain("")
+    shell.print_plain("Use %s to edit the current module's python file" % (shell.colors.colorize("edit / edit py / edit python", shell.colors.BOLD)))
+    shell.print_plain("Use %s to edit the current module's associated javascript file (if applicable)" % (shell.colors.colorize("edit js / edit javascript", shell.colors.BOLD)))
+    shell.print_plain("Use %s to edit the current module's associated vbscript file (if applicable)" % (shell.colors.colorize("edit vbs / edit vbscript", shell.colors.BOLD)))
+    shell.print_plain("")
+    shell.print_plain("NOTE: Uses $EDITOR env variable, otherwise will fallback to vi.")
+    shell.print_plain("")
 
 def execute(shell, cmd):
     import subprocess, os

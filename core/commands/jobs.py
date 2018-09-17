@@ -4,7 +4,9 @@ def autocomplete(shell, line, text, state):
     pass
 
 def help(shell):
-    pass
+    shell.print_plain("")
+    shell.print_plain("Use %s to view job results (if any)" % (shell.colors.colorize("jobs JOB_ID", shell.colors.BOLD)))
+    shell.print_plain("")
 
 def print_job(shell, id):
     for stager in shell.stagers:
