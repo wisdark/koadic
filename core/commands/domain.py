@@ -33,7 +33,7 @@ def print_domain_admins(shell, domain_key):
         shell.print_error("Domain Admins not gathered for target domain. Please run implant/gather/enum_domain_info")
         return
 
-    das = shell.domain_info[domain_key]["Domain Admins"]
+    das = list(shell.domain_info[domain_key]["Domain Admins"])
 
     max_len = len(sorted(das, key=len)[-1])+8
     formats = "{{0:{0}}}{{1:{0}}}{{2:{0}}}{{3:{0}}}".format(max_len) # does this make me an idiot or a genius?
