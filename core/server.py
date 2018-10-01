@@ -37,6 +37,7 @@ class Server(threading.Thread):
         self.payload = stager.options.get("_STAGECMD_")
         self.payload_id = core.payload.Payload().id
         self.handler_class = handler
+        self.killed = False
 
         self._create_options()
         self._setup_server()
