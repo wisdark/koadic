@@ -15,11 +15,15 @@ def help(shell):
 def execute(shell, cmd):
     import subprocess, os
 
-    if not os.environ['EDITOR']:
-        shell.print_error("$EDITOR env variable not set, falling back to vi!")
+    try:
+        if not os.environ['EDITOR']:
+            shell.print_error("$EDITOR env variable not set, falling back to vi!")
+            editor = 'vi'
+        else:
+            editor = os.environ['EDITOR']
+    except KeyError:
+        shell.print_error("$EDITOR env variable does not exist, falling back to vi!")
         editor = 'vi'
-    else:
-        editor = os.environ['EDITOR']
 
     py_file = "modules/"+shell.state+".py"
     js_file = "data/"+shell.state+".js"
