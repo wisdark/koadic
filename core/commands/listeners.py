@@ -25,7 +25,7 @@ def print_all_payloads(shell):
 
     shell.print_plain("")
     shell.print_plain('Use "listeners %s" to print a payload' % shell.colors.colorize("ID", [shell.colors.BOLD]))
-    shell.print_plain('Use "listeners %s -k" to kill a payload' % shell.colors.colorize("ID", [shell.colors.BOLD]))
+    shell.print_plain('Use "listeners -k %s" to kill a payload' % shell.colors.colorize("ID", [shell.colors.BOLD]))
     shell.print_plain("")
 
 def print_payload(shell, id):
@@ -45,16 +45,17 @@ def kill_listener(shell, id):
     for stager in shell.stagers:
         if str(stager.payload_id) == id and not stager.killed:
             if len(stager.sessions) > 0:
-                shell.print_warning("Warning: This listener still has live zombies attached.")
-                shell.print_plain(", ".join([str(s.id) for s in stager.sessions]))
-                shell.print_warning("If this listener dies, then they will die. Continue?")
+
+                shell.print_warning("Warning: This listener still has live zombies attached:")
+                shell.print_plain("   Zombie IDs: " + ", ".join([str(s.id) for s in stager.sessions]))
+                shell.print_warning("If this listener dies, then they will die.")
 
                 try:
                     import readline
                     old_prompt = shell.prompt
                     old_clean_prompt = shell.clean_prompt
                     readline.set_completer(None)
-                    shell.prompt = "> "
+                    shell.prompt = "Continue? y/N: "
                     shell.clean_prompt = shell.prompt
                     option = shell.get_command(shell.prompt)
 
@@ -98,17 +99,18 @@ def execute(shell, cmd):
 
     splitted = cmd.split()
 
-    if len(splitted) > 2:
-        id = splitted[1]
-        flag = splitted[2]
-        if flag == "-k":
-            kill_listener(shell, id)
+    if len(splitted) > 1:
+        id = splitted[-1]
+        if len(splitted) > 2:
+            flag = splitted[1]
+            if flag == "-k":
+                kill_listener(shell, id)
+                return
+            else:
+                shell.print_error("Unknown option '%s'" % flag)
+                return
         else:
-            shell.print_error("Unknown option '%s'" % flag)
-        return
-    elif len(splitted) > 1:
-        id = splitted[1]
-        print_payload(shell, id)
-        return
+            print_payload(shell, id)
+            return
 
     print_all_payloads(shell)
