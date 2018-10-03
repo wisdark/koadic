@@ -65,6 +65,29 @@ class EnumDomainInfoJob(core.job.Job):
             handler.reply(200)
             return
 
+        if task == "DomainComputers":
+            computers = data.split("___")[:-1]
+            computers_noip = [[computer, ""] for computer in computers]
+            if not "DomainComputers" in self.shell.domain_info[self.domain_key]:
+                self.shell.domain_info[self.domain_key]["Domain Computers"] = computers_noip
+
+            self.print_good("Domain Computers retrieved: "+str(len(computers)))
+            handler.reply(200)
+            self.print_good("Starting Domain Computer hostname resolution..." )
+            if len(computers) > 60:
+                self.print_warning("This may take a few minutes...")
+            return
+
+        if task == "ResolvedComputers":
+            resolved = data.split("___")[:-1]
+            resolved_expand = [resolve.split("***") for resolve in resolved]
+            domain_computers = list(self.shell.domain_info[self.domain_key]["Domain Computers"])
+            self.shell.domain_info[self.domain_key]["Domain Computers"] = [r_pair for r_pair in resolved_expand if [r_pair[0], ''] in domain_computers]
+            self.print_good("Finished resolving Domain Computers!")
+            handler.reply(200)
+            return
+
+
         if len(data) == 0:
             handler.reply(200)
             return

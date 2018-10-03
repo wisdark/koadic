@@ -11,6 +11,7 @@ def help(shell):
     shell.print_plain("Use %s for domain users" % (shell.colors.colorize("domain -u DOMAIN", shell.colors.BOLD)))
     shell.print_plain("Use %s for domain password policy" % (shell.colors.colorize("domain -p DOMAIN", shell.colors.BOLD)))
     shell.print_plain("Use %s for domain controllers" % (shell.colors.colorize("domain -c DOMAIN", shell.colors.BOLD)))
+    shell.print_plain("Use %s for domain computers" % (shell.colors.colorize("domain -m DOMAIN", shell.colors.BOLD)))
     shell.print_plain("Use %s to run implant/gather/enum_domain_info on a zombie" % (shell.colors.colorize("domain -z ZOMBIE_ID", shell.colors.BOLD)))
     shell.print_plain("Use %s to export domain information" % (shell.colors.colorize("domain -x [DOMAIN]", shell.colors.BOLD)))
     shell.print_plain("")
@@ -27,6 +28,7 @@ def print_domain_detailed(shell, domain_key):
     print_domain_users(shell, domain_key)
     print_domain_password_policy(shell, domain_key)
     print_domain_controllers(shell, domain_key)
+    print_domain_computers(shell, domain_key)
 
 def print_domain_admins(shell, domain_key):
     if not "Domain Admins" in shell.domain_info[domain_key]:
@@ -127,6 +129,20 @@ def print_domain_controllers(shell, domain_key):
 
     shell.print_plain("")
 
+def print_domain_computers(shell, domain_key):
+    if not "Domain Computers" in shell.domain_info[domain_key]:
+        shell.print_error("Domain Computers not gathered for target domain. Please run implant/gather/enum_domain_info")
+        return
+
+    shell.print_plain("")
+    shell.print_plain("Domain Computers")
+    shell.print_plain("----------------")
+    for computer in shell.domain_info[domain_key]["Domain Computers"]:
+        shell.print_plain(computer[0]+" ("+computer[1]+")")
+
+    shell.print_plain("")
+
+
 def print_opti_info(shell, domain):
 
     domains = [j for i in shell.domain_info for j in i]
@@ -203,6 +219,8 @@ def execute(shell, cmd):
                 print_domain_password_policy(shell, domain_key)
             elif splitted[1] == "-c":
                 print_domain_controllers(shell, domain_key)
+            elif splitted[1] == "-m":
+                print_domain_computers(shell, domain_key)
             elif splitted[1] == "-x":
                 export_domain_info(shell, domain_key)
             else:

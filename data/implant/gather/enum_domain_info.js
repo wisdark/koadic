@@ -49,7 +49,35 @@ function ParseDomainControllers(results)
                 dcstring += tmp[j].toLowerCase() + "___";
             }
         }
-        retstring += dcstring.split("___")[0] + "*" + dcstring.split("___")[1] + "___"
+        var dcarray = dcstring.split("___");
+        retstring += dcarray[0] + "*" + dcarray[dcarray.length-2] + "___";
+    }
+    return retstring;
+}
+
+function ResolveHostnames(hostnames)
+{
+    var retstring = "";
+    var computers = hostnames.split("___");
+    for (var i = 0; i < computers.length-1; i++)
+    {
+        var nsresults = Koadic.shell.exec("nslookup "+computers[i], "~DIRECTORY~\\"+Koadic.uuid()+".txt");
+        var ip = nsresults.split("Name:")[1].split("Address:")[1].split("\r\n")[0];
+        ip = ip.replace(/\s/g, "");
+        retstring += computers[i] + "***" + ip + "___"
+    }
+    return retstring;
+}
+
+function ParseDomainComputers()
+{
+    var retstring = "";
+    var objWMI = GetObject("winmgmts:{impersonationLevel=impersonate}!\\\\.\\root\\directory\\LDAP");
+    var objComps = objWMI.Get("ds_computer").Instances_();
+    var computercount = objComps.Count;
+    for (var i = 0; i < computercount; i++) {
+      var comp = objComps.ItemIndex(i);
+      retstring += comp.ds_dnshostname + "___";
     }
     return retstring;
 }
@@ -79,6 +107,14 @@ try
     var domain_controllers = ParseDomainControllers(Koadic.shell.exec("nltest /dnsgetdc:"+fqdn, "~DIRECTORY~\\"+Koadic.uuid()+".txt"));
     headers["Header"] = "DomainControllers";
     Koadic.work.report(domain_controllers, headers);
+
+    var domain_computers = ParseDomainComputers();
+    headers["Header"] = "DomainComputers";
+    Koadic.work.report(domain_computers, headers);
+
+    var resolved_computers = ResolveHostnames(domain_computers);
+    headers["Header"] = "ResolvedComputers";
+    Koadic.work.report(resolved_computers, headers);
 
     Koadic.work.report("Complete");
 

@@ -18,6 +18,30 @@ class HashDumpDCImplant(core.implant.Implant):
         self.options.register("SYSHFILE", "", "random uuid for SYSTEM hive file name", hidden=True)
 
     def run(self):
+
+        import os.path
+        if not os.path.isfile("data/impacket/examples/secretsdump.py"):
+            old_prompt = self.shell.prompt
+            old_clean_prompt = self.shell.clean_prompt
+            self.shell.prompt = "Would you like me to get it for you? y/N: "
+            self.shell.clean_prompt = self.shell.prompt
+
+            self.shell.print_warning("It doesn't look like you have the impacket submodule installed yet! This module will fail if you don't have it!")
+            try:
+                import readline
+                readline.set_completer(None)
+                option = self.shell.get_command(self.shell.prompt)
+                if option.lower() == "y":
+                    from subprocess import call
+                    call(["git", "submodule", "init"])
+                    call(["git", "submodule", "update"])
+            except KeyboardInterrupt:
+                self.shell.print_plain(self.shell.clean_prompt)
+                return
+            finally:
+                self.shell.prompt = old_prompt
+                self.shell.clean_prompt = old_clean_prompt
+
         # generate new file every time this is run
         self.options.set("NTDSFILE", uuid.uuid4().hex)
         self.options.set("SYSHFILE", uuid.uuid4().hex)
