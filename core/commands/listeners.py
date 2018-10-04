@@ -44,7 +44,7 @@ def print_payload(shell, id):
 def kill_listener(shell, id):
     for stager in shell.stagers:
         if str(stager.payload_id) == id and not stager.killed:
-            if len(stager.sessions) > 0:
+            if len(stager.sessions) > 0 and len([z for z in stager.sessions if not z.killed]) > 0:
 
                 shell.print_warning("Warning: This listener still has live zombies attached:")
                 shell.print_plain("   Zombie IDs: " + ", ".join([str(s.id) for s in stager.sessions]))
