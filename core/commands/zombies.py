@@ -13,6 +13,8 @@ def execute(shell, cmd):
     all_sessions = []
     for stager in shell.stagers:
         all_sessions.extend(stager.sessions)
+    all_sessions.sort(key=lambda s: s.id)
+
 
     if len(splitted) == 1:
         cur_sessions = []
