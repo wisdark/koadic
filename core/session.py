@@ -34,6 +34,7 @@ class Session(object):
         self.realcwd = ""
 
         self.ip = ip
+        self.origin_ip = ip
         self.user_agent = user_agent
 
         self.stager = stager
@@ -61,7 +62,7 @@ class Session(object):
                 except UnicodeDecodeError:
                     data = data.decode('unicode-escape').split("~~~")
 
-            if len(data) != 6:
+            if len(data) != 7:
                 return False
 
             self.user = data[0]
@@ -81,6 +82,7 @@ class Session(object):
             else:
                 self.arch = data[4]
             self.realcwd = data[5].rstrip()
+            self.ip = data[6].split("___")[0].strip()
         except Exception as e:
             self.shell.print_warning("parsing error")
             self.shell.print_warning(repr(e))
