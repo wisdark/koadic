@@ -11,7 +11,10 @@ try
     var now = new Date().getTime();
     while (new Date().getTime() < now + 10000);
 
-    Koadic.registry.destroy(Koadic.registry.HKCU, path, "");
+    if (Koadic.registry.destroy(Koadic.registry.HKCU, path, "") != 0)
+    {
+        Koadic.shell.run("reg delete HKCU\\"+path+" /f", true);
+    }
 }
 catch (e)
 {
