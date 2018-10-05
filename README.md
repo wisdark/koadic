@@ -53,6 +53,10 @@ implant/inject/mimikatz_dotnet2js | Injects a reflective-loaded DLL to run power
 implant/inject/shellcode_excel | Runs arbitrary shellcode payload (if Excel is installed).
 implant/manage/enable_rdesktop | Enables remote desktop on the target.
 implant/manage/exec_cmd | Run an arbitrary command on the target, and optionally receive the output.
+implant/persist/add_user | Create a local/domain user
+implant/persist/registry | Add a Koadic payload to the registry
+implant/persist/schtasks | Add a Koadic payload as a Scheduled Task
+implant/persist/wmi | Add a Koadic payload as a WMI subscription
 implant/phishing/password_box | Prompt a user to enter their password.
 implant/pivot/stage_wmi | Hook a zombie on another machine using WMI.
 implant/pivot/exec_psexec | Run a command on another machine using psexec from sysinternals.
