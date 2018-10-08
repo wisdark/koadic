@@ -225,12 +225,22 @@ class CredParse(object):
                             c["IP"] = self.session.ip
                             for subkey in cred:
                                 c[subkey] = cred[subkey]
-                            if "\\" in c["Username"]:
+
+                            if "\\" in c["Domain"]:
+                                c["Username"] = c["Domain"].split("\\")[1]
+                                c["Domain"] = c["Domain"].split("\\")[0]
+                            elif "\\" in c["Username"]:
                                 c["Domain"] = c["Username"].split("\\")[0]
                                 c["Username"] = c["Username"].split("\\")[1]
-                            elif "\\" in c["Domain"]:
-                                c["Domain"] = c["Domain"].split("\\")[0]
-                                c["Username"] = c["Domain"].split("\\")[1]
+
+                            if "@" in c["Domain"]:
+                                c["Username"] = c["Domain"].split("@")[0]
+                                c["Domain"] = c["Domain"].split("@")[1]
+                            elif "@" in c["Username"]:
+                                print(c["Username"])
+                                c["Domain"] = c["Username"].split("@")[1]
+                                c["Username"] = c["Username"].split("@")[0]
+
                             if c["Password"] == "(null)":
                                 c["Password"] = ""
                             if c["NTLM"].lower() == "d5024392098eb98bcc70051c47c6fbb2":
