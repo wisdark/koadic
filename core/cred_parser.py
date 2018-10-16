@@ -241,6 +241,9 @@ class CredParse(object):
                                 c["Domain"] = c["Username"].split("@")[1]
                                 c["Username"] = c["Username"].split("@")[0]
 
+                            if c["Domain"] == ".":
+                                c["Domain"] = self.session.computer
+
                             if c["Password"] == "(null)":
                                 c["Password"] = ""
                             if c["NTLM"].lower() == "d5024392098eb98bcc70051c47c6fbb2":
