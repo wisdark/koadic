@@ -59,6 +59,7 @@ class DotNet2JSJob(core.job.Job):
     def display(self):
         if self.mimi_output:
             self.print_good(self.mimi_output)
+            self.results = self.mimi_output
         else:
             self.print_error()
         #self.shell.print_plain(str(self.errno))
