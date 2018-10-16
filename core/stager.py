@@ -81,8 +81,9 @@ class Stager(core.plugin.Plugin):
             self.options.set("_EXPIREEPOCH_", "999999999999999")
 
 
-
-        self.start_server(core.handler.Handler)
+        payload = self.start_server(core.handler.Handler)
+        if payload:
+            return payload
 
 
 
@@ -96,6 +97,7 @@ class Stager(core.plugin.Plugin):
             self.shell.print_good("Spawned a stager at %s" % (server.options.get("URL")))
             self.shell.print_warning("Don't edit this URL! (See: 'help portfwd')")
             server.print_payload()
+            return server.get_payload().decode()
         except OSError as e:
             port = str(self.options.get("SRVPORT"))
             if e.errno == 98:
@@ -111,6 +113,8 @@ class Stager(core.plugin.Plugin):
             message = template.format(type(ex).__name__, ex.args)
             self.shell.print_error(message)
             traceback.print_exc()
+            return
         except:
             self.shell.print_error("Failed to spawn stager")
             raise
+            return
