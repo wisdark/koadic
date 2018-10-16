@@ -102,7 +102,11 @@ class RestServer():
 
         @rest_api.route('/api/shutdown', methods=['GET'])
         def shutdown_server():
-            return jsonify(success=self.shutdown())
+            self.shell.rest_thread = ""
+            func = request.environ.get('werkzeug.server.shutdown')
+            if func is not None:
+                func()
+            return jsonify(success=True)
 
         @rest_api.route('/api/help', methods=['GET'])
         def get_help():
@@ -608,12 +612,7 @@ class RestServer():
 
 
 
-
-
         rest_api.run(host='0.0.0.0', port=int(self.port), threaded=True)
-
-    def shutdown(self):
-        return True
 
     def condense_creds(self):
         bad_keys = []
