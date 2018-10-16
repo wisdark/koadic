@@ -25,6 +25,7 @@ class Shell(object):
         self.creds_keys = []
         self.domain_info = {}
         self.sounds = {}
+        self.rest_thread = ""
 
     def run(self, autorun = []):
         self.main_thread_id = threading.current_thread().ident
