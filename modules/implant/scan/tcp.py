@@ -57,6 +57,7 @@ class ScanTCPImplant(core.implant.Implant):
         self.options.register("RHOSTS", "", "name/IP of the remotes")
         self.options.register("RPORTS", "22,80,135,139,443,445,3389", "ports to scan")
         self.options.register("TIMEOUT", "2", "longer is more accurate")
+        self.options.register("CHECKLIVE", "true", "check if host is up before checking ports", enum=["true", "false"])
 
     def run(self):
         options = self.options.copy()

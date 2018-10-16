@@ -56,9 +56,16 @@ try
     for (var idx in ips)
     {
         var ip = ips[idx];
-        // ghetto check if the IP is up
-        var test = TestPort(ip, 1);
-        if (test.status == "closed")
+        var test = "closed";
+        var testerrno = 0;
+        if (~CHECKLIVE~)
+        {
+            // ghetto check if the IP is up
+            var testport = TestPort(ip, 1);
+            test = testport.status;
+            testerrno = testport.errno;
+        }
+        if (test == "closed")
         {
             for (var pdx in ports)
             {
@@ -69,7 +76,7 @@ try
         }
         else
         {
-            Koadic.work.report(status_string("not up", ip, 0, test.errno));
+            Koadic.work.report(status_string("not up", ip, 1, testerrno));
         }
     }
 
