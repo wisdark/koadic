@@ -26,6 +26,7 @@ class Job(object):
         self.data = b""
         self.unsafe_data = b""
         self.key = uuid.uuid4().hex
+        self.results = ""
 
         with Job.JOB_ID_LOCK:
             self.id = Job.JOB_ID
