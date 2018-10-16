@@ -40,6 +40,7 @@ class Plugin(object):
                 for i in range(int(s[0]), int(s[1]) + 1):
                     splitted.append(str(i))
 
+        self.ret_jobs = []
         for server in self.shell.stagers:
             for session in server.sessions:
                 if (target.lower().strip() == "all" or str(session.id) in splitted) and not session.killed:
@@ -49,6 +50,7 @@ class Plugin(object):
                         options = copy.deepcopy(self.options)
                         j = job(self.shell, session, self.shell.state, workload, options)
                         session.jobs.append(j)
+                        self.ret_jobs.append(j.id)
 
     def load_payload(self, id):
         try:
