@@ -82,7 +82,7 @@ class Session(object):
             else:
                 self.arch = data[4]
             self.realcwd = data[5].rstrip()
-            self.ip = data[6].split("___")[0].strip()
+            self.ip = data[6].split("___")[0].strip() if data[6].split("___")[0].strip() else self.origin_ip
         except Exception as e:
             self.shell.print_warning("parsing error")
             self.shell.print_warning(repr(e))
