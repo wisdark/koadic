@@ -56,13 +56,27 @@ class HashDumpDCJob(core.job.Job):
 
     def save_file(self, data, name, decode = True):
         import uuid
+        import os
         save_fname = self.options.get("LPATH") + "/" + name + "." + self.session.ip + "." + uuid.uuid4().hex
         save_fname = save_fname.replace("//", "/")
 
-        with open(save_fname, "wb") as f:
-            if decode:
-                data = self.decode_downloaded_data(data)
-            f.write(data)
+        i = 0
+        step = 10000000
+        partfiles = []
+        while i < len(data):
+            with open(save_fname+str(i), "wb") as f:
+                partfiles.append(save_fname+str(i))
+                pdata = data
+                if decode:
+                    pdata = self.decode_downloaded_data(pdata[i:i+step])
+                f.write(pdata)
+            i += step
+
+        with open(save_fname, "wb+") as f:
+            for p in partfiles:
+                f.write(open(p, "rb").read())
+                os.remove(p)
+
 
         return save_fname
 
