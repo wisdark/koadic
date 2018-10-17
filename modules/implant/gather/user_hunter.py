@@ -72,6 +72,7 @@ class UserHunterImplant(core.implant.Implant):
         import uuid
         self.options.set("DLLUUID", uuid.uuid4().hex)
         self.options.set("MANIFESTUUID", uuid.uuid4().hex)
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/gather/user_hunter.js", self.options)

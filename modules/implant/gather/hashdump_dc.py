@@ -45,6 +45,7 @@ class HashDumpDCImplant(core.implant.Implant):
         # generate new file every time this is run
         self.options.set("NTDSFILE", uuid.uuid4().hex)
         self.options.set("SYSHFILE", uuid.uuid4().hex)
+        self.options.set("RPATH", self.options.get('RPATH').replace("\\", "\\\\").replace('"', '\\"'))
 
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/gather/hashdump_dc.js", self.options)

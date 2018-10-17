@@ -53,6 +53,7 @@ class LootFinderImplant(core.implant.Implant):
             self.options.set("LOOTDIR", self.options.get("LOOTDIR")+"\\")
 
         self.options.set("LOOTD", self.options.get("LOOTDIR").replace("\\", "\\\\"))
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/gather/loot_finder.js", self.options)

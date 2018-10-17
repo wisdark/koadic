@@ -27,6 +27,7 @@ class ExecCmdImplant(core.implant.Implant):
         # generate new file every time this is run
         # self.options.set("FILE", uuid.uuid4().hex)
         self.options.set("CMD", self.options.get('CMD').replace("\\", "\\\\").replace('"', '\\"'))
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         payloads = {}
         #payloads["vbs"] = self.load_script("data/implant/manage/exec_cmd.vbs", self.options)

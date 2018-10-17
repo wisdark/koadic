@@ -45,6 +45,7 @@ class UploadFileImplant(core.implant.Implant):
 
         last = self.options.get("LFILE").split("/")[-1]
         self.options.set("FILE", last)
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         payloads = {}
         #payloads["vbs"] = self.load_script("data/implant/util/upload_file.vbs", self.options)

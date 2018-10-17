@@ -59,6 +59,7 @@ class DynWrapXShellcodeImplant(core.implant.Implant):
             return
 
         self.options.set("SHELLCODEDECCSV", self.convert_shellcode(shellcode))
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         #vba = self.loader.load_script("data/implant/inject/shellcode.vba", self.options)
         #vba = vba.decode().replace("\n", "\\n")

@@ -99,6 +99,7 @@ class AddUserImplant(core.implant.Implant):
         if not self.options.get("PASSWORD"):
             self.shell.print_error("PASSWORD is a required option.")
             return
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/persist/add_user.js", self.options)

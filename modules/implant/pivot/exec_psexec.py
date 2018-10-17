@@ -49,6 +49,7 @@ class PsExecLiveImplant(core.implant.Implant):
             self.options.set("SMBDOMAIN", smbdomain)
             if not smbdomain:
                 self.shell.print_warning("Cred has no Domain!")
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/pivot/exec_psexec.js", self.options)

@@ -36,6 +36,8 @@ class HashDumpSAMImplant(core.implant.Implant):
                 self.shell.prompt = old_prompt
                 self.shell.clean_prompt = old_clean_prompt
 
+        self.options.set("RPATH", self.options.get('RPATH').replace("\\", "\\\\").replace('"', '\\"'))
+
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/gather/hashdump_sam.js", self.options)
 

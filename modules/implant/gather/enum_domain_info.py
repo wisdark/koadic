@@ -192,6 +192,7 @@ class EnumDomainInfoImplant(core.implant.Implant):
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory on zombie", required=False)
 
     def run(self):
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/gather/enum_domain_info.js", self.options)
 
