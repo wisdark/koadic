@@ -132,6 +132,7 @@ class DynWrapXShellcodeImplant(core.implant.Implant):
 
 
         self.options.set("SHIMX86BYTES", self.make_arrDLL(self.options.get("SHIMX86DLL")))
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
 
         workloads = {}

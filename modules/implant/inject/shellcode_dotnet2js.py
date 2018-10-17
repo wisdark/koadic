@@ -67,6 +67,7 @@ class SDotNet2JSImplant(core.implant.Implant):
     def run(self):
 
         self.options.set("DLLB64", self.dllb64(self.options.get("DLLHEX")))
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/inject/shellcode_dotnet2js.js", self.options)
