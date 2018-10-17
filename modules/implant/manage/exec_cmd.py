@@ -9,6 +9,7 @@ class ExecCmdJob(core.job.Job):
     def display(self):
         self.shell.print_plain("Result for `%s`:" % self.options.get('CMD').replace('\\"', '"').replace("\\\\", "\\"))
         self.shell.print_plain(self.data)
+        self.results = self.data
 
 class ExecCmdImplant(core.implant.Implant):
 
