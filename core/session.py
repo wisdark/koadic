@@ -84,13 +84,14 @@ class Session(object):
             self.realcwd = data[5].rstrip()
             # self.ip = data[6].split("___")[0].strip() if data[6].split("___")[0].strip() else self.origin_ip
             # i may have incorrect assumptions about HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\interfaces\\
-            try:
+            #try:
                 #print([ip.strip() for ip in data[6].split("___") if ip.strip() != "" and ip.strip() != "127.0.0.1" and ip.strip() != "0.0.0.0"])
-                self.ip = [ip.strip() for ip in data[6].split("___") if ip.strip() != "" and ip.strip() != "127.0.0.1" and ip.strip() != "0.0.0.0"][0]
-            except:
-                pass
-            if not self.ip:
-                self.ip = self.origin_ip
+            #    self.ip = [ip.strip() for ip in data[6].split("___") if ip.strip() != "" and ip.strip() != "127.0.0.1" and ip.strip() != "0.0.0.0"][0]
+            #except:
+            #    pass
+            #if not self.ip:
+            #    self.ip = self.origin_ip
+            self.ip = data[6].strip() if data[6].strip() else self.ip
         except Exception as e:
             self.shell.print_warning("parsing error")
             self.shell.print_warning(repr(e))
