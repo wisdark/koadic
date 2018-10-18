@@ -47,6 +47,7 @@ class AddUserJob(core.job.Job):
         handler.reply(200)
 
     def done(self):
+        self.results = "User: %s , Password: %s" % (self.options.get("USERNAME"), self.options.get("PASSWORD"))
         c = {}
         c["Username"] = self.options.get("USERNAME")
         if self.options.get("DOMAIN") == "true":

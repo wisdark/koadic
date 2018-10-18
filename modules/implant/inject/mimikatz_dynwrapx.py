@@ -50,6 +50,7 @@ class DynWrapXShellcodeJob(core.job.Job):
         handler.reply(200)
 
     def done(self):
+        self.results = self.mimi_output if self.mimi_output else ""
         self.display()
         # deleting dynwrapx.dll, i hate this
         time.sleep(1)

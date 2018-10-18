@@ -20,6 +20,7 @@ class DynWrapXShellcodeJob(core.job.Job):
         super(DynWrapXShellcodeJob, self).report(handler, data)
 
     def done(self):
+        self.results = "Cpmpleted"
         self.display()
 
     def display(self):

@@ -3,6 +3,7 @@ import core.implant
 
 class SWbemServicesJob(core.job.Job):
     def done(self):
+        self.results = "PID Start Code: %s" % self.data
         self.display()
 
     def display(self):

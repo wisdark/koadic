@@ -137,6 +137,7 @@ class HashDumpSAMJob(core.job.Job):
         p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, env={"PYTHONPATH": "./data/impacket"})
         output = p.stdout.read().decode()
         self.shell.print_plain(output)
+        self.results = output
 
         cp = core.cred_parser.CredParse(self)
         cp.parse_hashdump_sam(output)
@@ -145,7 +146,6 @@ class HashDumpSAMJob(core.job.Job):
 
     def done(self):
         #self.display()
-        pass
 
     def display(self):
         pass

@@ -39,6 +39,7 @@ class UserHunterJob(core.job.Job):
                     continue # not concerned with machine accounts
                 comps = ", ".join(list(set(session.split(":")[1].split(","))))
                 self.shell.print_plain(user + " => " + comps)
+                self.results += user + " => " + comps + "\n"
 
     def done(self):
         self.display()

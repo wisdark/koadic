@@ -9,6 +9,7 @@ class ClipboardJob(core.job.Job):
     def display(self):
         self.shell.print_plain("Clipboard contents:")
         self.shell.print_plain(self.data)
+        self.results = self.data
 
 class ClipboardImplant(core.implant.Implant):
 

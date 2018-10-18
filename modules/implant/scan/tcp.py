@@ -31,6 +31,7 @@ class ScanTCPJob(core.job.Job):
         status = self.shell.colors.colorize(status, color)
         #port = self.shell.colors.colorize(port, color)
         msg = formats.format(ip, port, status, errno)
+        self.results += msg + "\n"
         printer(msg)
 
 

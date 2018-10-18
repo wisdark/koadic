@@ -4,12 +4,12 @@ import uuid
 
 class ExecCmdJob(core.job.Job):
     def done(self):
+        self.results = self.data
         self.display()
 
     def display(self):
         self.shell.print_plain("Result for `%s`:" % self.options.get('CMD').replace('\\"', '"').replace("\\\\", "\\"))
         self.shell.print_plain(self.data)
-        self.results = self.data
 
 class ExecCmdImplant(core.implant.Implant):
 

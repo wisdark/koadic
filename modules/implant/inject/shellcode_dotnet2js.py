@@ -20,6 +20,7 @@ class SDotNet2JSJob(core.job.Job):
         handler.reply(200)
 
     def done(self):
+        self.results = "Complete"
         self.display()
 
     def display(self):

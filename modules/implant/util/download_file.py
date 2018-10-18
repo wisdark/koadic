@@ -51,6 +51,8 @@ class DownloadFileJob(core.job.Job):
         super(DownloadFileJob, self).report(handler, data, False)
 
     def done(self):
+        rfile = self.options.get("RFILE").replace('\\"', '"').replace("\\\\", "\\")
+        self.results = "%s saved to %s (%d bytes)" % (rfile, self.save_fname, self.save_len)
         self.display()
 
     def display(self):

@@ -17,7 +17,7 @@ class UploadFileJob(core.job.Job):
         super(UploadFileJob, self).report(handler, data)
 
     def done(self):
-        pass
+        self.results = self.data
 
     def display(self):
         pass

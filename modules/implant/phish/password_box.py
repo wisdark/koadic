@@ -4,6 +4,7 @@ import uuid
 
 class PasswordBoxJob(core.job.Job):
     def done(self):
+        self.results = self.data
         self.display()
 
     def display(self):

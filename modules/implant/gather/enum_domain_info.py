@@ -99,6 +99,7 @@ class EnumDomainInfoJob(core.job.Job):
         handler.reply(200)
 
     def done(self):
+        self.results = self.domain_key
         self.display()
 
     def display(self):

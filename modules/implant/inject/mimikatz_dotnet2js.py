@@ -54,12 +54,12 @@ class DotNet2JSJob(core.job.Job):
         handler.reply(200)
 
     def done(self):
+        self.results = self.mimi_output if self.mimi_output else ""
         self.display()
 
     def display(self):
         if self.mimi_output:
             self.print_good(self.mimi_output)
-            self.results = self.mimi_output
         else:
             self.print_error()
         #self.shell.print_plain(str(self.errno))

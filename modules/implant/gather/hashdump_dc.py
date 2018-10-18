@@ -122,6 +122,7 @@ class HashDumpDCJob(core.job.Job):
         super(HashDumpDCJob, self).report(None, "", False)
 
     def done(self):
+        self.results = self.dump_file
         self.display()
         #pass
 
