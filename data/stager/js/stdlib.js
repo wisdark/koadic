@@ -237,7 +237,7 @@ Koadic.user.IPAddrs = function()
     var interfacearray = interfaces.split("\n");
     var retstring = "";
     var interfaceid = "";
-    for (var i=1;i<interfacearray.length-1;i++)
+    for (var i=0;i<interfacearray.length-1;i++)
     {
         interfaceid = interfacearray[i].split("\\")[interfacearray[i].split("\\").length-1];
         try

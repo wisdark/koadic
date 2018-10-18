@@ -85,7 +85,8 @@ class Session(object):
             # self.ip = data[6].split("___")[0].strip() if data[6].split("___")[0].strip() else self.origin_ip
             # i may have incorrect assumptions about HKLM\\SYSTEM\\CurrentControlSet\\Services\\Tcpip\\Parameters\\interfaces\\
             try:
-                self.ip = [ip.strip() for ip in data[6].split("___") if ip.strip() != "" and ip.strip() != "127.0.0.1"][0]
+                #print([ip.strip() for ip in data[6].split("___") if ip.strip() != "" and ip.strip() != "127.0.0.1" and ip.strip() != "0.0.0.0"])
+                self.ip = [ip.strip() for ip in data[6].split("___") if ip.strip() != "" and ip.strip() != "127.0.0.1" and ip.strip() != "0.0.0.0"][0]
             except:
                 pass
             if not self.ip:
