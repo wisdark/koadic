@@ -42,8 +42,8 @@ def execute(shell, cmd):
                 shell.rest_thread.daemon = True
                 shell.rest_thread.start()
                 time.sleep(1)
+                sys.stdout = stdout
                 if shell.rest_thread:
-                    sys.stdout = stdout
                     shell.print_good("Rest server running on port %s" % port)
                     shell.print_status("Username: %s" % username)
                     shell.print_status("Password: %s" % password)
