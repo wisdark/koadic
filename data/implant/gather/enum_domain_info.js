@@ -76,8 +76,8 @@ function ParseDomainComputers()
     var objComps = objWMI.Get("ds_computer").Instances_();
     var computercount = objComps.Count;
     for (var i = 0; i < computercount; i++) {
-      var comp = objComps.ItemIndex(i);
-      retstring += comp.ds_dnshostname + "___";
+        var comp = objComps.ItemIndex(i);
+        retstring += comp.ds_dnshostname + "___";
     }
     return retstring;
 }

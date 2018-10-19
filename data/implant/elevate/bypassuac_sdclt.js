@@ -14,7 +14,7 @@ try
 
     if (Koadic.registry.destroy(Koadic.registry.HKCU, path, "IsolatedCommand") != 0)
     {
-      Koadic.shell.run("reg delete HKCU\\"+path+" /v IsolatedCommand /f", true);
+        Koadic.shell.run("reg delete HKCU\\"+path+" /v IsolatedCommand /f", true);
     }
 }
 catch (e)
