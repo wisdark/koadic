@@ -145,7 +145,7 @@ class HashDumpSAMJob(core.job.Job):
         super(HashDumpSAMJob, self).report(None, "", False)
 
     def done(self):
-        #self.display()
+        pass
 
     def display(self):
         pass
