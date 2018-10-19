@@ -81,9 +81,11 @@ def run_cmdshell(shell, session):
                 elif cmd.split()[0].lower() == 'upload' and len(cmd.split()) > 1:
                     old_upload_zombie = upload_file_plugin.options.get("ZOMBIE")
                     old_upload_lfile = upload_file_plugin.options.get("LFILE")
+                    old_upload_dir = upload_file_plugin.options.get("DIRECTORY")
                     upload_file_plugin.options.set("ZOMBIE", id)
                     lfile = cmd.split()[1]
                     upload_file_plugin.options.set("LFILE", lfile)
+                    upload_file_plugin.options.set("DIRECTORY", emucwd)
                     upload_file_plugin.run()
                     upload_file_plugin.options.set("ZOMBIE", old_upload_zombie)
                     upload_file_plugin.options.set("LFILE", old_upload_lfile)
