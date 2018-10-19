@@ -105,6 +105,9 @@ def run_cmdshell(shell, session):
                         if len(emucwd.split("\\")) == 1:
                             emucwd += "\\"
 
+                    else:
+                        emucwd = dest
+
                     if dest[0] == "%" and dest[-1] == "%":
                         plugin.options.set("CMD", "echo %s" % dest)
                         plugin.run()
@@ -116,9 +119,6 @@ def run_cmdshell(shell, session):
                                         varpath = job.results
                                         break
                         emucwd = varpath.split()[0]
-
-                    else:
-                        emucwd = dest
 
                     cmd = "cd "+emucwd+ " & cd"
                 else:
