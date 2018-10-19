@@ -89,6 +89,7 @@ def run_cmdshell(shell, session):
                     upload_file_plugin.run()
                     upload_file_plugin.options.set("ZOMBIE", old_upload_zombie)
                     upload_file_plugin.options.set("LFILE", old_upload_lfile)
+                    upload_file_plugin.options.set("DIRECTORY", old_upload_dir)
                     continue
                 elif cmd.split()[0].lower() == 'cd' and len(cmd.split()) > 1:
                     dest = " ".join(cmd.split(" ")[1:])
