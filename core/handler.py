@@ -308,8 +308,9 @@ class Handler(BaseHTTPRequestHandler):
         '''
 
         # minify the script
-        from jsmin import jsmin
+        from rjsmin import jsmin
         script = jsmin(script.decode()).encode()
+        print(script)
 
         script = template.replace(b"~SCRIPT~", script)
         return script
