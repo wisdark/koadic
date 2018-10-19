@@ -2,3 +2,4 @@ impacket
 pycrypto
 pyasn1
 tabulate
+jsmin
