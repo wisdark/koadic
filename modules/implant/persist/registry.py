@@ -13,6 +13,7 @@ class RegistryJob(core.job.Job):
     def report(self, handler, data, sanitize = False):
 
         task = handler.get_header("Task", False)
+        data = data.decode()
 
         if task == "AddKey":
             handler.reply(200)
