@@ -4,7 +4,7 @@ try
     var consentval = Koadic.registry.read(Koadic.registry.HKLM, consentpath, "ConsentPromptBehaviorAdmin", Koadic.registry.DWORD).uValue;
     if (consentval == 2)
     {
-        var e = Error('Consent value is too high!')
+        var e = Error('Consent value is too high!');
         throw e;
     }
     var path = "Software\\Classes\\mscfile\\shell\\open\\command";
