@@ -109,20 +109,21 @@ def print_creds_das(shell, domain):
     shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
     for key in shell.creds_keys:
         credpass = shell.creds[key]["Password"]
-        if len(credpass) > 23:
-            credpass = credpass[:20] + "..."
         creduser = shell.creds[key]["Username"]
-        if len(creduser) > 18:
-            creduser = creduser[:15] + "..."
         creddomain = shell.creds[key]["Domain"]
-        if len(creddomain) > 18:
-            creddomain = creddomain[:15] + "..."
         credntlm = shell.creds[key]["NTLM"]
         if (creduser.lower() in das and
             (creddomain.lower() == domain.lower() or
                 creddomain.lower() == alt_domain.lower()) and
-            (tmppass or
+            (credpass or
                 credntlm)):
+        
+            if len(credpass) > 23:
+                credpass = credpass[:20] + "..."
+            if len(creduser) > 18:
+                creduser = creduser[:15] + "..."
+            if len(creddomain) > 18:
+                creddomain = creddomain[:15] + "..."
 
             shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], creduser, creddomain, credpass, shell.creds[key]["NTLM"]))
 
