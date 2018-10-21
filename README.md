@@ -16,7 +16,7 @@ $ ./koadic
 
 ### Demo
 
-[![Koadic Demo](http://img.youtube.com/viNxiTG7cSnw4/0.jpg)](https://www.youtube.com/watch?v=NxiTG7cSnw4 "Koadic Demo")
+[![Koadic Demo](http://img.youtube.com/vi/NxiTG7cSnw4/0.jpg)](https://www.youtube.com/watch?v=NxiTG7cSnw4 "Koadic Demo")
 https://www.youtube.com/watch?v=NxiTG7cSnw4
 
 1. Hooks a zombie
