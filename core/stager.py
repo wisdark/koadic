@@ -46,6 +46,8 @@ class Stager(core.plugin.Plugin):
         self.options.register("_FORKCMD_", "", "path to fork file", hidden = True)
         self.options.register("_EXPIREEPOCH_", "", "time to expire", hidden = True)
         self.options.register("CLASSICMODE", "", ";)", hidden = True)
+        self.options.register("ENDPOINTTYPE", "", "filetype to append to endpoint if needed", hidden = True)
+        self.options.register("FENDPOINT", "", "final endpoint", hidden = True)
 
         # is this one needed, hmm, I dunno
         #fname = self.random_string(5)
@@ -59,6 +61,7 @@ class Stager(core.plugin.Plugin):
         self.options.set('SRVHOST', self.options.get('SRVHOST').strip())
         self.options.set('SRVPORT', int(str(self.options.get('SRVPORT')).strip()))
         self.options.set('ENDPOINT', self.options.get('ENDPOINT').strip())
+        self.options.set('FENDPOINT', self.options.get('ENDPOINT')+self.options.get('ENDPOINTTYPE'))
         self.options.set("_STDLIB_", self.stdlib)
         self.options.set("_TEMPLATE_", self.template)
         self.options.set("_STAGECMD_", self.stagecmd)
@@ -67,7 +70,7 @@ class Stager(core.plugin.Plugin):
         self.options.set("_STAGE_", self.stage)
 
         if self.options.get("CLASSICMODE"):
-            self.options.set("ENDPOINT", self.random_string(4000))
+            self.options.set("FENDPOINT", self.random_string(4000))
 
         if self.options.get("EXPIRES"):
             from datetime import datetime

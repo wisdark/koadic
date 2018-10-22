@@ -14,13 +14,11 @@ class WMICStager(core.stager.Stager):
 
     def __init__(self, shell):
         super(WMICStager, self).__init__(shell) # stupid hack inc!
-        self.options.set("ENDPOINT", self.options.get("ENDPOINT") + ".xsl")
+        self.options.set("ENDPOINTTYPE", ".xsl")
 
     def load(self):
         #self.options.set("SRVPORT", 9998)
         self.port = 9996
-
-        #self.options.set("ENDPOINT", self.options.get("ENDPOINT") + ".xsl")
 
         self.template = self.loader.load_script("data/stager/js/wmic/template.xsl")
         self.stagecmd = self.loader.load_script("data/stager/js/wmic/wmic.cmd")

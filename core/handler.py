@@ -111,7 +111,7 @@ class Handler(BaseHTTPRequestHandler):
         splitted = self.path.split("?")
         self.endpoint = splitted[0]
 
-        endpoint = self.options.get("ENDPOINT").strip()
+        endpoint = self.options.get("FENDPOINT").strip()
 
         if len(endpoint) > 0:
             if self.endpoint[1:] != endpoint:

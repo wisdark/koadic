@@ -105,7 +105,7 @@ class Server(threading.Thread):
         prefix = "https" if self.is_https else "http"
         url = prefix + "://" + self.hostname + ':' + self.port
 
-        endpoint = self.options.get("ENDPOINT").strip()
+        endpoint = self.options.get("FENDPOINT").strip()
 
         if len(endpoint) > 0:
             url += "/" + endpoint
