@@ -311,5 +311,12 @@ class Handler(BaseHTTPRequestHandler):
         from rjsmin import jsmin
         script = jsmin(script.decode()).encode()
 
+        # obfuscation options
+        if self.stager.options.get("OBFUSCATE"):
+            if self.stager.options.get("OBFUSCATE") == "xor":
+                xor_key = self.loader.create_xor_key()
+                xor_script = self.loader.xor_data(script, xor_key)
+                script = self.loader.xor_js_file(xor_script.decode(), xor_key).encode()
+
         script = template.replace(b"~SCRIPT~", script)
         return script

@@ -32,6 +32,7 @@ class Stager(core.plugin.Plugin):
         # names of query string properties
         self.options.register("JOBNAME", "csrf", "name for jobkey cookie", advanced = True)
         self.options.register("SESSIONNAME", "sid", "name for session cookie", advanced = True)
+        self.options.register("OBFUSCATE", "", "obfuscate payloads with defined technique (\'\', xor) (blank = no obfuscation)", advanced = True, enum = ["", "xor"])
 
         # query strings
         self.options.register("_JOBPATH_", "", "the job path", hidden = True)
