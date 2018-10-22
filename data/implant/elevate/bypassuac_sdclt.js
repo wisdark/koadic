@@ -1,5 +1,12 @@
 try
 {
+    var consentpath = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System";
+    var consentval = Koadic.registry.read(Koadic.registry.HKLM, consentpath, "ConsentPromptBehaviorAdmin", Koadic.registry.DWORD).uValue;
+    if (consentval == 2)
+    {
+        var e = Error('Consent value is too high!');
+        throw e;
+    }
     var path = "Software\\Classes\\exefile\\shell\\runas\\command";
 
     var cmd = Koadic.file.getPath("%COMSPEC%");

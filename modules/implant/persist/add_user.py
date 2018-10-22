@@ -10,6 +10,7 @@ class AddUserJob(core.job.Job):
 
     def report(self, handler, data, sanitize = False):
         task =  handler.get_header("Task", False)
+        data = data.decode()
 
         if task == "CreateUser":
             handler.reply(200)
