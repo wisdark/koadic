@@ -25,6 +25,7 @@ class Session(object):
         self.killed = False
 
         self.os = ""
+        self.build = ""
         self.elevated = self.ELEVATED_UNKNOWN
         self.user = ""
         self.computer = ""
@@ -69,7 +70,8 @@ class Session(object):
             self.domain = data[0].split("\\")[0]
             self.elevated = self.ELEVATED_TRUE if "*" in data[0] else self.ELEVATED_FALSE
             self.computer = data[1]
-            self.os = data[2]
+            self.os = data[2].split("***")[0]
+            self.build = data[2].split("***")[1]
             self.dc = data[3] if data[3] else "Unknown"
             #self.dc = data[3].split("___")[0] if data[3] else "Unknown"
             #self.fqdn = data[3].split("___")[1]

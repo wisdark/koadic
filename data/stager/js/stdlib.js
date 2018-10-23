@@ -147,8 +147,9 @@ Koadic.user.OS = function()
         // var colItems = wmi.ExecQuery("SELECT * FROM Win32_OperatingSystem");
         // var enumItems = new Enumerator(colItems);
         // var objItem = enumItems.item();
-        var osver = Koadic.WS.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProductName")
-        return osver;
+        var osver = Koadic.WS.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProductName");
+        var osbuild = Koadic.WS.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\CurrentBuildNumber");
+        return osver+"***"+osbuild;
     }
     catch(e){}
 
