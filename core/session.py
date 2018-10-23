@@ -92,6 +92,9 @@ class Session(object):
             #if not self.ip:
             #    self.ip = self.origin_ip
             self.ip = data[6].strip() if data[6].strip() else self.ip
+            if "(" in self.ip:
+                # example: 192.168.1.2(Preferred)
+                self.ip = self.ip.split("(")[0]
         except Exception as e:
             self.shell.print_warning("parsing error")
             self.shell.print_warning(repr(e))
