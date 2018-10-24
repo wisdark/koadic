@@ -38,4 +38,4 @@ class CompMgmtLauncherImplant(core.implant.Implant):
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/elevate/bypassuac_compmgmtlauncher.js", self.options)
 
-        self.dispatch(workloads, SilentCleanupJob)
+        self.dispatch(workloads, CompMgmtLauncherJob)
