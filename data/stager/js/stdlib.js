@@ -654,6 +654,7 @@ Koadic.registry.provider = function(computer)
     return reg;
 }
 
+//registry.write.start
 Koadic.registry.write = function(hKey, path, key, value, valType, computer)
 {
     var reg = Koadic.registry.provider(computer);
@@ -669,7 +670,8 @@ Koadic.registry.write = function(hKey, path, key, value, valType, computer)
     else if (valType == Koadic.registry.BINARY)
         reg.SetBinaryValue(hKey, path, key, value);
 }
-
+//registry.write.end
+//registry.read.start
 Koadic.registry.read = function(hKey, path, key, valType, computer)
 {
     var reg = Koadic.registry.provider(computer);
@@ -698,14 +700,15 @@ Koadic.registry.read = function(hKey, path, key, valType, computer)
 
     return outparams;
 }
-
+//registry.read.end
+//registry.destroy.start
 Koadic.registry.destroy = function(hKey, path, key, computer)
 {
     var reg = Koadic.registry.provider(computer);
     var loc = (key == "") ? path : path + "\\" + key;
     return reg.DeleteKey(hKey, loc);
 }
-
+//registry.destroy.end
 /*
 // DEPRECATED
 Koadic.registry.create = function(hiveKey, path, key, computer)

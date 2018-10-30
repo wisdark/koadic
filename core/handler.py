@@ -358,6 +358,13 @@ class Handler(BaseHTTPRequestHandler):
 
         if "Koadic.registry" not in script:
             stdlib = stdlib.split("//registry.start")[0] + stdlib.split("//registry.end")[1]
+        else:
+            if "Koadic.registry.write" not in script:
+                stdlib = stdlib.split("//registry.write.start")[0] + stdlib.split("//registry.write.end")[1]
+            if "Koadic.registry.read" not in script:
+                stdlib = stdlib.split("//registry.read.start")[0] + stdlib.split("//registry.read.end")[1]
+            if "Koadic.registry.destroy" not in script:
+                stdlib = stdlib.split("//registry.destroy.start")[0] + stdlib.split("//registry.destroy.end")[1]
 
         stdlib += "\n"
 
