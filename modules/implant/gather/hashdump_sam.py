@@ -131,6 +131,12 @@ class HashDumpSAMJob(core.job.Job):
             for i in transforms:
                 self.syskey += tmp_syskey[i]
 
+            try:
+                self.syskey.decode()
+            except:
+                self.error("0", "There was a problem decoding the syskey. Try setting GETSYSHIVE to true and running again.", "Decode error", "")
+                return False
+
             self.print_status("decoded SysKey: 0x%s" % self.syskey)
             cmd = ['python2', path, '-sam', self.sam_file, '-bootkey', self.syskey, '-security', self.security_file, 'LOCAL']
 
