@@ -104,6 +104,9 @@ class Session(object):
         self.shell.print_good(
             "Zombie %d: %s @ %s -- %s" % (self.id, self.user, self.computer, self.os))
 
+        if self.shell.continuesession:
+            self.shell.continuesession = ""
+
 
     def kill(self):
         self.killed = True

@@ -40,10 +40,11 @@ class Stager(core.plugin.Plugin):
 
         # script payload file paths
         self.options.register("_STDLIB_", "", "path to stdlib file", hidden = True)
-        self.options.register("_TEMPLATE_", "", "path to template file", hidden = True)
+        self.options.register("_STAGETEMPLATE_", "", "path to stage template file", hidden = True)
         self.options.register("_STAGE_", "", "stage worker", hidden = True)
         self.options.register("_STAGECMD_", "", "path to stage file", hidden = True)
         self.options.register("_FORKCMD_", "", "path to fork file", hidden = True)
+        self.options.register("_FORKTEMPLATE_", "", "path to fork template file", hidden = True)
         self.options.register("_EXPIREEPOCH_", "", "time to expire", hidden = True)
         self.options.register("CLASSICMODE", "", ";)", hidden = True)
         self.options.register("ENDPOINTTYPE", "", "filetype to append to endpoint if needed", hidden = True)
@@ -63,9 +64,10 @@ class Stager(core.plugin.Plugin):
         self.options.set('ENDPOINT', self.options.get('ENDPOINT').strip())
         self.options.set('FENDPOINT', self.options.get('ENDPOINT')+self.options.get('ENDPOINTTYPE'))
         self.options.set("_STDLIB_", self.stdlib)
-        self.options.set("_TEMPLATE_", self.template)
+        self.options.set("_STAGETEMPLATE_", self.stagetemplate)
         self.options.set("_STAGECMD_", self.stagecmd)
         self.options.set("_FORKCMD_", self.forkcmd.decode().replace("\\","\\\\").replace("\"", "\\\"").encode())
+        self.options.set("_FORKTEMPLATE_", self.forktemplate)
 
         self.options.set("_STAGE_", self.stage)
 

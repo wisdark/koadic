@@ -139,14 +139,29 @@ class Handler(BaseHTTPRequestHandler):
                     self.options.set("JOBPATH", "%s=%s;" % (jobkey, self.job.key))
 
             self.init_session(False)
+        elif self.shell.continuesession:
+            self.session = self.shell.continuesession
+
 
         return True
+
+    def do_HEAD(self):
+        self.init_session()
+        template = self.options.get("_STAGETEMPLATE_")
+        self.session.bitsadmindata = self.post_process_script(self.options.get("_STAGE_"), template)
+        self.shell.continuesession = self.session
+        headers = {}
+        headers['Content-Length'] = len(self.session.bitsadmindata)
+        self.reply(200, '', headers)
 
     # the initial stage is a GET request
     def do_GET(self):
         if self.parse_params():
             if not self.session:
                 return self.handle_new_session()
+
+            if self.shell.continuesession:
+                return self.handle_bitsadmin_stage()
 
             if self.job:
                 return self.handle_job()
@@ -188,18 +203,42 @@ class Handler(BaseHTTPRequestHandler):
     def handle_stage(self):
         self.shell.print_verbose("handler::handle_stage()")
         self.options.set("JOBKEY", "stage")
-        data = self.post_process_script(self.options.get("_STAGE_"))
+        template = self.options.get("_FORKTEMPLATE_")
+        data = self.post_process_script(self.options.get("_STAGE_"), template)
         self.reply(200, data)
 
     def handle_new_session(self):
         self.shell.print_verbose("handler::handle_new_session()")
         self.init_session()
-        data = self.post_process_script(self.options.get("_STAGE_"))
+        template = self.options.get("_STAGETEMPLATE_")
+        data = self.post_process_script(self.options.get("_STAGE_"), template)
         self.reply(200, data)
+
+    def handle_bitsadmin_stage(self):
+        rangeheader = self.get_header('range')
+        headers = {}
+        headers['Content-Length'] = len(self.session.bitsadmindata)
+        headers['Accept-Ranges'] = "bytes"
+        headers['Content-Range'] = "bytes 0-" + str(len(self.session.bitsadmindata)-1) + "/" + str(len(self.session.bitsadmindata))
+        headers['Content-Type'] = 'application/octet-stream'
+        if rangeheader:
+            rangehead = rangeheader.split("=")[1]
+            if int(rangehead.split("-")[1]) > len(self.session.bitsadmindata)-1:
+                end = len(self.session.bitsadmindata)-1
+            else:
+                end = int(rangehead.split("-")[1])
+            headers['Content-Range'] = "bytes " + rangehead.split("-")[0] + "-"+ str(end) + "/" + str(len(self.session.bitsadmindata))
+            partdata = self.session.bitsadmindata[int(rangehead.split("-")[0]):end]
+            print(int(rangehead.split("-")[0]))
+            print(int(rangehead.split("-")[1]))
+            return self.reply(206, partdata, headers)
+        else:
+            return self.reply(200, self.session.bitsadmindata, headers)
 
     def handle_job(self):
         script = self.job.payload()
-        script = self.post_process_script(script)
+        template = self.options.get("_FORKTEMPLATE_")
+        script = self.post_process_script(script, template)
         self.reply(200, script)
 
     def handle_work(self):
@@ -273,7 +312,7 @@ class Handler(BaseHTTPRequestHandler):
         return postvars
 
     # ugly dragons, turn back
-    def post_process_script(self, script, stdlib=True):
+    def post_process_script(self, script, template, stdlib=True):
         if stdlib:
             script = self.options.get("_STDLIB_") + script
 
@@ -287,7 +326,7 @@ class Handler(BaseHTTPRequestHandler):
 
             self.options.set("_FORKCMD_", forkcmd.decode())
 
-        template = self.options.get("_TEMPLATE_")
+        # template = self.options.get("_TEMPLATE_")
 
         script = self.loader.apply_options(script, self.options)
 

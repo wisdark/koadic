@@ -20,6 +20,7 @@ class WMICStager(core.stager.Stager):
         #self.options.set("SRVPORT", 9998)
         self.port = 9996
 
-        self.template = self.loader.load_script("data/stager/js/wmic/template.xsl")
+        self.stagetemplate = self.loader.load_script("data/stager/js/wmic/template.xsl")
         self.stagecmd = self.loader.load_script("data/stager/js/wmic/wmic.cmd")
-        self.forkcmd = self.loader.load_script("data/stager/js/wmic/wmic.cmd")
+        self.forktemplate = self.stagetemplate
+        self.forkcmd = self.stagecmd
