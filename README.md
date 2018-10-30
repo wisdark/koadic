@@ -3,14 +3,14 @@ Koadic, or COM Command & Control, is a Windows post-exploitation rootkit similar
 
 It is possible to serve payloads completely in memory from stage 0 to beyond, as well as use cryptographically secure communications over SSL and TLS (depending on what the victim OS has enabled).
 
-Koadic also attempts to be compatible with both Python 2 and Python 3.
+Koadic also attempts to be compatible with both Python 2 and Python 3. However, as Python 2 will be going out the door in the not-to-distant future, we recommend using Python 3 for the best experience.
 
 ### Install
 
 ```
 $ git clone https://github.com/zerosum0x0/koadic.git
 $ cd koadic
-$ pip install -r requirements.txt
+$ pip3 install -r requirements.txt
 $ ./koadic
 ```
 
