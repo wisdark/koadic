@@ -109,6 +109,9 @@ class CredParse(object):
         return
 
     def parse_mimikatz(self, data):
+        if self.shell.verbose:
+            self.shell.print_verbose("cred_parser::parse_mimikatz -> \n"+data+"\n<-")
+
         data = data.split("mimikatz(powershell) # ")[1]
         if "token::elevate" in data and "Impersonated !" in data:
             self.job.print_good("token::elevate -> got SYSTEM!")
