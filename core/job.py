@@ -150,6 +150,9 @@ class Job(object):
                 # EAT the slash
                 escape_flag = True
             else:
-                append(mapping[ord(i)])
+                if ord(i) in mapping:
+                    append(mapping[ord(i)])
+                else:
+                    append(i.encode())
 
         return b"".join(b_list)
