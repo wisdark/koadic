@@ -58,12 +58,27 @@ function ParseDomainControllers(results)
 function ResolveHostnames(hostnames)
 {
     var retstring = "";
-    var computers = hostnames.split("___");
+    try
+    {
+        var computers = hostnames.split("___");
+    }
+    catch(e)
+    {
+        return retstring;
+    }
     for (var i = 0; i < computers.length-1; i++)
     {
         var nsresults = Koadic.shell.exec("nslookup "+computers[i], "~DIRECTORY~\\"+Koadic.uuid()+".txt");
-        var ip = nsresults.split("Name:")[1].split("Address:")[1].split("\r\n")[0];
-        ip = ip.replace(/\s/g, "");
+        try
+        {
+            var ip = nsresults.split("Name:")[1].split("Address:")[1].split("\r\n")[0];
+            ip = ip.replace(/\s/g, "");
+        }
+        catch(e)
+        {
+            var ip = "";
+        }
+
         retstring += computers[i] + "***" + ip + "___"
     }
     return retstring;
