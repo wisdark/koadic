@@ -58,14 +58,7 @@ function ParseDomainControllers(results)
 function ResolveHostnames(hostnames)
 {
     var retstring = "";
-    try
-    {
-        var computers = hostnames.split("___");
-    }
-    catch(e)
-    {
-        return retstring;
-    }
+    var computers = hostnames.split("___");
     for (var i = 0; i < computers.length-1; i++)
     {
         var nsresults = Koadic.shell.exec("nslookup "+computers[i], "~DIRECTORY~\\"+Koadic.uuid()+".txt");
@@ -92,7 +85,7 @@ function ParseDomainComputers()
     var computercount = objComps.Count;
     for (var i = 0; i < computercount; i++) {
         var comp = objComps.ItemIndex(i);
-        if (comp != "null")
+        if (comp.ds_dnshostname != "null" || comp.ds_dnshostname != "")
         {
             retstring += comp.ds_dnshostname + "___";
         }
