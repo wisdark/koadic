@@ -75,7 +75,7 @@ class EnumDomainInfoJob(core.job.Job):
             handler.reply(200)
             self.print_good("Starting Domain Computer hostname resolution..." )
             if len(computers) > 60:
-                self.print_warning("This may take a few minutes...")
+                self.print_status("This may take a few minutes...")
             return
 
         if task == "ResolvedComputers":
