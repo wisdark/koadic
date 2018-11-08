@@ -123,6 +123,10 @@ class Job(object):
         self.shell.print_good("Zombie %d: Job %d (%s) %s" % (
             self.session.id, self.id, self.name, message))
 
+    def print_warning(self, message):
+        self.shell.print_warning("Zombie %d: Job %d (%s) %s" % (
+            self.session.id, self.id, self.name, message))
+
 
     def decode_downloaded_data(self, data):
         slash_char = chr(92).encode()
