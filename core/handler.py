@@ -146,6 +146,16 @@ class Handler(BaseHTTPRequestHandler):
         return True
 
     def do_HEAD(self):
+        splitted = self.path.split("?")
+        self.endpoint = splitted[0]
+
+        endpoint = self.options.get("FENDPOINT").strip()
+
+        if len(endpoint) > 0:
+            if self.endpoint[1:] != endpoint:
+                self.reply(404)
+                return
+
         self.init_session()
         template = self.options.get("_STAGETEMPLATE_")
         self.session.bitsadmindata = self.post_process_script(self.options.get("_STAGE_"), template)
