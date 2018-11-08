@@ -238,9 +238,7 @@ class Handler(BaseHTTPRequestHandler):
             else:
                 end = int(rangehead.split("-")[1])
             headers['Content-Range'] = "bytes " + rangehead.split("-")[0] + "-"+ str(end) + "/" + str(len(self.session.bitsadmindata))
-            partdata = self.session.bitsadmindata[int(rangehead.split("-")[0]):end]
-            print(int(rangehead.split("-")[0]))
-            print(int(rangehead.split("-")[1]))
+            partdata = self.session.bitsadmindata[int(rangehead.split("-")[0]):end+1]
             return self.reply(206, partdata, headers)
         else:
             return self.reply(200, self.session.bitsadmindata, headers)
