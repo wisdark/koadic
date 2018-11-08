@@ -93,9 +93,48 @@ function ParseDomainComputers()
     return retstring;
 }
 
+function findFQDN()
+{
+    var fqdn = "";
+
+    try
+    {
+        fqdn = Koadic.WS.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\MachineDomain");
+        return fqdn;
+    }
+    catch (e)
+    {}
+
+    fqdn = Koadic.shell.exec("echo %userdnsdomain%", "~DIRECTORY~\\"+Koadic.uuid()+".txt");
+    if (fqdn != "%userdnsdomain%")
+    {
+        return fqdn.split(" \r\n")[0];
+    }
+
+    try
+    {
+        fqdn = "";
+        fqdnwhole = Koadic.shell.exec("whoami /fqdn", "~DIRECTORY~\\"+Koadic.uuid()+".txt");
+        var fqdnparts = fqdnwhole.split(",");
+        for (var i = 0; i < fqdnparts.length; i++)
+        {
+            if (fqdnparts[i].split("=")[0] == "DC")
+            {
+                fqdn += fqdnparts[i].split("=")[1] + ".";
+            }
+        }
+        return fqdn.split("\r\n.")[0];
+    }
+    catch (e)
+    {}
+
+    Koadic.work.report("NoDomain");
+    throw true;
+}
+
 try
 {
-    var fqdn = Koadic.WS.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\MachineDomain");
+    var fqdn = findFQDN();
     var net = new ActiveXObject("WScript.Network");
     var netbios = net.UserDomain;
 
