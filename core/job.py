@@ -128,7 +128,7 @@ class Job(object):
             self.session.id, self.id, self.name, message))
 
 
-    def decode_downloaded_data(self, data):
+    def decode_downloaded_data(self, data, encoder):
         slash_char = chr(92).encode()
         zero_char = chr(0x30).encode()
         null_char = chr(0).encode()
@@ -154,11 +154,14 @@ class Job(object):
                 # EAT the slash
                 escape_flag = True
             else:
-                if i == '€' and self.options.get("CYRILLIC") == "true":
-                    i = '₭'
+                # collisions will go here
+                if i == '€' and encoder == "1251":
+                    append(b'\x88')
+                    continue
+
                 try:
                     append(mapping[ord(i)])
                 except:
-                    print("ENCODING ERROR: "+str(ord(i)))
+                    print("ENCODING ERROR: "+str(ord(i))+" <- Please add a mapping to core/mappings.py with \"chr(number).encode('windows-125X')\"")
 
         return b"".join(b_list)
