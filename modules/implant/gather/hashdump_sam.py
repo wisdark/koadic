@@ -10,6 +10,7 @@ class HashDumpSAMImplant(core.implant.Implant):
         self.options.register("LPATH", "/tmp/", "local file save path")
         self.options.register("RPATH", "%TEMP%", "remote file save path")
         self.options.register("GETSYSHIVE", "false", "Retrieve the system hive? (slower, but more reliable)",enum=["true", "false"])
+        self.options.register("CYRILLIC", "false", "Is cyrillic in the results?", enum=["true", "false"], advanced=True)
 
     def run(self):
 
@@ -144,6 +145,7 @@ class HashDumpSAMJob(core.job.Job):
         output = p.stdout.read().decode()
         self.shell.print_plain(output)
         self.results = output
+        self.shell.print_warning("If you get a 'KeyName' error above, try setting CYRILLIC to true and running again!")
 
         cp = core.cred_parser.CredParse(self)
         cp.parse_hashdump_sam(output)

@@ -154,9 +154,11 @@ class Job(object):
                 # EAT the slash
                 escape_flag = True
             else:
-                if ord(i) in mapping:
+                if i == '€' and self.options.get("CYRILLIC") == "true":
+                    i = '₭'
+                try:
                     append(mapping[ord(i)])
-                else:
-                    append(i.encode())
+                except:
+                    print("ENCODING ERROR: "+str(ord(i)))
 
         return b"".join(b_list)
