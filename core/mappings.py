@@ -348,6 +348,5 @@ mappings = {1: b'\x01',
 8249: b'\x8b',
 8250: b'\x9b',
 8364: b'\x80',
-8365: b'\x88', # <- https://twitter.com/The_Naterz/status/1060688314942910465
 8470: b'\xb9',
 8482: b'\x99'}
