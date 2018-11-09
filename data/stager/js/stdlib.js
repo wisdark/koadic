@@ -490,6 +490,15 @@ Koadic.http.upload = function(filepath, header_uuid, header_key)
 
     var headers = {};
     headers[key] = header_uuid;
+    try
+    {
+        headers["encoder"] = Koadic.WS.RegRead("HKLM\\SYSTEM\\CurrentControlSet\\Control\\Nls\\CodePage\\ACP");
+    }
+    catch (e)
+    {
+        headers["encoder"] = "1252";
+    }
+
 
     return Koadic.work.report(data, headers);
 }
