@@ -106,7 +106,7 @@ function findFQDN()
     {}
 
     fqdn = Koadic.shell.exec("echo %userdnsdomain%", "~DIRECTORY~\\"+Koadic.uuid()+".txt");
-    if (fqdn != "%userdnsdomain%")
+    if (fqdn.split(" \r\n")[0] != "%userdnsdomain%")
     {
         return fqdn.split(" \r\n")[0];
     }
@@ -115,15 +115,18 @@ function findFQDN()
     {
         fqdn = "";
         fqdnwhole = Koadic.shell.exec("whoami /fqdn", "~DIRECTORY~\\"+Koadic.uuid()+".txt");
-        var fqdnparts = fqdnwhole.split(",");
-        for (var i = 0; i < fqdnparts.length; i++)
+        if (fqdnwhole.split(":")[0] != "ERROR")
         {
-            if (fqdnparts[i].split("=")[0] == "DC")
+            var fqdnparts = fqdnwhole.split(",");
+            for (var i = 0; i < fqdnparts.length; i++)
             {
-                fqdn += fqdnparts[i].split("=")[1] + ".";
+                if (fqdnparts[i].split("=")[0] == "DC")
+                {
+                    fqdn += fqdnparts[i].split("=")[1] + ".";
+                }
             }
+            return fqdn.split("\r\n.")[0];
         }
-        return fqdn.split("\r\n.")[0];
     }
     catch (e)
     {}
