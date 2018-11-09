@@ -162,6 +162,6 @@ class Job(object):
                 try:
                     append(mapping[ord(i)])
                 except:
-                    print("ENCODING ERROR: "+str(ord(i))+" <- Please add a mapping to core/mappings.py with \"chr(number).encode('windows-125X')\"")
+                    print("ENCODING ERROR: "+str(ord(i))+" <- Please add a mapping to core/mappings.py with \"chr(number).encode('windows-"+encoder+"')\"")
 
         return b"".join(b_list)
