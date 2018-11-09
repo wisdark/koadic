@@ -108,7 +108,7 @@ function findFQDN()
     try
     {
         fqdn = Koadic.shell.exec("echo %userdnsdomain%", "~DIRECTORY~\\"+Koadic.uuid()+".txt");
-        if (fqdn.split(" \r\n")[0] != "%userdnsdomain%")
+        if (fqdn.split()[0] != "%userdnsdomain%")
         {
             return fqdn.split(" \r\n")[0];
         }
