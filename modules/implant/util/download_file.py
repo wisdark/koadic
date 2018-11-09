@@ -44,7 +44,7 @@ class DownloadFileJob(core.job.Job):
             self.save_fname += "."+uuid.uuid4().hex
 
         with open(self.save_fname, "wb") as f:
-            data = self.decode_downloaded_data(data)
+            data = self.decode_downloaded_data(data, handler.get_header("encoder", "1252"))
             f.write(data)
             self.save_len = len(data)
 

