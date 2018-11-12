@@ -16,6 +16,14 @@ class DynWrapXShellcodeJob(core.job.Job):
 
     def report(self, handler, data, sanitize = False):
         data = data.decode('latin-1')
+        import binascii
+        try:
+            data = binascii.unhexlify(data)
+            data = data.decode('utf-16-le')
+        except:
+            pass
+
+        #print(data)
         task = handler.get_header(self.options.get("UUIDHEADER"), False)
 
         if task == self.options.get("DLLUUID"):
@@ -101,7 +109,7 @@ class DynWrapXShellcodeImplant(core.implant.Implant):
 
         self.options.register("SHIMX86BYTES", "", "calculated bytes for arr_DLL", hidden=True)
 
-        self.options.register("SHIMX86OFFSET", "6217", "Offset to the reflective loader", advanced = True)
+        self.options.register("SHIMX86OFFSET", "6202", "Offset to the reflective loader", advanced = True)
 
     def make_arrDLL(self, path):
         import struct
