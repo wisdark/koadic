@@ -35,7 +35,9 @@
 
 // You can use this value as a pseudo hinstDLL value (defined and set via ReflectiveLoader.c)
 
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 #include <Winsock2.h>
 #include <intrin.h>

