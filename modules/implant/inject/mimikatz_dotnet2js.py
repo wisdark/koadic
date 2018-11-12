@@ -26,6 +26,13 @@ class DotNet2JSJob(core.job.Job):
 
     def report(self, handler, data, sanitize = False):
         data = data.decode('latin-1')
+        import binascii
+        try:
+            data = binascii.unhexlify(data)
+            data = data.decode('utf-16-le')
+        except:
+            pass
+
         task = handler.get_header(self.options.get("UUIDHEADER"), False)
 
         if task == self.options.get("SHIMX64UUID"):
@@ -89,8 +96,8 @@ class DotNet2JSImplant(core.implant.Implant):
         self.options.register("SHIMX86B64", "", "calculated bytes for arr_DLL", hidden=True)
         self.options.register("SHIMX64B64", "", "calculated bytes for arr_DLL", hidden=True)
 
-        self.options.register("SHIMX86OFFSET", "6217", "Offset to the reflective loader", advanced = True)
-        self.options.register("SHIMX64OFFSET", "7656", "Offset to the reflective loader", advanced = True)
+        self.options.register("SHIMX86OFFSET", "6202", "Offset to the reflective loader", advanced = True)
+        self.options.register("SHIMX64OFFSET", "7620", "Offset to the reflective loader", advanced = True)
 
         # self.options.register("SHIMB64", "", "calculated bytes for arr_DLL", advanced = True)
         # self.options.register("SHIMOFFSET", "", "Offset to the reflective loader", advanced = True)
