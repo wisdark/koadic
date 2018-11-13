@@ -3,13 +3,17 @@ import core.implant
 import uuid
 
 class ExecCmdJob(core.job.Job):
+    def report(self, handler, data, sanitize = False):
+        self.results = self.decode_downloaded_data(data, handler.get_header("encoder", 1252), True).decode("windows-"+handler.get_header("encoder", 1252))
+        handler.reply(200)
+        self.done()
+
     def done(self):
-        self.results = self.data
         self.display()
 
     def display(self):
         self.shell.print_plain("Result for `%s`:" % self.options.get('CMD').replace('\\"', '"').replace("\\\\", "\\"))
-        self.shell.print_plain(self.data)
+        self.shell.print_plain(self.results)
 
 class ExecCmdImplant(core.implant.Implant):
 
