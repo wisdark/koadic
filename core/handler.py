@@ -343,6 +343,8 @@ class Handler(BaseHTTPRequestHandler):
                             stdlib = stdlib.split("//shell.run.start")[0] + stdlib.split("//shell.run.end")[1]
                     if "Koadic.file.deleteFile" not in script:
                         stdlib = stdlib.split("//file.deleteFile.start")[0] + stdlib.split("//file.deleteFile.end")[1]
+                    if "Koadic.file.readBinary" not in script:
+                        stdlib = stdlib.split("//file.readBinary.start")[0] + stdlib.split("//file.readBinary.end")[1]
 
             if "Koadic.user.IPAddrs" not in script:
                 stdlib = stdlib.split("//user.IPAddrs.start")[0] + stdlib.split("//user.IPAddrs.end")[1]
@@ -352,8 +354,6 @@ class Handler(BaseHTTPRequestHandler):
 
         if "Koadic.http.upload" not in script:
             stdlib = stdlib.split("//http.upload.start")[0] + stdlib.split("//http.upload.end")[1]
-            if "Koadic.file.readBinary" not in script:
-                stdlib = stdlib.split("//file.readBinary.start")[0] + stdlib.split("//file.readBinary.end")[1]
 
         if "Koadic.http.download" not in script:
             stdlib = stdlib.split("//http.download.start")[0] + stdlib.split("//http.download.end")[1]
