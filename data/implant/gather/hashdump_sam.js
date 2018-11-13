@@ -23,7 +23,7 @@ function GetSysKey()
 
     try
     {
-        headers["encoder"] = Koadic.WS.RegRead("HKLM\\SYSTEM\\CurrentControlSet\\Control\\Nls\\CodePage\\ACP");
+        headers["encoder"] = Koadic.user.encoder();
     }
     catch (e)
     {
