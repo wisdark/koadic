@@ -128,7 +128,7 @@ class Job(object):
             self.session.id, self.id, self.name, message))
 
 
-    def decode_downloaded_data(self, data, encoder):
+    def decode_downloaded_data(self, data, encoder, text=False):
         slash_char = chr(92).encode()
         zero_char = chr(0x30).encode()
         null_char = chr(0).encode()
@@ -150,7 +150,7 @@ class Job(object):
                 append(special_char[i])
                 continue
 
-            if i == '\\':
+            if i == '\\' and not text:
                 # EAT the slash
                 escape_flag = True
             else:
