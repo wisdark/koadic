@@ -45,6 +45,11 @@ class HashDumpSAMImplant(core.implant.Implant):
 
 class HashDumpSAMJob(core.job.Job):
 
+    def create(self):
+        if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":
+            self.error("0", "This job requires an elevated session. Set IGNOREADMIN to true to run anyway.", "Not elevated", "")
+            return False
+
     def save_file(self, data, name, encoder):
         import uuid
         save_fname = self.options.get("LPATH") + "/" + name + "." + self.session.ip + "." + uuid.uuid4().hex
