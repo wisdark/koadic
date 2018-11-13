@@ -31,10 +31,10 @@ function GetSysKey()
     }
 
     Koadic.work.report(data, headers);
-    Koadic.file.deleteFile(jdpath)
-    Koadic.file.deleteFile(skew1path)
-    Koadic.file.deleteFile(gbgpath)
-    Koadic.file.deleteFile(datapath)
+    Koadic.file.deleteFile(jdpath);
+    Koadic.file.deleteFile(skew1path);
+    Koadic.file.deleteFile(gbgpath);
+    Koadic.file.deleteFile(datapath);
 }
 
 function DumpHive(name, uuid)
