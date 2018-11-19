@@ -91,7 +91,7 @@ def print_jobs(shell, session):
     shell.print_plain(formats.format("JOB", "NAME", "STATUS", "ERRNO"))
     shell.print_plain(formats.format("----", "---------", "-------", "-------"))
 
-    for job in session.jobs:
+    for job in [j for j in shell.jobs if session.id == j.session_id]:
         last = job.name.split("/")[-1]
         jobname = [n[0:3] for n in job.name.split("/")[:-1]]
         jobname.append(last)

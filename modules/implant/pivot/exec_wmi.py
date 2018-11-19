@@ -23,6 +23,9 @@ class SWbemServicesImplant(core.implant.Implant):
         self.options.register("SMBDOMAIN", ".", "domain for login")
         self.options.register("CREDID", "", "cred id from creds")
 
+    def job(self):
+        return SWbemServicesJob
+
     def run(self):
         cred_id = self.options.get("CREDID")
         if cred_id:
@@ -43,4 +46,4 @@ class SWbemServicesImplant(core.implant.Implant):
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/pivot/exec_wmi.js", self.options)
 
-        self.dispatch(payloads, SWbemServicesJob)
+        self.dispatch(payloads, self.job)

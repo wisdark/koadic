@@ -14,27 +14,36 @@ class Job(object):
     JOB_ID = 0
     JOB_ID_LOCK = threading.Lock()
 
-    def __init__(self, shell, session, name, script, options):
+    def __init__(self, shell, session_id, name, script, options):
         self.fork32Bit = False
         self.completed = Job.CREATED
         self.script = script
         self.shell = shell
         self.options = options
-        self.session = session
+        self.session_id = session_id
         self.name = name
         self.errno = ""
         self.data = b""
         self.unsafe_data = b""
         self.key = uuid.uuid4().hex
         self.results = ""
+        self.ip = ""
+
+        if self.session_id != -1:
+            self.session = [session for stager in self.shell.stagers for session in stager.sessions if session.id == self.session_id][0]
+            self.ip = self.session.ip
+            self.computer = self.session.computer
 
         with Job.JOB_ID_LOCK:
             self.id = Job.JOB_ID
             Job.JOB_ID += 1
 
         if self.create() != False:
+            self.create = True
             self.shell.print_status("Zombie %d: Job %d (%s) created." % (
-                self.session.id, self.id, self.name))
+                self.session_id, self.id, self.name))
+        else:
+            self.create = False
 
     def create(self):
         pass
@@ -60,7 +69,7 @@ class Job(object):
     def print_error(self):
         self.shell.play_sound('FAIL')
         self.shell.print_error("Zombie %d: Job %d (%s) failed!" % (
-            self.session.id, self.id, self.name))
+            self.session_id, self.id, self.name))
         self.shell.print_error("%s (%08x): %s " % (
             self.errname, int(self.errno) + 2**32, self.errdesc))
 
@@ -93,7 +102,7 @@ class Job(object):
 
         self.shell.play_sound('SUCCESS')
         self.shell.print_good("Zombie %d: Job %d (%s) completed." % (
-            self.session.id, self.id, self.name))
+            self.session_id, self.id, self.name))
 
         self.done()
 
@@ -117,15 +126,15 @@ class Job(object):
 
     def print_status(self, message):
         self.shell.print_status("Zombie %d: Job %d (%s) %s" % (
-            self.session.id, self.id, self.name, message))
+            self.session_id, self.id, self.name, message))
 
     def print_good(self, message):
         self.shell.print_good("Zombie %d: Job %d (%s) %s" % (
-            self.session.id, self.id, self.name, message))
+            self.session_id, self.id, self.name, message))
 
     def print_warning(self, message):
         self.shell.print_warning("Zombie %d: Job %d (%s) %s" % (
-            self.session.id, self.id, self.name, message))
+            self.session_id, self.id, self.name, message))
 
 
     def decode_downloaded_data(self, data, encoder, text=False):

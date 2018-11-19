@@ -16,6 +16,7 @@ class Plugin(object):
         self.shell = shell
 
         self.loader = core.loader
+        self.job = self.job()
 
         self.load()
 
@@ -25,6 +26,10 @@ class Plugin(object):
 
     ''' called when the plugin is invoked '''
     def run(self):
+        pass
+
+    ''' job type of the associated plugin '''
+    def job(self):
         pass
 
     def dispatch(self, workloads, job):
@@ -48,8 +53,9 @@ class Plugin(object):
                         self.shell.print_verbose("Server: %s Sesson %s" % (server,session))
                         workload = workloads[server.stager.WORKLOAD]
                         options = copy.deepcopy(self.options)
-                        j = job(self.shell, session, self.shell.state, workload, options)
-                        session.jobs.append(j)
+                        j = job(self.shell, session.id, self.shell.state, workload, options)
+                        self.shell.jobs.append(j)
+                        # session.jobs.append(j.key)
                         self.ret_jobs.append(j.id)
 
     def load_payload(self, id):

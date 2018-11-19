@@ -21,6 +21,9 @@ class EnableRDesktopImplant(core.implant.Implant):
         self.options.register("ENABLE", "true", "toggle to enable or disable", enum=["true", "false"])
         self.options.register("MODE", "", "the value for this script", hidden=True)
 
+    def job(self):
+        return EnableRDesktopJob
+
     def run(self):
         mode = "0" if self.options.get("ENABLE") == "true" else "1"
         self.options.set("MODE", mode)
@@ -29,4 +32,4 @@ class EnableRDesktopImplant(core.implant.Implant):
         #workloads["vbs"] = self.load_script("data/implant/manage/enable_rdesktop.vbs", self.options)
         workloads["js"] = self.loader.load_script("data/implant/manage/enable_rdesktop.js", self.options)
 
-        self.dispatch(workloads, EnableRDesktopJob)
+        self.dispatch(workloads, self.job)

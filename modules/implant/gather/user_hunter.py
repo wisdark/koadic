@@ -68,6 +68,9 @@ class UserHunterImplant(core.implant.Implant):
         self.options.register("DLLUUID", "", "HTTP header for UUID", hidden=True)
         self.options.register("MANIFESTUUID", "", "UUID", hidden=True)
 
+    def job(self):
+        return UserHunterJob
+
     def run(self):
 
         import uuid
@@ -78,4 +81,4 @@ class UserHunterImplant(core.implant.Implant):
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/gather/user_hunter.js", self.options)
 
-        self.dispatch(workloads, UserHunterJob)
+        self.dispatch(workloads, self.job)

@@ -20,7 +20,10 @@ class ClipboardImplant(core.implant.Implant):
     def load(self):
         pass
 
+    def job(self):
+        return ClipboardJob
+
     def run(self):
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/gather/clipboard.js", self.options)
-        self.dispatch(payloads, ClipboardJob)
+        self.dispatch(payloads, self.job)

@@ -5,6 +5,9 @@ import uuid
 class SchTasksJob(core.job.Job):
 
     def create(self):
+        if self.session_id == -1:
+            self.error("0", "This job is not yet compatible with ONESHOT stagers.", "ONESHOT job error", "")
+            return False
         if "XP" in self.session.os or "2003" in self.session.os:
             self.script = self.script.replace(b"~NOFORCE~", b"true")
         else:
@@ -74,6 +77,9 @@ class SchTasksImplant(core.implant.Implant):
         self.options.register("CLEANUP", "false", "will remove the scheduled task", enum=["true", "false"])
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory for output", required=False)
 
+    def job(self):
+        return SchTasksJob
+
     def run(self):
         id = self.options.get("PAYLOAD")
         payload = self.load_payload(id)
@@ -87,4 +93,4 @@ class SchTasksImplant(core.implant.Implant):
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/persist/schtasks.js", self.options)
 
-        self.dispatch(payloads, SchTasksJob)
+        self.dispatch(payloads, self.job)

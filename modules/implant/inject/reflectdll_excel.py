@@ -18,9 +18,12 @@ class ExcelReflectImplant(core.implant.Implant):
     def load(self):
         self.options.register("DLLPATH", "", "the DLL to inject", required=True)
 
+    def job(self):
+        return ExcelReflectJob
+
     def run(self):
         workloads = {}
         #workloads["vbs"] = self.load_script("data/implant/manage/enable_rdesktop.vbs", self.options)
         workloads["js"] = self.loader.load_script("data/implant/inject/reflectdll_excel.js", self.options)
 
-        self.dispatch(workloads, ExcelReflectJob)
+        self.dispatch(workloads, self.job)

@@ -7,7 +7,14 @@ class CredParse(object):
     def __init__(self, job):
         self.job = job
         self.shell = job.shell
-        self.session = job.session
+        self.j_ip = job.ip
+        self.j_computer = "."
+        if job.session_id != -1:
+            self.session = job.session
+            self.j_ip = self.session.ip
+            self.j_computer = self.session.computer
+
+
 
     def new_cred(self):
         cred = {}
@@ -58,14 +65,14 @@ class CredParse(object):
                 continue
             for h in hsec:
                 c = self.new_cred()
-                c["IP"] = self.session.ip
+                c["IP"] = self.j_ip
                 hparts = h.split(":")
                 if len(hparts) < 4 or hparts[0][0] == '[':
                     continue
                 c["Username"] = hparts[0]
                 if htype == "sam":
                     c["NTLM"] = hparts[3]
-                    c["Domain"] = self.session.computer
+                    c["Domain"] = self.j_computer
                 else:
                     c["DCC"] = hparts[1]
                     c["Domain"] = hparts[3]
@@ -204,7 +211,7 @@ class CredParse(object):
                             key_u = cred["Username"].split("@")[0]
 
                         if cred["Domain"] == ".":
-                            key_d = self.session.computer
+                            key_d = self.j_computer
 
                         key = tuple([key_d.lower(), key_u.lower()])
 
@@ -225,7 +232,7 @@ class CredParse(object):
                         if not my_key:
                             self.shell.creds_keys.append(key)
                             c = self.new_cred()
-                            c["IP"] = self.session.ip
+                            c["IP"] = self.j_ip
                             for subkey in cred:
                                 c[subkey] = cred[subkey]
 
@@ -245,7 +252,7 @@ class CredParse(object):
                                 c["Username"] = c["Username"].split("@")[0]
 
                             if c["Domain"] == ".":
-                                c["Domain"] = self.session.computer
+                                c["Domain"] = self.j_computer
 
                             if c["Password"] == "(null)":
                                 c["Password"] = ""
@@ -257,8 +264,8 @@ class CredParse(object):
 
                         else:
                             key = my_key
-                            if self.session.ip != self.shell.creds[key]["IP"] and self.session.ip not in self.shell.creds[key]["Extra"]["IP"]:
-                                self.shell.creds[key]["Extra"]["IP"].append(self.session.ip)
+                            if self.j_ip != self.shell.creds[key]["IP"] and self.j_ip not in self.shell.creds[key]["Extra"]["IP"]:
+                                self.shell.creds[key]["Extra"]["IP"].append(self.j_ip)
 
                             if "Password" in cred:
                                 cpass = cred["Password"]
@@ -308,7 +315,7 @@ class CredParse(object):
                 for section in parsed_data:
                     if "RID  :" in section:
                         c = self.new_cred()
-                        c["IP"] = self.session.ip
+                        c["IP"] = self.j_ip
                         c["Username"] = section.split("User : ")[1].split("\n")[0]
                         c["Domain"] = domain
                         lm = ""

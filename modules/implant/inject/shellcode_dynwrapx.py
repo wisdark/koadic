@@ -47,6 +47,9 @@ class DynWrapXShellcodeImplant(core.implant.Implant):
         self.options.register("DLLUUID", "ETag", "HTTP header for UUID", hidden=True)
         self.options.register("MANIFESTUUID", "ETag", "HTTP header for UUID", hidden=True)
 
+    def job(self):
+        return DynWrapXShellcodeJob
+
     def run(self):
 
         import uuid
@@ -70,4 +73,4 @@ class DynWrapXShellcodeImplant(core.implant.Implant):
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/inject/shellcode_dynwrapx.js", self.options)
 
-        self.dispatch(workloads, DynWrapXShellcodeJob)
+        self.dispatch(workloads, self.job)

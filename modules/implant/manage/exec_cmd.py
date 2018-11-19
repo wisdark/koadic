@@ -27,6 +27,9 @@ class ExecCmdImplant(core.implant.Implant):
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory for output", required=False)
         # self.options.register("FILE", "", "random uuid for file name", hidden=True)
 
+    def job(self):
+        return ExecCmdJob
+
     def run(self):
         # generate new file every time this is run
         # self.options.set("FILE", uuid.uuid4().hex)
@@ -37,4 +40,4 @@ class ExecCmdImplant(core.implant.Implant):
         #payloads["vbs"] = self.load_script("data/implant/manage/exec_cmd.vbs", self.options)
         payloads["js"] = self.loader.load_script("data/implant/manage/exec_cmd.js", self.options)
 
-        self.dispatch(payloads, ExecCmdJob)
+        self.dispatch(payloads, self.job)

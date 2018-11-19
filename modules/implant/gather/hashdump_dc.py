@@ -17,6 +17,9 @@ class HashDumpDCImplant(core.implant.Implant):
         self.options.register("NTDSFILE", "", "random uuid for NTDS file name", hidden=True)
         self.options.register("SYSHFILE", "", "random uuid for SYSTEM hive file name", hidden=True)
 
+    def job(self):
+        return HashDumpDCJob
+
     def run(self):
 
         import os.path
@@ -50,7 +53,7 @@ class HashDumpDCImplant(core.implant.Implant):
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/gather/hashdump_dc.js", self.options)
 
-        self.dispatch(payloads, HashDumpDCJob)
+        self.dispatch(payloads, self.job)
 
 class HashDumpDCJob(core.job.Job):
 

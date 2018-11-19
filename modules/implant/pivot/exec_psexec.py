@@ -32,6 +32,9 @@ class PsExecLiveImplant(core.implant.Implant):
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory for output", required=False)
         # self.options.register("FILE", "", "random uuid for file name", hidden=True)
 
+    def job(self):
+        return PsExecLiveJob
+
     def run(self):
         # generate new file every time this is run
         # self.options.set("FILE", uuid.uuid4().hex)
@@ -54,4 +57,4 @@ class PsExecLiveImplant(core.implant.Implant):
 
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/pivot/exec_psexec.js", self.options)
-        self.dispatch(payloads, PsExecLiveJob)
+        self.dispatch(payloads, self.job)

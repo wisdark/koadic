@@ -60,6 +60,9 @@ class ScanTCPImplant(core.implant.Implant):
         self.options.register("TIMEOUT", "2", "longer is more accurate")
         self.options.register("CHECKLIVE", "true", "check if host is up before checking ports", enum=["true", "false"])
 
+    def job(self):
+        return ScanTCPJob
+
     def run(self):
         options = self.options.copy()
         hosts = self.parse_ips(options.get("RHOSTS"))
@@ -74,4 +77,4 @@ class ScanTCPImplant(core.implant.Implant):
         #print(payloads["js"])
 
 
-        self.dispatch(payloads, ScanTCPJob)
+        self.dispatch(payloads, self.job)

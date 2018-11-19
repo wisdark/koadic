@@ -4,6 +4,8 @@ import uuid
 
 class AddUserJob(core.job.Job):
     def create(self):
+        if self.session_id == -1:
+            return
         if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":
             self.error("0", "This job requires an elevated session. Set IGNOREADMIN to true to run anyway.", "Not elevated", "")
             return False
@@ -93,6 +95,9 @@ class AddUserImplant(core.implant.Implant):
         self.options.register("CLEANUP", "false", "will remove the created user", enum=["true", "false"])
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory for output", required=False)
 
+    def job(self):
+        return AddUserJob
+
     def run(self):
 
         if not self.options.get("USERNAME"):
@@ -106,4 +111,4 @@ class AddUserImplant(core.implant.Implant):
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/persist/add_user.js", self.options)
 
-        self.dispatch(payloads, AddUserJob)
+        self.dispatch(payloads, self.job)

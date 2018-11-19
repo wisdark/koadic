@@ -36,6 +36,9 @@ class UploadFileImplant(core.implant.Implant):
         #self.options.register("OUTPUT", "false", "get output of exec?", enum=["true", "false"])
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory", required=False)
 
+    def job(self):
+        return UploadFileJob
+
     def run(self):
         # generate new file every time this is run
         #self.options.set("FILE", uuid.uuid4().hex)
@@ -51,4 +54,4 @@ class UploadFileImplant(core.implant.Implant):
         #payloads["vbs"] = self.load_script("data/implant/util/upload_file.vbs", self.options)
         payloads["js"] = self.loader.load_script("data/implant/util/upload_file.js", self.options)
 
-        self.dispatch(payloads, UploadFileJob)
+        self.dispatch(payloads, self.job)

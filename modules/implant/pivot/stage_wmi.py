@@ -26,6 +26,9 @@ class SWbemServicesImplant(core.implant.Implant):
         self.options.register("CREDID", "", "cred id from creds")
         self.options.register("PAYLOAD", "", "payload to stage")
 
+    def job(self):
+        return SWbemServicesJob
+
     def run(self):
         id = self.options.get("PAYLOAD")
         payload = self.load_payload(id)
@@ -56,4 +59,4 @@ class SWbemServicesImplant(core.implant.Implant):
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/pivot/exec_wmi.js", self.options)
 
-        self.dispatch(payloads, SWbemServicesJob)
+        self.dispatch(payloads, self.job)

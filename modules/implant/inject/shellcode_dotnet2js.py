@@ -43,6 +43,9 @@ class SDotNet2JSImplant(core.implant.Implant):
         self.options.register("DLLB64", "", "calculated bytes for arr_DLL", advanced=True)
         self.options.register("DLLOFFSET", "0", "Offset to the reflective loader", advanced = True)
 
+    def job(self):
+        return SDotNet2JSJob
+
     def dllb64(self, path):
         import base64
         import os.path
@@ -73,4 +76,4 @@ class SDotNet2JSImplant(core.implant.Implant):
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/inject/shellcode_dotnet2js.js", self.options)
 
-        self.dispatch(workloads, SDotNet2JSJob)
+        self.dispatch(workloads, self.job)

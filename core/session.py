@@ -21,7 +21,7 @@ class Session(object):
             Session.SESSION_ID += 1
 
         self.key = uuid.uuid4().hex
-        self.jobs = []
+        # self.jobs = []
         self.killed = False
 
         self.os = ""
@@ -126,7 +126,8 @@ class Session(object):
         self.last_active = time.time()
 
     def get_job(self, job_key):
-        for job in self.jobs:
+        jobs = [job for job in self.shell.jobs if job.session_id == self.id]
+        for job in jobs:
             if job.key == job_key:
                 self.shell.print_verbose("session::get_job() - fetched job_key = %s" % (job_key))
                 return job
@@ -135,10 +136,8 @@ class Session(object):
         return None
 
     def get_created_job(self):
-        shell = self.stager.shell
-
-        for job in self.jobs:
-            #if job.completed != Job.COMPLETE:
+        jobs = [job for job in self.shell.jobs if job.session_id == self.id]
+        for job in jobs:
             if job.completed == Job.CREATED:
                 self.shell.print_verbose("session::get_created_job - fetched job.key = %s" % (job.key))
                 return job

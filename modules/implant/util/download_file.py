@@ -15,6 +15,9 @@ class DownloadFileImplant(core.implant.Implant):
         self.options.register("RFILE", "", "remote file to get", required=False)
         self.options.register("RFILELIST", "", "file containing line-seperated file names to download", required=False)
 
+    def job(self):
+        return DownloadFileJob
+
     def run(self):
         rfile = self.options.get("RFILE")
         rfilelist = self.options.get("RFILELIST")
@@ -29,11 +32,11 @@ class DownloadFileImplant(core.implant.Implant):
             for f in files:
                 self.options.set("RFILE", f.replace("\\", "\\\\").replace('"', '\\"'))
                 payloads["js"] = self.loader.load_script("data/implant/util/download_file.js", self.options)
-                self.dispatch(payloads, DownloadFileJob)
+                self.dispatch(payloads, self.job)
         else:
             self.options.set("RFILE", self.options.get('RFILE').replace("\\", "\\\\").replace('"', '\\"'))
             payloads["js"] = self.loader.load_script("data/implant/util/download_file.js", self.options)
-            self.dispatch(payloads, DownloadFileJob)
+            self.dispatch(payloads, self.job)
 
 class DownloadFileJob(core.job.Job):
     def report(self, handler, data, sanitize = False):

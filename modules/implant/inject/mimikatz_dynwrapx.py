@@ -111,6 +111,9 @@ class DynWrapXShellcodeImplant(core.implant.Implant):
 
         self.options.register("SHIMX86OFFSET", "6202", "Offset to the reflective loader", advanced = True)
 
+    def job(self):
+        return DynWrapXShellcodeJob
+
     def make_arrDLL(self, path):
         import struct
         count = 0
@@ -147,4 +150,4 @@ class DynWrapXShellcodeImplant(core.implant.Implant):
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/inject/mimikatz_dynwrapx.js", self.options)
 
-        self.dispatch(workloads, DynWrapXShellcodeJob)
+        self.dispatch(workloads, self.job)

