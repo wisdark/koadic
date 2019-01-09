@@ -457,7 +457,7 @@ class Handler(BaseHTTPRequestHandler):
             script = jsmin(script.decode()).encode()
 
         script = template.replace(b"~SCRIPT~", script)
-        if self.session.encoder:
+        if self.session and self.session.encoder:
             encoder = self.session.encoder
         else:
             encoder = "1252"
