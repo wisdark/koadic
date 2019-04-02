@@ -512,5 +512,5 @@ class Handler(BaseHTTPRequestHandler):
             encoder = self.session.encoder
         else:
             encoder = "1252"
-        script = script.decode().encode("windows-"+encoder)
+        script = script.decode().encode("cp"+encoder)
         return script

@@ -50,7 +50,7 @@ class DownloadFileJob(core.job.Job):
             data = self.decode_downloaded_data(data, handler.get_header("encoder", "1252"))
             try:
                 # if the data is just a text file, we want to decode correctly and then re-encode
-                data = data.decode('windows-'+handler.get_header("encoder", "1252")).encode()
+                data = data.decode('cp'+handler.get_header("encoder", "1252")).encode()
             except:
                 pass
             f.write(data)

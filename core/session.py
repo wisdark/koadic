@@ -101,7 +101,7 @@ class Session(object):
             self.encoder = data[7].strip() if data[7].strip() else "1252"
             self.shellchcp = data[8].strip() if data[8].strip() else "437"
 
-            self.realcwd = self.realcwd.encode('windows-'+self.encoder).decode('cp'+self.shellchcp)
+            self.realcwd = self.realcwd.encode('cp'+self.encoder).decode('cp'+self.shellchcp)
 
         except Exception as e:
             self.shell.print_warning("parsing error")
