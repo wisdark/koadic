@@ -138,6 +138,16 @@ class Job(object):
 
 
     def decode_downloaded_data(self, data, encoder, text=False):
+        if encoder == "936":
+            try:
+                alldata = data.decode().splitlines()
+                allhex = ""
+                for l in alldata:
+                    allhex += "".join(l.split()[1:17])
+                return bytes.fromhex(allhex)
+            except ValueError:
+                pass
+
         slash_char = chr(92).encode()
         zero_char = chr(0x30).encode()
         null_char = chr(0).encode()
