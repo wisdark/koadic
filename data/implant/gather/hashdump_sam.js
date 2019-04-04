@@ -15,11 +15,18 @@ function GetSysKey()
     data += Koadic.file.readBinary(gbgpath);
     data += Koadic.file.readBinary(datapath);
 
-    data = data.replace(/\\/g, "\\\\");
-    data = data.replace(/\0/g, "\\0");
-
     var headers = {};
     headers["Task"] = "SysKey";
+
+    if (Koadic.user.encoder == "936")
+    {
+        //do nothing
+    }
+    else
+    {
+        data = data.replace(/\\/g, "\\\\");
+        data = data.replace(/\0/g, "\\0");
+    }
 
     try
     {
