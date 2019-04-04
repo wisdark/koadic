@@ -131,13 +131,17 @@ class HashDumpSAMJob(core.job.Job):
             with open(self.syskey_data_file, 'rb') as syskeyfile:
                 file_contents = syskeyfile.read()
 
-            i = 4220
-            while i < 28811:
-                j = i + 15
-                while i < j:
-                    tmp_syskey += file_contents[i:i+1].decode()
-                    i += 2
-                i += 8176
+            for f in file_contents.split(b"\x00\xe8\xff\xff\xff")[1:5]:
+                if f:
+                    tmp_syskey += b"".join(f.split(b"\x00")[0:8]).decode()
+
+            # i = 4220
+            # while i < 28811:
+            #     j = i + 15
+            #     while i < j:
+            #         tmp_syskey += file_contents[i:i+1].decode()
+            #         i += 2
+            #     i += 8176
 
             tmp_syskey = list(map(''.join, zip(*[iter(tmp_syskey)]*2)))
 
