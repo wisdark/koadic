@@ -609,10 +609,7 @@ class RestServer():
                 else:
                     return jsonify(success=False, error="Couldn't dispatch jobs")
 
-
-
-
-        rest_api.run(host='0.0.0.0', port=int(self.port), threaded=True)
+        rest_api.run(host='127.0.0.1', port=int(self.port), threaded=True)
 
     def condense_creds(self):
         bad_keys = []

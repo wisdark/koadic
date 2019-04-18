@@ -35,11 +35,24 @@ def execute(shell, cmd):
         sw = splitted[1].lower()
         if sw == "on":
             if not shell.rest_thread:
+                import socket
+                s = socket.socket(socket.AF_INET, socket.SOCK_STREAM)
+                try:
+                    s.bind(('127.0.0.1', int(port)))
+                except OSError as e:
+                    if e.errno == 98:
+                        shell.print_error("Port %s is already bound!" % (port))
+                    elif e.errno == 13:
+                        shell.print_error("Port %s bind permission denied!" % (port))
+                    s.close()
+                    return
+                s.close()
+
                 rest_server = core.rest_server.RestServer(shell, port, username, password)
                 def thread_rest_server():
                     try:
                         rest_server.run()
-                    except SystemExit as e:
+                    except SystemExit:
                         pass
 
                 stdout = sys.stdout
@@ -50,13 +63,18 @@ def execute(shell, cmd):
                 shell.rest_thread.start()
                 time.sleep(1)
                 sys.stdout = stdout
-                if shell.rest_thread:
+                # ok, now THIS is the most embarassing thing i've ever done.
+                # i don't know how to pass exceptions from the thread to the caller.
+                # so here we are.
+                if "started" in shell.rest_thread.localtrace(0,0,0).__str__():
                     shell.print_good("Rest server running on port %s" % port)
                     shell.print_status("Username: %s" % username)
                     shell.print_status("Password: %s" % password)
                     shell.print_status("API Token: %s" % rest_server.token)
                 else:
-                    shell.print_error("Could not start rest server: ")
+                    shell.rest_thread.kill()
+                    shell.rest_thread = ""
+                    shell.print_error("Could not start rest server.")
 
             else:
                 shell.print_error("Rest server already running")
@@ -67,3 +85,6 @@ def execute(shell, cmd):
                 shell.print_good("Rest server shutdown")
             else:
                 shell.print_error("Rest server not running")
+
+    else:
+        help(shell)
