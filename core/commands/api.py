@@ -26,12 +26,19 @@ def execute(shell, cmd):
         username = "koadic"
         password = "koadic"
         port = "9990"
+        remote = False
+        secure = []
         if "--user" in splitted:
             username = splitted[splitted.index("--user")+1]
         if "--pass" in splitted:
             password = splitted[splitted.index("--pass")+1]
         if "--port" in splitted:
             port = splitted[splitted.index("--port")+1]
+        if "--remote" in splitted:
+            remote = True
+            if "--cert" in splitted and "--key" in splitted:
+                secure = [splitted[splitted.index("--cert")+1], splitted[splitted.index("--key")+1]]
+
         sw = splitted[1].lower()
         if sw == "on":
             if not shell.rest_thread:
@@ -48,7 +55,7 @@ def execute(shell, cmd):
                     return
                 s.close()
 
-                rest_server = core.rest_server.RestServer(shell, port, username, password)
+                rest_server = core.rest_server.RestServer(shell, port, username, password, remote, secure)
                 def thread_rest_server():
                     try:
                         rest_server.run()

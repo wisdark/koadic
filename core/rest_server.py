@@ -38,11 +38,16 @@ class KThread(threading.Thread):
         self.killed = True
 
 class RestServer():
-    def __init__(self, shell, port, username, password):
+    def __init__(self, shell, port, username, password, remote, secure):
         self.shell = shell
         self.username = username
         self.password = password
         self.port = port
+        self.remote = remote
+        self.secure = secure
+        if self.secure:
+            self.cert = self.secure[0]
+            self.key = self.secure[1]
         self.token = ''.join(random.SystemRandom().choice(string.ascii_letters + string.digits) for n in range(42))
         self.domains = [] # crappy hack
         self.cred_mapping = {"username": "Username", 
@@ -609,7 +614,10 @@ class RestServer():
                 else:
                     return jsonify(success=False, error="Couldn't dispatch jobs")
 
-        rest_api.run(host='127.0.0.1', port=int(self.port), threaded=True)
+        if self.remote:
+            if self.secure: rest_api.run(host='0.0.0.0', port=int(self.port), threaded=True, ssl_context=(self.cert, self.key))
+            else: rest_api.run(host='0.0.0.0', port=int(self.port), threaded=True)
+        else: rest_api.run(host='127.0.0.1', port=int(self.port), threaded=True)
 
     def condense_creds(self):
         bad_keys = []
