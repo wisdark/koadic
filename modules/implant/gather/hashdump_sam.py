@@ -131,9 +131,16 @@ class HashDumpSAMJob(core.job.Job):
             with open(self.syskey_data_file, 'rb') as syskeyfile:
                 file_contents = syskeyfile.read()
 
-            for f in file_contents.split(b"\x00\xe8\xff\xff\xff")[1:5]:
+            import string
+            for f in file_contents.split(b"\x00\xe8\xff\xff\xff"):
                 if f:
-                    tmp_syskey += b"".join(f.split(b"\x00")[0:8]).decode()
+                    try:
+                        old_syskey = tmp_syskey
+                        tmp_syskey += b"".join(f.split(b"\x00")[0:8]).decode()
+                        if not all(c in string.hexdigits for c in tmp_syskey):
+                            tmp_syskey = old_syskey
+                    except UnicodeDecodeError:
+                        tmp_syskey = old_syskey
 
             # i = 4220
             # while i < 28811:
