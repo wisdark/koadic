@@ -62,13 +62,14 @@ def execute(shell, cmd):
                     except SystemExit:
                         pass
 
+
+                shell.rest_thread = core.rest_server.KThread(target=thread_rest_server)
+                shell.rest_thread.daemon = True
                 stdout = sys.stdout
                 f = open(os.devnull, 'w')
                 sys.stdout = f
-                shell.rest_thread = core.rest_server.KThread(target=thread_rest_server)
-                shell.rest_thread.daemon = True
                 shell.rest_thread.start()
-                time.sleep(1)
+                time.sleep(2)
                 sys.stdout = stdout
                 # ok, now THIS is the most embarassing thing i've ever done.
                 # i don't know how to pass exceptions from the thread to the caller.

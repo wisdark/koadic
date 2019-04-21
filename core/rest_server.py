@@ -1,4 +1,4 @@
-import random, string, time, datetime, json, threading, sys
+import random, string, time, datetime, json, threading, sys, os
 
 class KThread(threading.Thread):
     """
@@ -84,7 +84,7 @@ class RestServer():
 
         @rest_api.errorhandler(Exception)
         def exception_handler(error):
-            return repr(error)
+            return repr(error)+"\n"
 
         @rest_api.errorhandler(404)
         def not_found(error):
@@ -249,11 +249,14 @@ class RestServer():
 
 
             elif request.method == 'PUT':
-                req_cred = json.loads(request.data)
+                try:
+                    req_cred = json.loads(request.data)
+                except:
+                    return jsonify(success=False, error="Expected valid JSON object as data.")
                 new_cred = {}
                 for k in req_cred:
                     if k.lower() not in self.cred_mapping:
-                        return jsonify(success=False, error="Unknown field: %s." % str(k))
+                        return jsonify(success=False, error="Unknown field: %s" % str(k))
                     if k.lower() == "extra":
                         for subk in req_cred[k]:
                             if subk.lower() not in self.cred_mapping:
@@ -262,11 +265,11 @@ class RestServer():
                                 return jsonify(success=False, error="No Extra field available for \"%s\"." % str(subk))
                     new_cred[self.cred_mapping[k.lower()]] = req_cred[k]
 
-                new_keys = new_cred.keys()
+                new_keys = list(new_cred.keys())
 
                 # new cred
-                if cred_id > len(self.shell.creds_keys) or cred_id < 0:
-                    if "Username" not in new_keys and "Domain" not in new_keys:
+                if cred_id > len(self.shell.creds_keys) or not self.shell.creds_keys:
+                    if "Username" not in new_keys or "Domain" not in new_keys:
                         return jsonify(success=False, error="Username and Domain are required to add a new credential.")
                     else:
                         new_cred_key = (new_cred["Domain"].lower(), new_cred["Username"].lower())
@@ -281,8 +284,30 @@ class RestServer():
                     if "IP" not in new_keys:
                         new_cred["IP"] = "Manually added"
 
+                    cred = {}
+                    cred["IP"] = ""
+                    cred["Domain"] = ""
+                    cred["Username"] = ""
+                    cred["Password"] = ""
+                    cred["NTLM"] = ""
+                    cred["SHA1"] = ""
+                    cred["DCC"] = ""
+                    cred["DPAPI"] = ""
+                    cred["LM"] = ""
+                    cred["Extra"] = {}
+                    cred["Extra"]["IP"] = []
+                    cred["Extra"]["Password"] = []
+                    cred["Extra"]["NTLM"] = []
+                    cred["Extra"]["SHA1"] = []
+                    cred["Extra"]["DCC"] = []
+                    cred["Extra"]["DPAPI"] = []
+                    cred["Extra"]["LM"] = []
+
+                    for k in new_cred:
+                        cred[k] = new_cred[k]
+
                     self.shell.creds_keys.append(new_cred_key)
-                    self.shell.creds[new_cred_key] = new_cred
+                    self.shell.creds[new_cred_key] = cred
                     return jsonify(success=True, cred_id=self.shell.creds_keys.index(new_cred_key))
 
                 # update cred
