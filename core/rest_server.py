@@ -268,7 +268,7 @@ class RestServer():
                 new_keys = list(new_cred.keys())
 
                 # new cred
-                if cred_id > len(self.shell.creds_keys) or not self.shell.creds_keys:
+                if cred_id >= len(self.shell.creds_keys) or not self.shell.creds_keys:
                     if "Username" not in new_keys or "Domain" not in new_keys:
                         return jsonify(success=False, error="Username and Domain are required to add a new credential.")
                     else:
@@ -313,7 +313,6 @@ class RestServer():
                 # update cred
                 else:
                     old_cred_key = self.shell.creds_keys[cred_id]
-                    merge_flag = False
                     if "Username" in new_keys or "Domain" in new_keys:
                         if "Username" in new_keys and "Domain" in new_keys:
                             new_cred_key = (new_cred["Domain"].lower(), new_cred["Username"].lower())
@@ -322,14 +321,6 @@ class RestServer():
                                 new_cred_key = (old_cred_key[0], new_cred["Username"].lower())
                             elif "Domain" in new_keys:
                                 new_cred_key = (new_cred["Domain"].lower(), old_cred_key[1])
-                        if self.shell.domain_info and [d for d in domain_info if new_cred_key[0] in d]:
-                            domain_key = [d for d in domain_info if new_cred_key[0] in d][0]
-                            other_domain = [d for d in domain_key if d != new_cred[0]][0]
-                            new_cred_key_2 = (other_domain, new_cred_key[1])
-                        if new_cred_key in self.shell.creds_keys or new_cred_key_2 in self.shell.creds_keys:
-                            merge_flag = True
-                            if new_cred_key_2 in self.shell.creds_keys:
-                                new_cred_key = new_cred_key_2
                     else:
                         new_cred_key = old_cred_key
 
@@ -340,7 +331,8 @@ class RestServer():
                             if k not in ["Username", "Domain", "Extra"]:
                                 if new_val in old_cred["Extra"][k]:
                                     old_cred["Extra"][k].remove(new_val)
-                                old_cred["Extra"][k].append(old_cred[k])
+                                if new_val != old_cred[k]:
+                                    old_cred["Extra"][k].append(old_cred[k])
                             elif k == "Extra":
                                 for subk in new_keys[k]:
                                     old_cred[k][subk] = old_cred[k][subk] + new_val[subk]
@@ -348,27 +340,9 @@ class RestServer():
                         if k != "Extra":
                             old_cred[k] = new_val
 
-                    if merge_flag:
-                        merge_cred = dict(self.shell.creds[new_cred_key])
-                        for k in merge_cred:
-                            if k in ["Username", "Domain", "Extra"]:
-                                continue
-                            merge_cred["Extra"][k].append(merge_cred[k])
-                        for k in old_cred:
-                            if k in ["Username", "Domain"]:
-                                continue
-                            if k == "Extra":
-                                for subk in old_cred[k]:
-                                    merge_cred[k][subk] = merge_cred[k][subk] + old_cred[k][subk]
-                            else:
-                                merge_cred[k] = old_cred[k]
-                        del self.shell.creds[old_cred_key]
-                        self.shell.creds_keys.remove(old_cred_key)
-                        self.shell.creds[new_cred_key] = merge_cred
-                    else:
-                        del self.shell.creds[old_cred_key]
-                        self.shell.creds[new_cred_key] = old_cred
-                        self.shell.creds_keys[cred_id] = new_cred_key
+                    del self.shell.creds[old_cred_key]
+                    self.shell.creds[new_cred_key] = old_cred
+                    self.shell.creds_keys[cred_id] = new_cred_key
 
                     return jsonify(success=True)
 
