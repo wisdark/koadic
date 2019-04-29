@@ -47,6 +47,7 @@ implant/fun/zombie | Maxes volume and opens The Cranberries YouTube in a hidden 
 implant/fun/voice | Plays a message over text-to-speech.
 implant/gather/clipboard | Retrieves the current content of the user clipboard.
 implant/gather/enum_domain_info | Retrieve information about the Windows domain.
+implant/gather/enum_printers | Retrieve information about printer connections.
 implant/gather/hashdump_sam | Retrieves hashed passwords from the SAM hive.
 implant/gather/hashdump_dc | Domain controller hashes from the NTDS.dit file.
 implant/gather/user_hunter | Locate users logged on to domain computers (using Dynamic Wrapper X).

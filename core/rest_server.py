@@ -1,4 +1,4 @@
-import random, string, time, datetime, json, threading, sys
+import random, string, time, datetime, json, threading, sys, os
 
 class KThread(threading.Thread):
     """
@@ -84,7 +84,7 @@ class RestServer():
 
         @rest_api.errorhandler(Exception)
         def exception_handler(error):
-            return repr(error)
+            return repr(error)+"\n"
 
         @rest_api.errorhandler(404)
         def not_found(error):
@@ -249,11 +249,14 @@ class RestServer():
 
 
             elif request.method == 'PUT':
-                req_cred = json.loads(request.data)
+                try:
+                    req_cred = json.loads(request.data)
+                except:
+                    return jsonify(success=False, error="Expected valid JSON object as data.")
                 new_cred = {}
                 for k in req_cred:
                     if k.lower() not in self.cred_mapping:
-                        return jsonify(success=False, error="Unknown field: %s." % str(k))
+                        return jsonify(success=False, error="Unknown field: %s" % str(k))
                     if k.lower() == "extra":
                         for subk in req_cred[k]:
                             if subk.lower() not in self.cred_mapping:
@@ -262,11 +265,11 @@ class RestServer():
                                 return jsonify(success=False, error="No Extra field available for \"%s\"." % str(subk))
                     new_cred[self.cred_mapping[k.lower()]] = req_cred[k]
 
-                new_keys = new_cred.keys()
+                new_keys = list(new_cred.keys())
 
                 # new cred
-                if cred_id > len(self.shell.creds_keys) or cred_id < 0:
-                    if "Username" not in new_keys and "Domain" not in new_keys:
+                if cred_id >= len(self.shell.creds_keys) or not self.shell.creds_keys:
+                    if "Username" not in new_keys or "Domain" not in new_keys:
                         return jsonify(success=False, error="Username and Domain are required to add a new credential.")
                     else:
                         new_cred_key = (new_cred["Domain"].lower(), new_cred["Username"].lower())
@@ -281,14 +284,35 @@ class RestServer():
                     if "IP" not in new_keys:
                         new_cred["IP"] = "Manually added"
 
+                    cred = {}
+                    cred["IP"] = ""
+                    cred["Domain"] = ""
+                    cred["Username"] = ""
+                    cred["Password"] = ""
+                    cred["NTLM"] = ""
+                    cred["SHA1"] = ""
+                    cred["DCC"] = ""
+                    cred["DPAPI"] = ""
+                    cred["LM"] = ""
+                    cred["Extra"] = {}
+                    cred["Extra"]["IP"] = []
+                    cred["Extra"]["Password"] = []
+                    cred["Extra"]["NTLM"] = []
+                    cred["Extra"]["SHA1"] = []
+                    cred["Extra"]["DCC"] = []
+                    cred["Extra"]["DPAPI"] = []
+                    cred["Extra"]["LM"] = []
+
+                    for k in new_cred:
+                        cred[k] = new_cred[k]
+
                     self.shell.creds_keys.append(new_cred_key)
-                    self.shell.creds[new_cred_key] = new_cred
+                    self.shell.creds[new_cred_key] = cred
                     return jsonify(success=True, cred_id=self.shell.creds_keys.index(new_cred_key))
 
                 # update cred
                 else:
                     old_cred_key = self.shell.creds_keys[cred_id]
-                    merge_flag = False
                     if "Username" in new_keys or "Domain" in new_keys:
                         if "Username" in new_keys and "Domain" in new_keys:
                             new_cred_key = (new_cred["Domain"].lower(), new_cred["Username"].lower())
@@ -297,14 +321,6 @@ class RestServer():
                                 new_cred_key = (old_cred_key[0], new_cred["Username"].lower())
                             elif "Domain" in new_keys:
                                 new_cred_key = (new_cred["Domain"].lower(), old_cred_key[1])
-                        if self.shell.domain_info and [d for d in domain_info if new_cred_key[0] in d]:
-                            domain_key = [d for d in domain_info if new_cred_key[0] in d][0]
-                            other_domain = [d for d in domain_key if d != new_cred[0]][0]
-                            new_cred_key_2 = (other_domain, new_cred_key[1])
-                        if new_cred_key in self.shell.creds_keys or new_cred_key_2 in self.shell.creds_keys:
-                            merge_flag = True
-                            if new_cred_key_2 in self.shell.creds_keys:
-                                new_cred_key = new_cred_key_2
                     else:
                         new_cred_key = old_cred_key
 
@@ -315,7 +331,8 @@ class RestServer():
                             if k not in ["Username", "Domain", "Extra"]:
                                 if new_val in old_cred["Extra"][k]:
                                     old_cred["Extra"][k].remove(new_val)
-                                old_cred["Extra"][k].append(old_cred[k])
+                                if new_val != old_cred[k]:
+                                    old_cred["Extra"][k].append(old_cred[k])
                             elif k == "Extra":
                                 for subk in new_keys[k]:
                                     old_cred[k][subk] = old_cred[k][subk] + new_val[subk]
@@ -323,27 +340,9 @@ class RestServer():
                         if k != "Extra":
                             old_cred[k] = new_val
 
-                    if merge_flag:
-                        merge_cred = dict(self.shell.creds[new_cred_key])
-                        for k in merge_cred:
-                            if k in ["Username", "Domain", "Extra"]:
-                                continue
-                            merge_cred["Extra"][k].append(merge_cred[k])
-                        for k in old_cred:
-                            if k in ["Username", "Domain"]:
-                                continue
-                            if k == "Extra":
-                                for subk in old_cred[k]:
-                                    merge_cred[k][subk] = merge_cred[k][subk] + old_cred[k][subk]
-                            else:
-                                merge_cred[k] = old_cred[k]
-                        del self.shell.creds[old_cred_key]
-                        self.shell.creds_keys.remove(old_cred_key)
-                        self.shell.creds[new_cred_key] = merge_cred
-                    else:
-                        del self.shell.creds[old_cred_key]
-                        self.shell.creds[new_cred_key] = old_cred
-                        self.shell.creds_keys[cred_id] = new_cred_key
+                    del self.shell.creds[old_cred_key]
+                    self.shell.creds[new_cred_key] = old_cred
+                    self.shell.creds_keys[cred_id] = new_cred_key
 
                     return jsonify(success=True)
 
