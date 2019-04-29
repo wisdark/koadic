@@ -31,20 +31,31 @@ def autocomplete(shell, line, text, state):
         return None
 
 def filepaths(text):
-    if os.path.isfile(text):
+    import readline
+    everything = readline.get_line_buffer()
+    cursor_idx = readline.get_begidx()
+    idx = 0
+    for chunk in everything.split(" "):
+        fullpath = chunk
+        idx += len(chunk) + 1
+        if idx > cursor_idx:
+            break
+
+    if os.path.isfile(fullpath):
         return None
-    res = []
-    if text:
-        d = os.path.dirname(text)
+    if "/" in fullpath:
+        d = os.path.dirname(fullpath)
     else:
         d = "."
-    for name in os.listdir(d):
-        path = os.path.join(d,name)
-        if os.path.isdir(path):
-            path += os.sep
-        if (text and path.startswith(text)) or not text:
-            res.append(path)
 
+    res = []
+    for candidate in os.listdir(d):
+        if not candidate.startswith(text):
+            continue
+        if os.path.isdir(d+os.path.sep+candidate):
+            res.append(candidate + os.path.sep)
+        else:
+            res.append(candidate + " ")
     return res
 
 def help(shell):
