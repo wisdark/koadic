@@ -49,7 +49,7 @@ class Shell(object):
                         break
 
                 if len(cmd) == 0:
-                    cmd = self.get_command(self.prompt, self.autocomplete)
+                    cmd = self.get_command(self.prompt, self.autocomplete, self.base_filenames)
                 else:
                     print(self.clean_prompt + cmd)
 
@@ -100,13 +100,14 @@ class Shell(object):
             except:
                 pass
 
-    def get_command(self, prompt, auto_complete_fn=None):
+    def get_command(self, prompt, auto_complete_fn=None, basefile_fn=None):
         try:
             if auto_complete_fn != None:
                 import readline
                 readline.set_completer_delims(' \t\n;')
                 readline.parse_and_bind("tab: complete")
                 readline.set_completer(auto_complete_fn)
+                # readline.set_completion_display_matches_hook(basefile_fn)
         except:
             pass
 
@@ -139,6 +140,16 @@ class Shell(object):
             return options[state]
         except:
             return None
+
+    def base_filenames(self, substitution, matches, longest_match_length):
+        pass
+    #     print()
+    #     print("substitution", substitution)
+    #     print("matches", matches)
+    #     print("length", longest_match_length)
+    #     matches[:] = ["banana"]
+    #     return "banana"
+    #     # sys.stdout.flush()
 
     def print_banner(self):
         os.system("clear")

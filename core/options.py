@@ -7,6 +7,9 @@ class Option(object):
         self.required = True
         self.advanced = False
         self.hidden = False
+        self.boolean = False
+        self.file = False
+        self.implant = False
         self.alias = ""
         self.enum = []
         self.value = value
