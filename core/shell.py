@@ -104,7 +104,7 @@ class Shell(object):
         try:
             if auto_complete_fn != None:
                 import readline
-                readline.set_completer_delims(' \t\n;')
+                readline.set_completer_delims(' \t\n;/')
                 readline.parse_and_bind("tab: complete")
                 readline.set_completer(auto_complete_fn)
                 # readline.set_completion_display_matches_hook(basefile_fn)
