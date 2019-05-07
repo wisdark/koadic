@@ -32,8 +32,11 @@ class Stager(core.plugin.Plugin):
         self.options.register('ONESHOT', 'false', 'oneshot', advanced = True, boolean = True)
 
         # names of query string properties
-        self.options.register("JOBNAME", uuid.uuid4().hex, "name for jobkey cookie", advanced = True)
-        self.options.register("SESSIONNAME", uuid.uuid4().hex, "name for session cookie", advanced = True)
+        jobname = sessionname = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+        while sessionname == jobname:
+            sessionname = ''.join(random.choice(string.ascii_uppercase + string.digits) for _ in range(10))
+        self.options.register("JOBNAME", jobname, "name for jobkey cookie", advanced = True)
+        self.options.register("SESSIONNAME", sessionname, "name for session cookie", advanced = True)
         self.options.register("OBFUSCATE", "", "obfuscate payloads with defined technique (\'\', xor) (blank = no obfuscation)", advanced = True, enum = ["", "xor"])
 
         # query strings
