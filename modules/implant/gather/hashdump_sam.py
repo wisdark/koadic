@@ -132,7 +132,7 @@ class HashDumpSAMJob(core.job.Job):
                 file_contents = syskeyfile.read()
 
             import string
-            for f in file_contents.split(b"\x00\xe8\xff\xff\xff"):
+            for f in file_contents.split(b"\xe8\xff\xff\xff"):
                 if f:
                     try:
                         old_syskey = tmp_syskey
