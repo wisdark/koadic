@@ -15,6 +15,7 @@ class DownloadFileImplant(core.implant.Implant):
         self.options.register("RFILE", "", "remote file to get", required=False)
         self.options.register("RFILELIST", "", "file containing line-seperated file names to download", required=False)
         self.options.register("RFILEF", "", "", hidden=True)
+        self.options.register("CHUNKSIZE", "10000000", "size in bytes (kind of) of chunks to save, helps avoid MemoryError exceptions", required=True)
 
     def job(self):
         return DownloadFileJob
@@ -48,7 +49,7 @@ class DownloadFileJob(core.job.Job):
             self.save_fname += "."+uuid.uuid4().hex
 
         i = 0
-        step = 10000000
+        step = int(self.options.get("CHUNKSIZE"))
         partfiles = []
         while i < len(data):
             with open(self.save_fname+str(i), "wb") as f:
