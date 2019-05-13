@@ -119,7 +119,7 @@ def run_cmdshell(shell, session):
                         plugin.options.set("CMD", "echo %s" % dest)
                         plugin.run()
                         j = plugin.ret_jobs[0]
-                        for job in session.jobs:
+                        for job in shell.jobs:
                             if job.id == j:
                                 while True:
                                     if job.results:
