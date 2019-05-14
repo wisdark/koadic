@@ -17,6 +17,7 @@ class EnumUsersImplant(core.implant.Implant):
     NAME = "Enum Users"
     DESCRIPTION = "Enumerates user sessions on the target system."
     AUTHORS = ["zerosum0x0"]
+    STATE = "implant/gather/enum_users"
 
     def load(self):
         pass

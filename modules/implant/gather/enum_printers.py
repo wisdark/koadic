@@ -14,6 +14,7 @@ class EnumPrintersImplant(core.implant.Implant):
     NAME = "Enumerate Printer Connections"
     DESCRIPTION = "Enumerates all Printer Connections"
     AUTHORS = ["Tony M Lambert @ForensicITGuy"]
+    STATE = "implant/gather/enum_printers"
 
     def load(self):
         pass    

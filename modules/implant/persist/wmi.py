@@ -65,6 +65,7 @@ class WMIPersistImplant(core.implant.Implant):
     NAME = "WMI Persistence"
     DESCRIPTION = "Creates persistence using a WMI subscription"
     AUTHORS = ["TheNaterz"]
+    STATE = "implant/persist/wmi"
 
     def load(self):
         self.options.register("PAYLOAD", "", "payload to stage")

@@ -16,6 +16,7 @@ class SWbemServicesImplant(core.implant.Implant):
     NAME = "WMI SWbemServices"
     DESCRIPTION = "Stages another system."
     AUTHORS = ["zerosum0x0"]
+    STATE = "implant/pivot/stage_wmi"
 
     def load(self):
         self.options.register("CMD", "hostname", "command to run", hidden=True)

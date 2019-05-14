@@ -5,6 +5,7 @@ class HashDumpSAMImplant(core.implant.Implant):
     NAME = "SAM Hash Dump"
     DESCRIPTION = "Dumps the SAM hive off the target system."
     AUTHORS = ["zerosum0x0"]
+    STATE = "implant/gather/hashdump_sam"
 
     def load(self):
         self.options.register("LPATH", "/tmp/", "local file save path")

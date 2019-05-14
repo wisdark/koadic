@@ -5,6 +5,7 @@ import core.session
 
 ''' Periodically checks if sessions are alive '''
 class Extant(object):
+    
     def __init__(self, shell):
         self.shell = shell
         self.check_alive_timer = None
@@ -35,3 +36,28 @@ class Extant(object):
                     if delta < max_delta:
                         self.shell.play_sound('RECONNECT')
                         session.set_reconnect()
+
+        # Job repeater
+        remove_jobs = []
+
+        for rjob in self.shell.repeatjobs:
+            if self.shell.repeatjobs[rjob][0] > 0:
+                self.shell.repeatjobs[rjob][0] = self.shell.repeatjobs[rjob][0]- 1
+                continue
+
+            self.shell.repeatjobs[rjob][-1].dispatch(self.shell.repeatjobs[rjob][2], self.shell.repeatjobs[rjob][3], False)
+            self.shell.repeatjobs[rjob][0] = self.shell.repeatjobs[rjob][4]
+
+            if self.shell.repeatjobs[rjob][1] == 0:
+                continue
+            if self.shell.repeatjobs[rjob][1] > 2:
+                self.shell.repeatjobs[rjob][1] = self.shell.repeatjobs[rjob][1] - 1
+                continue
+
+            remove_jobs.append(rjob)
+
+        if remove_jobs:
+            tmp = dict(self.shell.repeatjobs)
+            for r in remove_jobs:
+                del tmp[r]
+            self.shell.repeatjobs = tmp

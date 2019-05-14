@@ -23,6 +23,7 @@ class CompDefaultImplant(core.implant.Implant):
     NAME = "Bypass UAC CompDefaults"
     DESCRIPTION = "Bypass UAC via registry hijack for ComputerDefaults.exe. Drops no files to disk."
     AUTHORS = ["TheNaterz", "st0rnpentest"]
+    STATE = "implant/elevate/bypassuac_compdefaults"
 
     def load(self):
         self.options.register("PAYLOAD", "", "run listeners for a list of IDs")

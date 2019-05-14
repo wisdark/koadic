@@ -83,6 +83,7 @@ class TashLibShellcodeImplant(core.implant.Implant):
     NAME = "Mimikatz via TashLib"
     DESCRIPTION = "Executes arbitrary shellcode using the TashLib COM object"
     AUTHORS = ["zerosum0x0", "Aleph-Naught-" "gentilwiki"]
+    STATE = "implant/inject/mimikatz_tashlib"
 
     def load(self):
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory on zombie", required=False)

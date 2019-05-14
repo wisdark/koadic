@@ -15,6 +15,7 @@ class VoiceImplant(core.implant.Implant):
     NAME = "Voice"
     DESCRIPTION = "Makes the computer speak a message."
     AUTHORS = ["RiskSense, Inc."]
+    STATE = "implant/fun/voice"
 
     def load(self):
         self.options.register("MESSAGE", "I can't do that Dave", "message to speak")

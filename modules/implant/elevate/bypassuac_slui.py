@@ -23,6 +23,7 @@ class SLUIImplant(core.implant.Implant):
     NAME = "Bypass UAC slui"
     DESCRIPTION = "Bypass UAC via registry hijack for slui.exe. Drops no files to disk."
     AUTHORS = ["TheNaterz", "bytecode77"]
+    STATE = "implant/elevate/bypassuac_slui"
 
     def load(self):
         self.options.register("PAYLOAD", "", "run listeners for a list of IDs")

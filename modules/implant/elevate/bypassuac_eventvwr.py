@@ -23,6 +23,7 @@ class EventVwrImplant(core.implant.Implant):
     NAME = "Bypass UAC EventVwr"
     DESCRIPTION = "Bypass UAC via registry hijack for eventvwr.exe. Drops no files to disk."
     AUTHORS = ["zerosum0x0", "@enigma0x3"]
+    STATE = "implant/elevate/bypassuac_eventvwr"
 
     def load(self):
         self.options.register("PAYLOAD", "", "run listeners for a list of IDs")

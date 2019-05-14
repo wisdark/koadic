@@ -14,6 +14,7 @@ class SWbemServicesImplant(core.implant.Implant):
     NAME = "WMI SWbemServices"
     DESCRIPTION = "Executes a command on another system."
     AUTHORS = ["zerosum0x0"]
+    STATE = "implant/pivot/exec_wmi"
 
     def load(self):
         self.options.register("CMD", "hostname", "command to run")

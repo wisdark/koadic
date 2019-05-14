@@ -18,6 +18,7 @@ class Shell(object):
         self.plugins = core.loader.load_plugins("modules", True, self)
         self.stagers = []
         self.jobs = []
+        self.repeatjobs = {}
         self.state = "stager/js/mshta"
         self.colors = core.colors.Colors()
         self.extant = core.extant.Extant(self)

@@ -19,6 +19,7 @@ class PsExecLiveImplant(core.implant.Implant):
     NAME = "PsExec_Live"
     DESCRIPTION = "Executes a command on another system, utilizing live.sysinternals.com publicly hosted tools."
     AUTHORS = ["RiskSense, Inc."]
+    STATE = "implant/pivot/exec_psexec"
 
     def load(self):
         self.options.register("CMD", "hostname", "command to run")

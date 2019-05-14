@@ -7,6 +7,7 @@ class MultiModuleImplant(core.implant.Implant):
     NAME = "Multi Module Execution"
     DESCRIPTION = "Run multiple modules in succession"
     AUTHORS = ["TheNaterz"]
+    STATE = "implant/util/multi_module"
 
     def load(self):
         self.options.register("MODULES", "", "Modules to run in succession (comma seperated)", required = True)

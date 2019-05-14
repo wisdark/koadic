@@ -15,6 +15,7 @@ class CranberryImplant(core.implant.Implant):
     NAME = "Thunderstruck"
     DESCRIPTION = "Opens hidden IE to the Thunderstruck YouTube video"
     AUTHORS = ["zerosum0x0"]
+    STATE = "implant/fun/cranberry"
 
     def load(self):
         self.options.register("VIDEOURL", "https://www.youtube.com/watch?v=6Ejga4kJUts", "video to play")

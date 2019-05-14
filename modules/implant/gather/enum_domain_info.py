@@ -193,6 +193,7 @@ class EnumDomainInfoImplant(core.implant.Implant):
     NAME = "Enumerate Domain Info"
     DESCRIPTION = "Enumerates information about the domain."
     AUTHORS = ["TheNaterz"]
+    STATE = "implant/gather/enum_domain_info"
 
     def load(self):
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory on zombie", required=False)

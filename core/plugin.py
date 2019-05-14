@@ -32,7 +32,7 @@ class Plugin(object):
     def job(self):
         pass
 
-    def dispatch(self, workloads, job):
+    def dispatch(self, workloads, job, checkrepeat=True):
         target = self.options.get("ZOMBIE")
         commas = [x.strip() for x in target.split(",")]
 
@@ -53,10 +53,13 @@ class Plugin(object):
                         self.shell.print_verbose("Server: %s Sesson %s" % (server,session))
                         workload = workloads[server.stager.WORKLOAD]
                         options = copy.deepcopy(self.options)
-                        j = job(self.shell, session.id, self.shell.state, workload, options)
+                        j = job(self.shell, session.id, self.STATE, workload, options)
                         self.shell.jobs.append(j)
-                        # session.jobs.append(j.key)
                         self.ret_jobs.append(j.id)
+
+        if checkrepeat:
+            if options.get("REPEAT") == "true":
+                self.repeat(self.shell, workloads, options)
 
     def load_payload(self, id):
         try:

@@ -26,6 +26,7 @@ class LootFinderImplant(core.implant.Implant):
     NAME = "Find loot on the target box"
     DESCRIPTION = "Finds loot on the target box"
     AUTHORS = ["TheNaterz"]
+    STATE = "implant/gather/loot_finder"
 
     def load(self):
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory on zombie", required=False)

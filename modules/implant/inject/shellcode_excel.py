@@ -16,6 +16,7 @@ class ExcelShellcodeImplant(core.implant.Implant):
     NAME = "Shellcode via Excel"
     DESCRIPTION = "Executes arbitrary shellcode using Excel COM objects"
     AUTHORS = ["zerosum0x0"]
+    STATE = "implant/inject/shellcode_excel"
 
     def load(self):
         self.options.register("SHELLCODE", "90c3", "in ASCII hex format (e.g.: 31c0c3)", required=True)

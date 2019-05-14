@@ -32,6 +32,7 @@ class DynWrapXShellcodeImplant(core.implant.Implant):
     NAME = "Shellcode via Dynamic Wrapper X"
     DESCRIPTION = "Executes arbitrary shellcode using the Dynamic Wrapper X COM object"
     AUTHORS = ["zerosum0x0"]
+    STATE = "implant/inject/shellcode_dynwrapx"
 
     def load(self):
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory on zombie", required=False)

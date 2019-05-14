@@ -35,6 +35,7 @@ class SDotNet2JSImplant(core.implant.Implant):
     NAME = "Shellcode via DotNet2JS"
     DESCRIPTION = "Executes arbitrary shellcode using the DotNet2JS technique"
     AUTHORS = ["zerosum0x0", "TheNaterz", "tiraniddo"]
+    STATE = "implant/inject/shellcode_dotnet2js"
 
     def load(self):
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory on zombie", required=False)

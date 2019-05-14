@@ -23,6 +23,7 @@ class SDCLTImplant(core.implant.Implant):
     NAME = "Bypass UAC SDCLT"
     DESCRIPTION = "Bypass UAC via registry hijack for sdclt.exe. Drops no files to disk."
     AUTHORS = ["zerosum0x0", "@enigma0x3"]
+    STATE = "implant/elevate/bypassuac_sdclt"
 
     def load(self):
         self.options.register("PAYLOAD", "", "run listeners for a list of IDs")

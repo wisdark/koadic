@@ -20,6 +20,7 @@ class ExecCmdImplant(core.implant.Implant):
     NAME = "Execute Command"
     DESCRIPTION = "Executes a command on the target system."
     AUTHORS = ["RiskSense, Inc."]
+    STATE = "implant/manage/exec_cmd"
 
     def load(self):
         self.options.register("CMD", "hostname", "command to run")

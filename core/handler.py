@@ -228,7 +228,7 @@ class Handler(BaseHTTPRequestHandler):
         plugin = self.shell.plugins[self.options.get("MODULE")]
         options = copy.deepcopy(plugin.options)
         workload = self.loader.load_script("data/"+self.options.get("MODULE")+".js", plugin.options)
-        j = plugin.job(self.shell, -1, self.shell.state, workload, options)
+        j = plugin.job(self.shell, -1, plugin.STATE, workload, options)
         if j.create == False:
             script = b"Koadic.exit();"
             template = self.options.get("_STAGETEMPLATE_")

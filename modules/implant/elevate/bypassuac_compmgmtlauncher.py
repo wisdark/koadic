@@ -23,6 +23,7 @@ class CompMgmtLauncherImplant(core.implant.Implant):
     NAME = "Bypass UAC CompMgmtLauncher"
     DESCRIPTION = "Bypass UAC via registry hijack for CompMgmtLauncher.exe. Drops no files to disk."
     AUTHORS = ["TheNaterz", "enigma0x3"]
+    STATE = "implant/elevate/bypassuac_compmgmtlauncher"
 
     def load(self):
         self.options.register("PAYLOAD", "", "run listeners for a list of IDs")

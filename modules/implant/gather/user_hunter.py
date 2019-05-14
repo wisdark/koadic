@@ -56,6 +56,7 @@ class UserHunterImplant(core.implant.Implant):
     NAME = "User Hunter"
     DESCRIPTION = "Identifies and locates all logged in users"
     AUTHORS = ["TheNaterz"]
+    STATE = "implant/gather/user_hunter"
 
     def load(self):
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory on zombie", required=False)

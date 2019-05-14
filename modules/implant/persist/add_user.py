@@ -86,6 +86,7 @@ class AddUserImplant(core.implant.Implant):
     NAME = "Add User"
     DESCRIPTION = "Adds a either a local or domain user."
     AUTHORS = ["TheNaterz"]
+    STATE = "implant/persist/add_user"
 
     def load(self):
         self.options.register("USERNAME", "", "username to add")

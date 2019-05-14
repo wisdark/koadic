@@ -52,6 +52,7 @@ class RegistryImplant(core.implant.Implant):
     NAME = "Add Registry Payload"
     DESCRIPTION = "Adds a Koadic stager payload in the registry."
     AUTHORS = ["TheNaterz"]
+    STATE = "implant/persist/registry"
 
     def load(self):
         self.options.register("PAYLOAD", "", "payload to stage")

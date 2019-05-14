@@ -70,6 +70,7 @@ class SchTasksImplant(core.implant.Implant):
     NAME = "Add Scheduled Task Payload"
     DESCRIPTION = "Establishes persistence via a scheduled task"
     AUTHORS = ["TheNaterz"]
+    STATE = "implant/persist/schtasks"
 
     def load(self):
         self.options.register("PAYLOAD", "", "payload to stage")

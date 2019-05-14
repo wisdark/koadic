@@ -53,6 +53,7 @@ class ScanTCPImplant(core.implant.Implant):
     NAME = "Scan TCP"
     DESCRIPTION = "Looks for open TCP ports."
     AUTHORS = ["RiskSense, Inc."]
+    STATE = "implant/scan/tcp"
 
     def load(self):
         self.options.register("RHOSTS", "", "name/IP of the remotes")

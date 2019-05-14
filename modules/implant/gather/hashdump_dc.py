@@ -6,6 +6,7 @@ class HashDumpDCImplant(core.implant.Implant):
     NAME = "Domain Hash Dump"
     DESCRIPTION = "Dumps the NTDS.DIT off the target domain controller."
     AUTHORS = ["zerosum0x0", "Aleph-Naught-"]
+    STATE = "implant/gather/hashdump_dc"
 
     def load(self):
         self.options.register("LPATH", "/tmp/", "local file save path")
