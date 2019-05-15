@@ -32,8 +32,11 @@ class Plugin(object):
     def job(self):
         pass
 
-    def dispatch(self, workloads, job, checkrepeat=True):
-        target = self.options.get("ZOMBIE")
+    def dispatch(self, workloads, job, checkrepeat=True, repeatzombie=''):
+        if not repeatzombie:
+            target = self.options.get("ZOMBIE")
+        else:
+            target = repeatzombie
         commas = [x.strip() for x in target.split(",")]
 
         splitted = []

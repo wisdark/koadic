@@ -5,7 +5,7 @@ import core.session
 
 ''' Periodically checks if sessions are alive '''
 class Extant(object):
-    
+
     def __init__(self, shell):
         self.shell = shell
         self.check_alive_timer = None
@@ -45,7 +45,8 @@ class Extant(object):
                 self.shell.repeatjobs[rjob][0] = self.shell.repeatjobs[rjob][0]- 1
                 continue
 
-            self.shell.repeatjobs[rjob][-1].dispatch(self.shell.repeatjobs[rjob][2], self.shell.repeatjobs[rjob][3], False)
+            zombie = [o.value for o in self.shell.repeatjobs[rjob][6].options if o.name == "ZOMBIE"][0]
+            self.shell.repeatjobs[rjob][7].dispatch(self.shell.repeatjobs[rjob][2], self.shell.repeatjobs[rjob][3], False, zombie)
             self.shell.repeatjobs[rjob][0] = self.shell.repeatjobs[rjob][4]
 
             if self.shell.repeatjobs[rjob][1] == 0:

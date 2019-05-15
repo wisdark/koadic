@@ -6,16 +6,19 @@ def autocomplete(shell, line, text, state):
 def help(shell):
     pass
 
-def print_repatjob(shell, id):
-    for job in shell.repeatjobs:
-        if job == id:
-            for o in shell.repeatjobs[id][6].options:
-                if not o.hidden:
-                    shell.print_plain(str([o.name, o.value]))
-
-            # print([[s.name, s.value] for s in shell.repeatjobs[id][6].options if not s.hidden])
+def print_repeatjob(shell, id):
+    if id in shell.repeatjobs:
+        for o in shell.repeatjobs[id][6].options:
+            if not o.hidden:
+                shell.print_plain(str([o.name, o.value]))
+    else:
+        shell.print_error("Repeating job '"+id+"' does not exist.")
 
 def print_all_repeatjobs(shell):
+    if not shell.repeatjobs:
+        shell.print_error("No repeating jobs")
+        return
+
     formats = "\t{0:<4}{1:<40}{2:<7}{3:<5}{4:<7}"
 
     shell.print_plain("")
@@ -69,7 +72,7 @@ def execute(shell, cmd):
                 killall_repeatjobs(shell)
                 return
             else:
-                print_repatjob(shell, id)
+                print_repeatjob(shell, id)
                 return
 
     print_all_repeatjobs(shell)
