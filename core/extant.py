@@ -41,18 +41,19 @@ class Extant(object):
         remove_jobs = []
 
         for rjob in self.shell.repeatjobs:
-            if self.shell.repeatjobs[rjob][0] > 0:
-                self.shell.repeatjobs[rjob][0] = self.shell.repeatjobs[rjob][0]- 1
+            rjobval = self.shell.repeatjobs[rjob]
+            if rjobval[0] > 0:
+                rjobval[0] = rjobval[0]- 1
                 continue
 
-            zombie = [o.value for o in self.shell.repeatjobs[rjob][6].options if o.name == "ZOMBIE"][0]
-            self.shell.repeatjobs[rjob][7].dispatch(self.shell.repeatjobs[rjob][2], self.shell.repeatjobs[rjob][3], False, zombie)
-            self.shell.repeatjobs[rjob][0] = self.shell.repeatjobs[rjob][4]
+            zombie = [o.value for o in rjobval[6].options if o.name == "ZOMBIE"][0]
+            rjobval[7].dispatch(rjobval[2], rjobval[3], False, zombie)
+            rjobval[0] = rjobval[4]
 
-            if self.shell.repeatjobs[rjob][1] == 0:
+            if rjobval[1] == 0:
                 continue
-            if self.shell.repeatjobs[rjob][1] > 2:
-                self.shell.repeatjobs[rjob][1] = self.shell.repeatjobs[rjob][1] - 1
+            if rjobval[1] > 2:
+                rjobval[1] = rjobval[1] - 1
                 continue
 
             remove_jobs.append(rjob)
