@@ -8,9 +8,14 @@ def help(shell):
 
 def print_repeatjob(shell, id):
     if id in shell.repeatjobs:
+        formats = "\t{0:<15}{1:<15}"
+        shell.print_plain("")
+        shell.print_plain(formats.format("OPTION", "VALUE"))
+        shell.print_plain(formats.format("-"*6, "-"*5))
         for o in shell.repeatjobs[id][6].options:
             if not o.hidden:
-                shell.print_plain(str([o.name, o.value]))
+                shell.print_plain(formats.format(o.name, o.value))
+        shell.print_plain("")
     else:
         shell.print_error("Repeating job '"+id+"' does not exist.")
 
