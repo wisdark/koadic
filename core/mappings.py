@@ -1,6 +1,7 @@
 # this is the mappings of windows-1252 and utf-8 that MSXML warps
 
-mappings = {1: b'\x01',
+mappings = {0: b'\x00',
+1: b'\x01',
 2: b'\x02',
 3: b'\x03',
 4: b'\x04',
