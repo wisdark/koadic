@@ -354,54 +354,147 @@ class Handler(BaseHTTPRequestHandler):
     def trim_stdlib(self, stdlib, script):
         stdlib = stdlib.decode()
         script = script.decode()
+
+        sleepflag = False
+        exitflag = False
+        if "Koadic.sleep" not in script:
+            stdlib = stdlib.split("//sleep.start")[0] + stdlib.split("//sleep.end")[1]
+            sleepflag = True
+        if "Koadic.exit" not in script:
+            stdlib = stdlib.split("//exit.start")[0] + stdlib.split("//exit.end")[1]
+            exitflag = True
+        if "Koadic.isHTA" not in script and sleepflag and exitflag:
+            stdlib = stdlib.split("//isHTA.start")[0] + stdlib.split("//isHTA.end")[1]
+        if "Koadic.isWScript" not in script:
+            stdlib = stdlib.split("//isWScript.start")[0] + stdlib.split("//isWScript.end")[1]
+        userinfoflag = False
         if "Koadic.user.info" not in script:
             stdlib = stdlib.split("//user.info.start")[0] + stdlib.split("//user.info.end")[1]
-            if "Koadic.user.isElevated" not in script:
-                stdlib = stdlib.split("//user.isElevated.start")[0] + stdlib.split("//user.isElevated.end")[1]
-            if "Koadic.user.OS" not in script:
-                stdlib = stdlib.split("//user.OS.start")[0] + stdlib.split("//user.OS.end")[1]
-            if "Koadic.user.DC" not in script:
-                stdlib = stdlib.split("//user.DC.start")[0] + stdlib.split("//user.DC.end")[1]
-            if "Koadic.user.Arch" not in script:
-                stdlib = stdlib.split("//user.Arch.start")[0] + stdlib.split("//user.Arch.end")[1]
-            if "Koadic.user.CWD" not in script:
-                stdlib = stdlib.split("//user.CWD.start")[0] + stdlib.split("//user.CWD.end")[1]
-                if "Koadic.shell.exec" not in script:
-                    stdlib = stdlib.split("//shell.exec.start")[0] + stdlib.split("//shell.exec.end")[1]
-                    if "Koadic.file.readText" not in script:
-                        stdlib = stdlib.split("//file.readText.start")[0] + stdlib.split("//file.readText.end")[1]
-                        if "Koadic.shell.run" not in script:
-                            stdlib = stdlib.split("//shell.run.start")[0] + stdlib.split("//shell.run.end")[1]
-                    if "Koadic.file.deleteFile" not in script:
-                        stdlib = stdlib.split("//file.deleteFile.start")[0] + stdlib.split("//file.deleteFile.end")[1]
-
-            if "Koadic.user.IPAddrs" not in script:
-                stdlib = stdlib.split("//user.IPAddrs.start")[0] + stdlib.split("//user.IPAddrs.end")[1]
-
+            userinfoflag = True
+        useriselevatedflag = False
+        if "Koadic.user.isElevated" not in script and userinfoflag:
+            stdlib = stdlib.split("//user.isElevated.start")[0] + stdlib.split("//user.isElevated.end")[1]
+            useriselevatedflag = True
+        if "Koadic.user.OS" not in script and userinfoflag:
+            stdlib = stdlib.split("//user.OS.start")[0] + stdlib.split("//user.OS.end")[1]
+        if "Koadic.user.DC" not in script and userinfoflag:
+            stdlib = stdlib.split("//user.DC.start")[0] + stdlib.split("//user.DC.end")[1]
+        if "Koadic.user.Arch" not in script and userinfoflag:
+            stdlib = stdlib.split("//user.Arch.start")[0] + stdlib.split("//user.Arch.end")[1]
+        usercwdflag = False
+        if "Koadic.user.CWD" not in script and userinfoflag:
+            stdlib = stdlib.split("//user.CWD.start")[0] + stdlib.split("//user.CWD.end")[1]
+            usercwdflag = True
+        useripaddrsflag = False
+        if "Koadic.user.IPAddrs" not in script and userinfoflag:
+            stdlib = stdlib.split("//user.IPAddrs.start")[0] + stdlib.split("//user.IPAddrs.end")[1]
+            useripaddrsflag = True
+        workerrorflag = False
+        if "Koadic.work.error" not in script:
+            stdlib = stdlib.split("//work.error.start")[0] + stdlib.split("//work.error.end")[1]
+            workerrorflag = True
+        workgetflag = False
+        if "Koadic.work.get" not in script:
+            stdlib = stdlib.split("//work.get.start")[0] + stdlib.split("//work.get.end")[1]
+            workgetflag = True
+        workforkflag = False
         if "Koadic.work.fork" not in script:
             stdlib = stdlib.split("//work.fork.start")[0] + stdlib.split("//work.fork.end")[1]
-
+            workforkflag = True
+        httpuploadflag = False
         if "Koadic.http.upload" not in script:
             stdlib = stdlib.split("//http.upload.start")[0] + stdlib.split("//http.upload.end")[1]
-
+            httpuploadflag = True
+        workreportflag = False
+        if "Koadic.work.report" not in script and workerrorflag and httpuploadflag:
+            stdlib = stdlib.split("//work.report.start")[0] + stdlib.split("//work.report.end")[1]
+            workreportflag = False
+        httpdownloadflag = False
         if "Koadic.http.download" not in script:
             stdlib = stdlib.split("//http.download.start")[0] + stdlib.split("//http.download.end")[1]
-            if "Koadic.http.downloadEx" not in script:
-                stdlib = stdlib.split("//http.downloadEx.start")[0] + stdlib.split("//http.downloadEx.end")[1]
-                if "Koadic.http.bin2str" not in script:
-                    stdlib = stdlib.split("//http.bin2str.start")[0] + stdlib.split("//http.bin2str.end")[1]
-                if "Koadic.file.write" not in script:
-                    stdlib = stdlib.split("//file.write.start")[0] + stdlib.split("//file.write.end")[1]
-
-        if "Koadic.registry" not in script:
-            stdlib = stdlib.split("//registry.start")[0] + stdlib.split("//registry.end")[1]
-        else:
-            if "Koadic.registry.write" not in script:
-                stdlib = stdlib.split("//registry.write.start")[0] + stdlib.split("//registry.write.end")[1]
-            if "Koadic.registry.read" not in script:
-                stdlib = stdlib.split("//registry.read.start")[0] + stdlib.split("//registry.read.end")[1]
-            if "Koadic.registry.destroy" not in script:
-                stdlib = stdlib.split("//registry.destroy.start")[0] + stdlib.split("//registry.destroy.end")[1]
+            httpdownloadflag = True
+        if "Koadic.work.make_url" not in script and workgetflag and workforkflag and workreportflag and httpdownloadflag:
+            stdlib = stdlib.split("//work.make_url.start")[0] + stdlib.split("//work.make_url.end")[1]
+        httpdownloadexflag = False
+        if "Koadic.http.downloadEx" not in script and httpdownloadflag:
+            stdlib = stdlib.split("//http.downloadEx.start")[0] + stdlib.split("//http.downloadEx.end")[1]
+            httpdownloadexflag = True
+        httpgetflag = False
+        if "Koadic.http.get" not in script and httpdownloadexflag:
+            stdlib = stdlib.split("//http.get.start")[0] + stdlib.split("//http.get.end")[1]
+            httpgetflag = True
+        httppostflag = False
+        if "Koadic.http.post" not in script and workgetflag and workreportflag and httpdownloadexflag:
+            stdlib = stdlib.split("//http.post.start")[0] + stdlib.split("//http.post.end")[1]
+            httppostflag = True
+        if "Koadic.http.create" not in script and httpgetflag and httppostflag:
+            stdlib = stdlib.split("//http.create.start")[0] + stdlib.split("//http.create.end")[1]
+        httpaddheadersflag = False
+        if "Koadic.http.addHeaders" not in script and httpgetflag and httppostflag:
+            stdlib = stdlib.split("//http.addHeaders.start")[0] + stdlib.split("//http.addHeaders.end")[1]
+            httpaddheadersflag = True
+        if "Koadic.http.bin2str" not in script and httpdownloadexflag:
+            stdlib = stdlib.split("//http.bin2str.start")[0] + stdlib.split("//http.bin2str.end")[1]
+        processcurrentpidflag = False
+        if "Koadic.process.currentPID" not in script:
+            stdlib = stdlib.split("//process.currentPID.start")[0] + stdlib.split("//process.currentPID.end")[1]
+            processcurrentpidflag = True
+        processkillflag = False
+        if "Koadic.process.kill" not in script:
+            stdlib = stdlib.split("//process.kill.start")[0] + stdlib.split("//process.kill.end")[1]
+            processkillflag = True
+        if "Koadic.process.list" not in script and processcurrentpidflag and processkillflag:
+            stdlib = stdlib.split("//process.list.start")[0] + stdlib.split("//process.list.end")[1]
+        registrywriteflag = False
+        if "Koadic.registry.write" not in script:
+            stdlib = stdlib.split("//registry.write.start")[0] + stdlib.split("//registry.write.end")[1]
+            registrywriteflag = True
+        registryreadflag = False
+        if "Koadic.registry.read" not in script:
+            stdlib = stdlib.split("//registry.read.start")[0] + stdlib.split("//registry.read.end")[1]
+            registryreadflag = True
+        registrydestroyflag = False
+        if "Koadic.registry.destroy" not in script:
+            stdlib = stdlib.split("//registry.destroy.start")[0] + stdlib.split("//registry.destroy.end")[1]
+            registrydestroyflag = True
+        if "Koadic.registry.provider" not in script and registrywriteflag and registryreadflag and registrydestroyflag:
+            stdlib = stdlib.split("//registry.provider.start")[0] + stdlib.split("//registry.provider.end")[1]
+        if "Koadic.WMI.createProcess" not in script and workforkflag and processcurrentpidflag:
+            stdlib = stdlib.split("//WMI.createProcess.start")[0] + stdlib.split("//WMI.createProcess.end")[1]
+        shellexecflag = False
+        if "Koadic.shell.exec" not in script and userinfoflag and useriselevatedflag and usercwdflag and useripaddrsflag:
+            stdlib = stdlib.split("//shell.exec.start")[0] + stdlib.split("//shell.exec.end")[1]
+            shellexecflag = True
+        if "Koadic.user.shellchcp" not in script and userinfoflag and shellexecflag:
+            stdlib = stdlib.split("//user.shellchcp.start")[0] + stdlib.split("//user.shellchcp.end")[1]
+        fileget32bitfolderflag = False
+        if "Koadic.file.get32BitFolder" not in script and workforkflag:
+            stdlib = stdlib.split("//file.get32BitFolder.start")[0] + stdlib.split("//file.get32BitFolder.end")[1]
+            fileget32bitfolderflag = True
+        filereadbinaryflag = False
+        if "Koadic.file.readBinary" not in script and httpuploadflag and shellexecflag:
+            stdlib = stdlib.split("//file.readBinary.start")[0] + stdlib.split("//file.readBinary.end")[1]
+            filereadbinaryflag = True
+        filereadtextflag = False
+        if "Koadic.file.readText" not in script and shellexecflag and filereadbinaryflag:
+            stdlib = stdlib.split("//file.readText.start")[0] + stdlib.split("//file.readText.end")[1]
+            filereadtextflag = True
+        if "Koadic.shell.run" not in script and filereadbinaryflag and filereadtextflag:
+            stdlib = stdlib.split("//shell.run.start")[0] + stdlib.split("//shell.run.end")[1]
+        if "Koadic.user.encoder" not in script and userinfoflag and httpuploadflag and httpaddheadersflag and shellexecflag and filereadbinaryflag:
+            stdlib = stdlib.split("//user.encoder.start")[0] + stdlib.split("//user.encoder.end")[1]
+        if "Koadic.uuid" not in script and userinfoflag and useriselevatedflag and useripaddrsflag and filereadbinaryflag:
+            stdlib = stdlib.split("//uuid.start")[0] + stdlib.split("//uuid.end")[1]
+        filewriteflag = False
+        if "Koadic.file.write" not in script and httpdownloadexflag:
+            stdlib = stdlib.split("//file.write.start")[0] + stdlib.split("//file.write.end")[1]
+            filewriteflag = True
+        filedeletefileflag = False
+        if "Koadic.file.deleteFile" not in script and shellexecflag and filereadbinaryflag:
+            stdlib = stdlib.split("//file.deleteFile.start")[0] + stdlib.split("//file.deleteFile.end")[1]
+            filedeletefileflag = True
+        if "Koadic.file.getPath" not in script and processcurrentpidflag and shellexecflag and fileget32bitfolderflag and filereadbinaryflag and filereadtextflag and filewriteflag and filedeletefileflag:
+            stdlib = stdlib.split("//file.getPath.start")[0] + stdlib.split("//file.getPath.end")[1]
 
         stdlib += "\n"
 
@@ -416,6 +509,10 @@ class Handler(BaseHTTPRequestHandler):
         for symbol in data2.split(b" "):
             if symbol.startswith(b'Koadic') and b'(' not in symbol and b')' not in symbol and b';' not in symbol:
                 symbols.add(symbol)
+            if symbol.startswith(b'#') and symbol.endswith(b'#'):
+                symbols.add(symbol)
+            if symbol.startswith(b'#') and b'#(' in symbol:
+                symbols.add(symbol.split(b'(')[0])
 
         symbols = list(symbols)
         symbols = sorted(symbols, key=lambda x: x.count(b'.'))
@@ -457,6 +554,7 @@ class Handler(BaseHTTPRequestHandler):
         for final in finalize:
             data = data.replace(final[0], final[1])
 
+        # print(data.decode())
         return data
 
     def post_process_script(self, script, template, stdlib=True):
@@ -498,6 +596,7 @@ class Handler(BaseHTTPRequestHandler):
         # minify the script
         from rjsmin import jsmin
         script = jsmin(script.decode()).encode()
+        # print(script.decode())
 
         # obfuscation options
         if self.stager.options.get("OBFUSCATE"):
