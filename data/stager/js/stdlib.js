@@ -590,7 +590,7 @@ Koadic.http.upload = function(filepath, header_uuid, header_key)
     var headers = {};
     headers[key] = header_uuid;
 
-    var data = Koadic.file.readBinary(filepath);
+    var data = Koadic.file.readBinary(filepath, true);
 
     if (Koadic.user.encoder() == "936")
     {
@@ -980,11 +980,22 @@ Koadic.file.readText = function(path)
 }
 //file.readText.end
 //file.readBinary.start
-Koadic.file.readBinary = function(path)
+Koadic.file.readBinary = function(path, exists)
 {
+    var exists = (typeof(exists) !== "undefined") ? exists : false;
+
+    if (!Koadic.FS.FileExists(Koadic.file.getPath(path)) && exists)
+    {
+        var headers = {};
+        headers["Status"] = "NotExist";
+        Koadic.work.report("", headers);
+        return "";
+    }
+
     var loopcount = 0;
     while(true)
     {
+
         if (Koadic.FS.FileExists(Koadic.file.getPath(path)) && Koadic.FS.GetFile(Koadic.file.getPath(path)).Size > 0)
         {
             if (Koadic.user.encoder() == "936")
