@@ -141,11 +141,10 @@ class Job(object):
         if encoder == "936":
             try:
                 alldata = data.decode().splitlines()
-                allhex = ""
-                for l in alldata:
-                    allhex += "".join(l.split()[1:17])
-                return bytes.fromhex(allhex)
-            except ValueError:
+                if "-----BEGIN CERTIFICATE-----" in alldata[0] and "-----END CERTIFICATE-----" in alldata[-1]:
+                    from base64 import b64decode
+                    return b64decode("".join(alldata[1:-1]))
+            except Exception:
                 pass
 
         slash_char = chr(92).encode()
