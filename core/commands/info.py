@@ -11,7 +11,18 @@ def help(shell):
 def execute(shell, cmd):
     env = shell.plugins[shell.state]
 
-    formats = '\t{0:<12}{1:<20}{2:<8}{3:<16}'
+    # dynamically set format length
+    maxlen = 0
+    for option in env.options.options:
+        if option.advanced and " -a" not in cmd:
+            continue
+
+        if option.hidden:
+            continue
+
+        if len(option.name) > maxlen: maxlen = len(option.name)
+
+    formats = '\t{{0:<{0}}}{{1:<20}}{{2:<8}}{{3:<16}}'.format(maxlen+3)
 
     shell.print_plain("")
     shell.print_plain(formats.format("NAME", "VALUE", "REQ", "DESCRIPTION"))
