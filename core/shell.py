@@ -135,8 +135,18 @@ class Shell(object):
             else:
                 return None
 
+        remap = {
+            "?": "help",
+            "exploit": "run",
+            "execute": "run",
+            "options": "info",
+            "quit": "exit",
+            "sessions": "zombies",
+        }
+
         # no space, autocomplete will be the basic commands:
         options = [x + " " for x in self.actions if x.startswith(text)]
+        options.extend([x + " " for x in remap if x.startswith(text)])
         try:
             return options[state]
         except:
