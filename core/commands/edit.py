@@ -39,8 +39,13 @@ def execute(shell, cmd):
             file = js_file
         elif ftype == "vbs" or ftype == "vbscript":
             file = vbs_file
+        else:
+            return
 
-        editcmd = [editor, file]
+        if os.path.isfile(file):
+            editcmd = [editor, file]
+        else:
+            return
     else:
         editcmd = [editor, py_file]
     
