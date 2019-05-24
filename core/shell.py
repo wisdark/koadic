@@ -6,7 +6,7 @@ import threading
 import core.loader
 import core.colors
 import core.job
-import core.extant
+import core.tick
 
 ''' Cmd is just a bad wrapper around readline with buggy input '''
 class Shell(object):
@@ -21,7 +21,7 @@ class Shell(object):
         self.repeatjobs = {}
         self.state = "stager/js/mshta"
         self.colors = core.colors.Colors()
-        self.extant = core.extant.Extant(self)
+        self.tick = core.tick.Tick(self)
         self.verbose = False
         self.creds = {}
         self.creds_keys = []
@@ -29,6 +29,7 @@ class Shell(object):
         self.sounds = {}
         self.rest_thread = ""
         self.continuesession = ""
+        self.update_restore = False
 
     def run(self, autorun = [], restore_map = {}):
         self.main_thread_id = threading.current_thread().ident

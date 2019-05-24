@@ -1,4 +1,5 @@
 restore.json
+restores/
 core/sounds.py
 data/bin/sounds/*
 autorun.example

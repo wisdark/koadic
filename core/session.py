@@ -48,6 +48,8 @@ class Session(object):
         self.shell.print_good(
             "Zombie %d: Staging new connection (%s)" % (self.id, self.ip))
 
+        self.shell.update_restore = True
+
 
     def parse_user_info(self, data):
         try:

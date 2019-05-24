@@ -59,6 +59,7 @@ class Plugin(object):
                         j = job(self.shell, session.id, self.STATE, workload, options)
                         self.shell.jobs.append(j)
                         self.ret_jobs.append(j.id)
+                        self.shell.update_restore = True
 
         if checkrepeat:
             if options.get("REPEAT") == "true":

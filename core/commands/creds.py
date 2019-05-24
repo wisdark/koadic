@@ -366,11 +366,11 @@ def creds_edit_shell(shell):
                 shell.print_error("Not a real section")
                 return
 
-            return
-
         else:
             shell.print_error("Not a valid Cred ID")
             return
+
+        shell.update_restore = True
 
 
 

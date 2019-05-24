@@ -7,6 +7,7 @@ class CredParse(object):
     def __init__(self, job):
         self.job = job
         self.shell = job.shell
+        self.shell.update_restore = True
         self.j_ip = job.ip
         self.j_computer = "."
         if job.session_id != -1:
