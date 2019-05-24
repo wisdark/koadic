@@ -54,9 +54,18 @@ def execute(shell, cmd):
             pass
         new_s['status'] = 0
         restore_map['sessions'].append(new_s)
-    restore = open('restore.json', 'w')
-    import json
-    restore.write(json.dumps(restore_map)+"\n")
-    restore.close()
+
+    blank_state = True
+
+    for k in restore_map:
+        if restore_map[k]:
+            blank_state = False
+
+    if not blank_state:
+        restore = open('restore.json', 'w')
+        import json
+        restore.write(json.dumps(restore_map)+"\n")
+        restore.close()
+
     import sys
     sys.exit(0)
