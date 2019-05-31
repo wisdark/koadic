@@ -67,7 +67,7 @@ class EnumDomainInfoJob(core.job.Job):
 
         if task == "DomainComputers":
             computers = data.split("___")[:-1]
-            computers_noip = [[computer, ""] for computer in computers]
+            computers_noip = [[computer, ""] for computer in computers if computer != 'null']
             if not "DomainComputers" in self.shell.domain_info[self.domain_key]:
                 self.shell.domain_info[self.domain_key]["Domain Computers"] = computers_noip
 
