@@ -74,7 +74,15 @@ function ResolveHostnames(hostnames)
         }
         catch(e)
         {
-            var ip = "";
+            var pingresults = Koadic.shell.exec("ping -4 -n 1 "+computers[i], "~DIRECTORY~\\"+Koadic.uuid()+".txt");
+            try
+            {
+                var ip = pingresults.split("[")[1].split("]")[0];
+            }
+            catch(e)
+            {
+                var ip = "";
+            }
         }
 
         retstring += computers[i] + "***" + ip + "___"
