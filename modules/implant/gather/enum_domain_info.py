@@ -71,10 +71,10 @@ class EnumDomainInfoJob(core.job.Job):
             if not "DomainComputers" in self.shell.domain_info[self.domain_key]:
                 self.shell.domain_info[self.domain_key]["Domain Computers"] = computers_noip
 
-            self.print_good("Domain Computers retrieved: "+str(len(computers)))
+            self.print_good("Domain Computers retrieved: "+str(len(computers_noip)))
             handler.reply(200)
             self.print_good("Starting Domain Computer hostname resolution..." )
-            if len(computers) > 60:
+            if len(computers_noip) > 60:
                 self.print_warning("This may take a few minutes...")
             return
 

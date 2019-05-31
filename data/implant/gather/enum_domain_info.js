@@ -66,6 +66,10 @@ function ResolveHostnames(hostnames)
     var computers = hostnames.split("___");
     for (var i = 0; i < computers.length-1; i++)
     {
+        if (computers[i] == 'null')
+        {
+            continue;
+        }
         var nsresults = Koadic.shell.exec("nslookup "+computers[i], "~DIRECTORY~\\"+Koadic.uuid()+".txt");
         try
         {
