@@ -31,6 +31,7 @@ class ScanTCPJob(core.job.Job):
         status = self.shell.colors.colorize(status, color)
         #port = self.shell.colors.colorize(port, color)
         msg = formats.format(ip, port, status, errno)
+        self.results += msg + "\n"
         printer(msg)
 
 
@@ -52,11 +53,16 @@ class ScanTCPImplant(core.implant.Implant):
     NAME = "Scan TCP"
     DESCRIPTION = "Looks for open TCP ports."
     AUTHORS = ["RiskSense, Inc."]
+    STATE = "implant/scan/tcp"
 
     def load(self):
         self.options.register("RHOSTS", "", "name/IP of the remotes")
         self.options.register("RPORTS", "22,80,135,139,443,445,3389", "ports to scan")
         self.options.register("TIMEOUT", "2", "longer is more accurate")
+        self.options.register("CHECKLIVE", "true", "check if host is up before checking ports", enum=["true", "false"])
+
+    def job(self):
+        return ScanTCPJob
 
     def run(self):
         options = self.options.copy()
@@ -72,4 +78,4 @@ class ScanTCPImplant(core.implant.Implant):
         #print(payloads["js"])
 
 
-        self.dispatch(payloads, ScanTCPJob)
+        self.dispatch(payloads, self.job)

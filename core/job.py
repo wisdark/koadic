@@ -14,27 +14,36 @@ class Job(object):
     JOB_ID = 0
     JOB_ID_LOCK = threading.Lock()
 
-    def __init__(self, shell, session, name, script, options):
+    def __init__(self, shell, session_id, name, script, options):
         self.fork32Bit = False
         self.completed = Job.CREATED
         self.script = script
         self.shell = shell
         self.options = options
-        self.session = session
+        self.session_id = session_id
         self.name = name
         self.errno = ""
         self.data = b""
         self.unsafe_data = b""
         self.key = uuid.uuid4().hex
+        self.results = ""
+        self.ip = ""
+
+        if self.session_id != -1:
+            self.session = [session for stager in self.shell.stagers for session in stager.sessions if session.id == self.session_id][0]
+            self.ip = self.session.ip
+            self.computer = self.session.computer
 
         with Job.JOB_ID_LOCK:
             self.id = Job.JOB_ID
             Job.JOB_ID += 1
 
-        self.create()
-
-        self.shell.print_status("Zombie %d: Job %d (%s) created." % (
-            self.session.id, self.id, self.name))
+        if self.create() != False:
+            self.create = True
+            self.shell.print_status("Zombie %d: Job %d (%s) created." % (
+                self.session_id, self.id, self.name))
+        else:
+            self.create = False
 
     def create(self):
         pass
@@ -52,14 +61,15 @@ class Job(object):
         self.errno = str(errno)
         self.errdesc = errdesc
         self.errname = errname
-        self.status = Job.FAILED
+        self.completed = Job.FAILED
         self.sanitize_data(data)
 
         self.print_error()
 
     def print_error(self):
+        self.shell.play_sound('FAIL')
         self.shell.print_error("Zombie %d: Job %d (%s) failed!" % (
-            self.session.id, self.id, self.name))
+            self.session_id, self.id, self.name))
         self.shell.print_error("%s (%08x): %s " % (
             self.errname, int(self.errno) + 2**32, self.errdesc))
 
@@ -90,8 +100,9 @@ class Job(object):
         if handler:
             handler.reply(202)
 
+        self.shell.play_sound('SUCCESS')
         self.shell.print_good("Zombie %d: Job %d (%s) completed." % (
-            self.session.id, self.id, self.name))
+            self.session_id, self.id, self.name))
 
         self.done()
 
@@ -115,14 +126,27 @@ class Job(object):
 
     def print_status(self, message):
         self.shell.print_status("Zombie %d: Job %d (%s) %s" % (
-            self.session.id, self.id, self.name, message))
+            self.session_id, self.id, self.name, message))
 
     def print_good(self, message):
         self.shell.print_good("Zombie %d: Job %d (%s) %s" % (
-            self.session.id, self.id, self.name, message))
+            self.session_id, self.id, self.name, message))
+
+    def print_warning(self, message):
+        self.shell.print_warning("Zombie %d: Job %d (%s) %s" % (
+            self.session_id, self.id, self.name, message))
 
 
-    def decode_downloaded_data(self, data):
+    def decode_downloaded_data(self, data, encoder, text=False):
+        if encoder == "936":
+            try:
+                alldata = data.decode().splitlines()
+                if "-----BEGIN CERTIFICATE-----" in alldata[0] and "-----END CERTIFICATE-----" in alldata[-1]:
+                    from base64 import b64decode
+                    return b64decode("".join(alldata[1:-1]))
+            except Exception:
+                pass
+
         slash_char = chr(92).encode()
         zero_char = chr(0x30).encode()
         null_char = chr(0).encode()
@@ -135,18 +159,27 @@ class Job(object):
             '\\': slash_char
         }
 
+        append = b_list.append
+
         for i in data.decode('utf-8'):
             # Decide on slash char
             if escape_flag:
                 escape_flag = False
-                b_list.append(special_char[i])
+                append(special_char[i])
                 continue
 
-            if ord(i) in mapping.keys():
-                b_list.append(mapping[ord(i)])
-            else:
-                escape_flag = True
+            if i == '\\' and not text:
                 # EAT the slash
-                continue
+                escape_flag = True
+            else:
+                # collisions will go here
+                if i == '€' and encoder == "1251":
+                    append(b'\x88')
+                    continue
+
+                try:
+                    append(mapping[ord(i)])
+                except:
+                    print("ENCODING ERROR: "+str(ord(i))+" <- Please add a mapping to core/mappings.py with \"chr("+str(ord(i))+").encode('cp"+encoder+"')\"")
 
         return b"".join(b_list)

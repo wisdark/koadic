@@ -1,4 +1,4 @@
-DESCRIPTION = "shows info about jobs"
+DESCRIPTION = "kill a job or all jobs"
 
 def autocomplete(shell, line, text, state):
     pass
@@ -20,11 +20,12 @@ def kill_zombie(shell, id):
             if session.id == int(id):
                 session.kill()
 
+    shell.play_sound('KILL')
     shell.print_good("Zombie %s: Killed!" % id)
 
 def execute(shell, cmd):
 
-    splitted = cmd.strip().split(" ")
+    splitted = cmd.split()
 
     if len(splitted) > 1:
         id = splitted[1]

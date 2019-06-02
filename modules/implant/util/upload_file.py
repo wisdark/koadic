@@ -17,7 +17,7 @@ class UploadFileJob(core.job.Job):
         super(UploadFileJob, self).report(handler, data)
 
     def done(self):
-        pass
+        self.results = self.data
 
     def display(self):
         pass
@@ -27,6 +27,7 @@ class UploadFileImplant(core.implant.Implant):
     NAME = "Upload File"
     DESCRIPTION = "Uploads a local file the remote system."
     AUTHORS = ["RiskSense, Inc."]
+    STATE = "implant/util/upload_file"
 
     def load(self):
 
@@ -35,6 +36,9 @@ class UploadFileImplant(core.implant.Implant):
         #self.options.register("EXEC", "false", "execute file?", enum=["true", "false"])
         #self.options.register("OUTPUT", "false", "get output of exec?", enum=["true", "false"])
         self.options.register("DIRECTORY", "%TEMP%", "writeable directory", required=False)
+
+    def job(self):
+        return UploadFileJob
 
     def run(self):
         # generate new file every time this is run
@@ -45,9 +49,10 @@ class UploadFileImplant(core.implant.Implant):
 
         last = self.options.get("LFILE").split("/")[-1]
         self.options.set("FILE", last)
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         payloads = {}
         #payloads["vbs"] = self.load_script("data/implant/util/upload_file.vbs", self.options)
         payloads["js"] = self.loader.load_script("data/implant/util/upload_file.js", self.options)
 
-        self.dispatch(payloads, UploadFileJob)
+        self.dispatch(payloads, self.job)

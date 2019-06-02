@@ -1,13 +1,29 @@
 DESCRIPTION = "switch to a different module"
 
 def autocomplete(shell, line, text, state):
-    # todo: make this show shorter paths at a time
-    # should never go this big...
-    if len(line.split(" ")) >= 3:
-        return None
+    import readline
+    everything = readline.get_line_buffer()
+    cursor_idx = readline.get_begidx()
+    idx = 0
+    for chunk in everything.split(" "):
+        fulltext = chunk
+        idx += len(chunk) + 1
+        if idx > cursor_idx:
+            break
+    prefix, suffix = fulltext.rsplit("/",maxsplit=1) if "/" in fulltext else ("",fulltext)
+    if prefix:
+        prefix += "/"
 
-    options = [x + " " for x in shell.plugins.keys() if x.startswith(text)]
-
+    options = []
+    for plugin in shell.plugins:
+        if not plugin.startswith(fulltext):
+            continue
+        chunk = plugin[len(prefix):]
+        if "/" in chunk:
+            options.append(chunk.split("/")[0]+"/")
+        else:
+            options.append(chunk+" ")
+    options = list(sorted(set(options)))
     try:
         return options[state]
     except:
@@ -17,12 +33,13 @@ def help(shell):
     pass
 
 def execute(shell, cmd):
-    splitted = cmd.split(" ")
+    splitted = cmd.split()
 
-    if len(splitted) >= 2:
+    if len(splitted) > 1:
         module = splitted[1]
         if module not in shell.plugins:
             shell.print_error("No module named %s" % (module))
             return
 
+        shell.previous = shell.state
         shell.state = module

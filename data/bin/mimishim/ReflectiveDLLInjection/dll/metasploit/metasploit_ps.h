@@ -29,7 +29,9 @@
 #ifndef _VNCDLL_LOADER_PS_H
 #define _VNCDLL_LOADER_PS_H
 //===============================================================================================//
+#ifndef WIN32_LEAN_AND_MEAN
 #define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
 #include <tlhelp32.h>
 #include <iphlpapi.h>

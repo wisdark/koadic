@@ -5,6 +5,7 @@ import core.session
 
 ''' Periodically checks if sessions are alive '''
 class Extant(object):
+
     def __init__(self, shell):
         self.shell = shell
         self.check_alive_timer = None
@@ -29,7 +30,9 @@ class Extant(object):
 
                 if session.status == core.session.Session.ALIVE:
                     if delta > max_delta:
+                        self.shell.play_sound('TIMEOUT')
                         session.set_dead()
                 else:
                     if delta < max_delta:
+                        self.shell.play_sound('RECONNECT')
                         session.set_reconnect()

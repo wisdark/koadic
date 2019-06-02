@@ -1,20 +1,20 @@
 function win32_register_via_dynwrapx(manifestPath)
 {
-  var actCtx = new ActiveXObject( "Microsoft.Windows.ActCtx" );
+    var actCtx = new ActiveXObject( "Microsoft.Windows.ActCtx" );
 
-  actCtx.Manifest = manifestPath;
+    actCtx.Manifest = manifestPath;
 
-  var win32 = actCtx.CreateObject("DynamicWrapperX");
+    var win32 = actCtx.CreateObject("DynamicWrapperX");
 
-  win32.Register("user32.dll", "MessageBoxW", "i=hwwu", "r=l");  // Register a dll function
-  win32.Register("kernel32.dll", "VirtualAlloc", "i=puuu", "r=p");
-  win32.Register("kernel32.dll", "OpenProcess", "i=uuu", "r=h");
-  win32.Register("kernel32.dll", "GetCurrentProcess", "r=h");
-  win32.Register("kernel32.dll", "WriteProcessMemory", "i=hllll", "r=u");
-  win32.Register("kernel32.dll", "CreateThread", "i=llplll", "r=h");
-  win32.Register("kernel32.dll", "WaitForSingleObject", "i=hu", "r=u");
+    win32.Register("user32.dll", "MessageBoxW", "i=hwwu", "r=l");  // Register a dll function
+    win32.Register("kernel32.dll", "VirtualAlloc", "i=puuu", "r=p");
+    win32.Register("kernel32.dll", "OpenProcess", "i=uuu", "r=h");
+    win32.Register("kernel32.dll", "GetCurrentProcess", "r=h");
+    win32.Register("kernel32.dll", "WriteProcessMemory", "i=hllll", "r=u");
+    win32.Register("kernel32.dll", "CreateThread", "i=llplll", "r=h");
+    win32.Register("kernel32.dll", "WaitForSingleObject", "i=hu", "r=u");
 
-  return win32;
+    return win32;
 }
 
 function win32_write_memory(win32, str)
@@ -61,4 +61,5 @@ catch (e)
     Koadic.work.error(e);
 }
 
+Koadic.file.deleteFile(manifestPath);
 Koadic.exit();

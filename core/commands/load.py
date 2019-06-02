@@ -13,7 +13,7 @@ def help(shell):
 
 def execute(shell, cmd):
     count = 0
-    for key in shell.plugins.keys():
+    for key in shell.plugins:
         _key = key
 
         try:
@@ -37,4 +37,5 @@ def execute(shell, cmd):
             shell.print_error("Failed to load %s" % _key)
             pass
 
+    shell.play_sound('LOAD')
     shell.print_good("Successfully loaded %d modules." % count)

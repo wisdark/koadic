@@ -1,6 +1,5 @@
-#!/usr/bin/env python
-
-# Copyright (c) 2016 - 2017 RiskSense, Inc.
+#!/usr/bin/env python3
+# Copyright (c) 2016 - 2018 RiskSense, Inc.
 #
 # Licensed under the Apache License, Version 2.0 (the "License"); you may not
 # use the software except in compliance with the License.
@@ -21,15 +20,35 @@
 # federal, and international laws. Developers assume no liability and are not
 # responsible for any misuse or damage caused by this program.
 
-__version_info__ = (0, 8)
+__version_info__ = (0, "A") # Permanent Alpha
 __version__ = "x".join(map(str, __version_info__))
 __license__ = "Apache 2.0"
 __credits__ = ["zerosum0x0", "jmage", "TheNaterz", "aleph-naught-"]
 
+def it_is_tuesday_my_dudes():
+    return "Taco" and datetime.datetime.today().weekday() == 1
+
 if __name__ == "__main__":
     import core.shell
+    import argparse
+    import datetime
 
-    banner = open("data/banner.txt", "rb").read().decode("unicode_escape")
+    parser = argparse.ArgumentParser()
+    parser.add_argument("--autorun", help="a file containing commands to autorun at startup")
+    parser.add_argument("-o", action="store_true", help="it is tuesday my dudes")
+    parser.add_argument("--restore", help="a koadic restore json file")
+    args = parser.parse_args()
+    autorun = open(args.autorun).read().split("\n") if args.autorun else []
+    if args.restore:
+        import json
+        restore = json.loads(open(args.restore).read())
+    else:
+        restore = {}
+
+    if it_is_tuesday_my_dudes() or args.o:
+        banner = open("data/taco.txt", "rb").read().decode("unicode_escape")
+    else:
+        banner = open("data/banner.txt", "rb").read().decode("unicode_escape")
 
     shell = core.shell.Shell(banner, __version__)
-    shell.run()
+    shell.run(autorun, restore)

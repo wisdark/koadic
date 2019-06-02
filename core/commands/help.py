@@ -4,10 +4,10 @@ DESCRIPTION = "displays help info for a command"
 def autocomplete(shell, line, text, state):
 
     # should never go this big...
-    if len(line.split(" ")) >= 3:
+    if len(line.split()) > 2:
         return None
 
-    options = [x + " " for x in shell.actions.keys() if x.startswith(text)]
+    options = [x + " " for x in shell.actions if x.startswith(text)]
 
     try:
         return options[state]
@@ -22,12 +22,12 @@ def help(shell):
 
 def execute(shell, cmd):
 
-    splitted = cmd.split(" ")
+    splitted = cmd.split()
 
     if len(splitted) == 1:
         return help_all(shell)
 
-    if len(splitted) >= 2:
+    if len(splitted) > 1:
         return help_command(shell, splitted[1])
 
 
@@ -46,7 +46,9 @@ def help_all(shell):
     shell.print_plain(formats.format("COMMAND", "DESCRIPTION"))
     shell.print_plain(formats.format("---------", "-------------"))
 
-    for key, env in shell.actions.items():
+    for key, env in sorted(shell.actions.items()):
+        if getattr(env, "hidden_command", False):
+            continue
         shell.print_plain(formats.format(key, env.DESCRIPTION))
 
     shell.print_plain("")

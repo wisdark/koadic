@@ -1,3 +1,5 @@
 impacket
 pycrypto
 pyasn1
+tabulate
+rjsmin

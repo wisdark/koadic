@@ -17,12 +17,16 @@ class EnumUsersImplant(core.implant.Implant):
     NAME = "Enum Users"
     DESCRIPTION = "Enumerates user sessions on the target system."
     AUTHORS = ["zerosum0x0"]
+    STATE = "implant/gather/enum_users"
 
     def load(self):
         pass
+
+    def job(self):
+        return EnumUsersJob
 
     def run(self):
         payloads = {}
         payloads["js"] = self.loader.load_script("data/implant/gather/enum_users.js", self.options)
 
-        self.dispatch(payloads, EnumUsersJob)
+        self.dispatch(payloads, self.job)

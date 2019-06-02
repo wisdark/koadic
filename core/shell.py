@@ -6,7 +6,7 @@ import threading
 import core.loader
 import core.colors
 import core.job
-import core.extant
+import core.tick
 
 ''' Cmd is just a bad wrapper around readline with buggy input '''
 class Shell(object):
@@ -17,21 +17,44 @@ class Shell(object):
         self.actions = core.loader.load_plugins("core/commands")
         self.plugins = core.loader.load_plugins("modules", True, self)
         self.stagers = []
+        self.jobs = []
+        self.repeatjobs = {}
         self.state = "stager/js/mshta"
         self.colors = core.colors.Colors()
-        self.extant = core.extant.Extant(self)
+        self.tick = core.tick.Tick(self)
+        self.verbose = False
+        self.creds = {}
+        self.creds_keys = []
+        self.domain_info = {}
+        self.sounds = {}
+        self.rest_thread = ""
+        self.continuesession = ""
+        self.update_restore = False
 
-    def run(self):
+    def run(self, autorun = [], restore_map = {}):
         self.main_thread_id = threading.current_thread().ident
 
         self.print_banner()
 
+        if restore_map:
+            self.restore(restore_map)
 
         while True:
             try:
                 self.prompt = self.colors.get_prompt(self.state, True)
                 self.clean_prompt = self.colors.get_prompt(self.state, False)
-                cmd = self.get_command(self.prompt, self.autocomplete)
+
+                cmd = ""
+                while len(autorun) > 0:
+                    cmd = autorun.pop(0).split("#")[0].strip()
+                    if len(cmd) > 0:
+                        break
+
+                if len(cmd) == 0:
+                    cmd = self.get_command(self.prompt, self.autocomplete, self.base_filenames)
+                else:
+                    print(self.clean_prompt + cmd)
+
                 self.run_command(cmd)
 
             except KeyboardInterrupt:
@@ -53,13 +76,25 @@ class Shell(object):
             self.run_command("exit")
 
     def run_command(self, cmd):
-        action = cmd.split(" ")[0].lower()
-
+        if not cmd:
+            return
+        action = cmd.split()[0].lower()
+        remap = {
+            "?": "help",
+            "exploit": "run",
+            "execute": "run",
+            "options": "info",
+            "quit": "exit",
+            "sessions": "zombies",
+        }
         if action in self.actions:
             self.actions[action].execute(self, cmd)
+        elif action in remap:
+            cmd.replace(action, remap[action])
+            self.actions[remap[action]].execute(self, cmd)
         else:
             try:
-                self.print_error("Unrecognized command, use 'help'.")
+                self.print_error("Unrecognized command, you need 'help'.")
 
                 #
                 # bash lol:
@@ -67,13 +102,14 @@ class Shell(object):
             except:
                 pass
 
-    def get_command(self, prompt, auto_complete_fn=None):
+    def get_command(self, prompt, auto_complete_fn=None, basefile_fn=None):
         try:
             if auto_complete_fn != None:
                 import readline
-                readline.set_completer_delims(' \t\n;')
+                readline.set_completer_delims(' \t\n;/')
                 readline.parse_and_bind("tab: complete")
                 readline.set_completer(auto_complete_fn)
+                # readline.set_completion_display_matches_hook(basefile_fn)
         except:
             pass
 
@@ -89,28 +125,50 @@ class Shell(object):
     def autocomplete(self, text, state):
         import readline
         line = readline.get_line_buffer()
-        splitted = line.split(" ")
+        splitted = line.lstrip().split(" ")
 
         # if there is a space, delegate to the commands autocompleter
         if len(splitted) > 1:
             if splitted[0] in self.actions:
+                if splitted[0] == "set" and splitted[1] == "MODULE" and len(splitted) < 4:
+                    return self.actions["use"].autocomplete(self, line, text, state)
                 return self.actions[splitted[0]].autocomplete(self, line, text, state)
             else:
                 return None
 
+        remap = {
+            "?": "help",
+            "exploit": "run",
+            "execute": "run",
+            "options": "info",
+            "quit": "exit",
+            "sessions": "zombies",
+        }
+
         # no space, autocomplete will be the basic commands:
-        options = [x + " " for x in self.actions.keys() if x.startswith(text)]
+        options = [x + " " for x in self.actions if x.startswith(text)]
+        options.extend([x + " " for x in remap if x.startswith(text)])
         try:
             return options[state]
         except:
             return None
 
+    def base_filenames(self, substitution, matches, longest_match_length):
+        pass
+    #     print()
+    #     print("substitution", substitution)
+    #     print("matches", matches)
+    #     print("length", longest_match_length)
+    #     matches[:] = ["banana"]
+    #     return "banana"
+    #     # sys.stdout.flush()
+
     def print_banner(self):
         os.system("clear")
 
-        implant_len = len([a for a in self.plugins.keys()
+        implant_len = len([a for a in self.plugins
                            if a.startswith("implant")])
-        stager_len = len([a for a in self.plugins.keys()
+        stager_len = len([a for a in self.plugins
                           if a.startswith("stager")])
         print(self.banner % (self.version, stager_len, implant_len))
 
@@ -140,6 +198,10 @@ class Shell(object):
     def print_status(self, text, redraw = False):
         self.print_text(self.colors.status("[*]"), text, redraw)
 
+    def print_verbose(self, text, redraw = False):
+        if self.verbose:
+            self.print_text(self.colors.colorize("[v]", [self.colors.BOLD]), text, redraw)
+
     def print_help(self, text, redraw = False):
         self.print_text(self.colors.colorize("[?]", [self.colors.BOLD]), text, redraw)
 
@@ -148,3 +210,74 @@ class Shell(object):
 
     def print_hash(self, text, redraw = False):
         self.print_text(self.colors.colorize("[#]", [self.colors.BOLD]), text, redraw)
+
+    def play_sound(self, enum):
+        if enum in self.sounds:
+            sound = self.sounds[enum]
+            if type(sound) is list:
+                import random
+                sound = random.choice(sound)
+
+            threading.Thread(target=self.play_audio_file, args=[sound]).start()
+
+    def play_audio_file(self, audio_file):
+        from playsound import playsound
+        try:
+            playsound(audio_file)
+        except:
+            if not os.path.isfile(audio_file):
+                self.print_error('Could not play sound file %s. Check if path to file is correct.' % audio_file)
+
+    def restore(self, restore_map):
+        for key in restore_map['creds']:
+            self.creds[tuple(key.split('/'))] = restore_map['creds'][key]
+
+        for val in restore_map['creds_keys']:
+            self.creds_keys.append(tuple(val.split('/')))
+
+        for key in restore_map['domain_info']:
+            self.domain_info[tuple(key.split('/'))] = restore_map['domain_info'][key]
+
+        class RestoreJob():
+            def __init__(self, shell):
+                self.shell = shell
+
+            def display(self):
+                self.shell.print_plain(self.results)
+
+            def status_string(self):
+                if self.completed == 4:
+                    return "Complete"
+                else:
+                    return "Failed"
+
+        for job in restore_map['jobs']:
+            fs_job = RestoreJob(self)
+            for k,v in job.items():
+                setattr(fs_job, k, v)
+            self.jobs.append(fs_job)
+
+        class RestoreStager():
+            def __init__(self):
+                pass
+
+        class RestoreSession():
+            def __init__(self):
+                pass
+
+            def set_reconnect(self):
+                pass
+
+        fs = RestoreStager()
+        fs.sessions = []
+        fs.payload_id = '-1'
+        for session in restore_map['sessions']:
+            fs_session = RestoreSession()
+            for k,v in session.items():
+                setattr(fs_session, k, v)
+            fs_session.stager = fs
+
+            fs.sessions.append(fs_session)
+
+        self.stagers.append(fs)
+
