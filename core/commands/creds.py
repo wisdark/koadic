@@ -1,7 +1,12 @@
 DESCRIPTION = "shows collected credentials"
 
 def autocomplete(shell, line, text, state):
-    pass
+    if "-d" in line.split():
+        options = [x + " " for y in shell.domain_info for x in y if x.upper().startswith(text.upper())]
+        try:
+            return options[state]
+        except:
+            return None
 
 def help(shell):
     shell.print_plain("")
