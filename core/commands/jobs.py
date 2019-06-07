@@ -10,7 +10,7 @@ def help(shell):
 
 def print_job(shell, id):
     for job in shell.jobs:
-        if job.id == int(id):
+        if job.id == int(id) and job.status_string() in ["Complete", "Failed"]:
             job.display()
 
 def print_all_jobs(shell):
