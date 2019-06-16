@@ -23,7 +23,6 @@ class RegistryJob(core.job.Job):
             handler.reply(200, fdata, headers)
             return
 
-        task = handler.get_header("Task", False)
         data = data.decode()
 
         if task == "AddKey":
