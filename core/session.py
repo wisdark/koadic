@@ -107,6 +107,7 @@ class Session(object):
 
             if "%" in self.domain and len(self.dc.split(".")) > 1:
                 self.domain = self.dc.split(".")[-2]
+                self.user = self.domain+"\\"+self.user.split("\\")[1]
 
         except Exception as e:
             self.shell.print_warning("parsing error")
