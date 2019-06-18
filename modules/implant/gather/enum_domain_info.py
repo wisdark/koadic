@@ -59,7 +59,7 @@ class EnumDomainInfoJob(core.job.Job):
             dcs = data.split("___")[:-2]
             dcs_expand = [dc.split("*") for dc in dcs]
             dcs_expand.sort()
-            dcs_expand = list(dcs_expand for dcs_expand,_ in itertools(dcs_expand))
+            dcs_expand = list(dcs_expand for dcs_expand,_ in itertools.groupby(dcs_expand))
             if not "Domain Controllers" in self.shell.domain_info[self.domain_key]:
                 self.shell.domain_info[self.domain_key]["Domain Controllers"] = dcs_expand
 
