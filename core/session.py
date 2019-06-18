@@ -105,6 +105,9 @@ class Session(object):
 
             self.realcwd = self.realcwd.encode('cp'+self.encoder).decode('cp'+self.shellchcp)
 
+            if "%" in self.domain and len(self.dc.split(".")) > 1:
+                self.domain = self.dc.split(".")[-2]
+
         except Exception as e:
             self.shell.print_warning("parsing error")
             self.shell.print_warning(repr(e))
