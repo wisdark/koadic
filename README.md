@@ -94,6 +94,7 @@ Code samples are provided for educational purposes. Adequate defenses can only b
 - Arno0x
 - delirious-lettuce
 - 6IX7ine
+- psmitty7373
 
 ### Acknowledgements
 Special thanks to research done by the following individuals:
