@@ -137,12 +137,11 @@ Koadic.user.isElevated = function()
 {
     try
     {
-        var res = Koadic.shell.exec("(net session || echo unelevated)", "%TEMP%\\"+Koadic.uuid()+".txt");
-        if (res.indexOf("unelevated") == -1)
-        {
+        var res = Koadic.shell.exec("net pause lanmanserver", "%TEMP%\\"+Koadic.uuid()+".txt");
+        if (res.indexOf("5") == -1)
             return true;
-        }
-        return false;
+        else
+            return false;
     }
     catch(e)
     {
