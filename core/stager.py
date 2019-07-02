@@ -17,6 +17,8 @@ class Stager(core.plugin.Plugin):
         try:
             s.connect(('8.8.8.8', 80))
             hostname = s.getsockname()[0]
+        except:
+            pass
         finally:
             s.close()
 
