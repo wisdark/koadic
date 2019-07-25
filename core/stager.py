@@ -91,7 +91,7 @@ class Stager(core.plugin.Plugin):
                 return
             self.options.set("_EXPIREEPOCH_", etime)
         else:
-            self.options.set("_EXPIREEPOCH_", "999999999999999")
+            self.options.set("_EXPIREEPOCH_", str(random.randint(100000000000000,999999999999999)))
 
 
         payload = self.start_server(core.handler.Handler)
