@@ -86,7 +86,6 @@ class DownloadFileJob(core.job.Job):
             self.save_len = len(data)
 
             if self.options.get("CERTUTIL") == "true":
-                print("here")
                 with open(self.save_fname, "rb") as f:
                     data = f.read()
                 data = self.decode_downloaded_data(data, "936")
