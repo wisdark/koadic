@@ -72,7 +72,7 @@ class SDotNet2JSImplant(core.implant.Implant):
     def run(self):
 
         self.options.set("SC_B64", self.scb64(self.options.get("SC_HEX")))
-        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
+        #self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         workloads = {}
         workloads["js"] = self.loader.load_script("data/implant/inject/shellcode_dotnet2js.js", self.options)
