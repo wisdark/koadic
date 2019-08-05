@@ -754,6 +754,32 @@ Koadic.process.list = function()
 }
 //process.list.end
 
+//process.getPID.start
+Koadic.process.getPID = function(process_name)
+{
+    var processes = Koadic.process.list();
+
+    var items = new Enumerator(processes);
+    while (!items.atEnd())
+    {
+        var proc = items.item();
+
+        try
+        {
+            if (proc.Name == process_name)
+            {
+                return proc.ProcessId;
+            }
+        } catch (e)
+        {
+        }
+        items.moveNext();
+    }
+
+    return false;
+}
+//process.getPID.end
+
 // http://apidock.com/ruby/Win32/Registry/Constants
 //registry.start
 Koadic.registry = {};

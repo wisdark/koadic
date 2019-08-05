@@ -443,7 +443,11 @@ class Handler(BaseHTTPRequestHandler):
         if "Koadic.process.kill" not in script:
             stdlib = stdlib.split("//process.kill.start")[0] + stdlib.split("//process.kill.end")[1]
             processkillflag = True
-        if "Koadic.process.list" not in script and processcurrentpidflag and processkillflag:
+        processgetpidflag = False
+        if "Koadic.process.getPID" not in script:
+            stdlib = stdlib.split("//process.getPID.start")[0] + stdlib.split("//process.getPID.end")[1]
+            processgetpidflag = True
+        if "Koadic.process.list" not in script and processcurrentpidflag and processkillflag and processgetpidflag:
             stdlib = stdlib.split("//process.list.start")[0] + stdlib.split("//process.list.end")[1]
         registrywriteflag = False
         if "Koadic.registry.write" not in script:
