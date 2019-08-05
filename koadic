@@ -65,8 +65,6 @@ def pay_no_attention():
     path += random.choice(slashes)
 
     command += path + "mshtml"
-    if random.choice(coin):
-        command += ".dll"
     command += ","
     if random.choice(coin):
         command += " "
