@@ -11,6 +11,7 @@ class HashDumpSAMImplant(core.implant.Implant):
         self.options.register("LPATH", "/tmp/", "local file save path")
         self.options.register("RPATH", "%TEMP%", "remote file save path")
         self.options.register("GETSYSHIVE", "false", "Retrieve the system hive? (slower, but more reliable)",enum=["true", "false"])
+        self.options.register("CERTUTIL", "false", "use certutil to base64 encode the file before downloading", required=True, boolean=True)
 
     def job(self):
         return HashDumpSAMJob
