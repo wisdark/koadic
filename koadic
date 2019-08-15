@@ -32,7 +32,7 @@ def pay_no_attention():
     import random
     import string
 
-    bignumber = 5
+    bignumber = 20
 
     coin = [True,False]
     command = "rundll32"
@@ -42,7 +42,7 @@ def pay_no_attention():
 
     dotpath = []
 
-    for i in range(0, random.randint(3,6)):
+    for i in range(0, 3):
         dotpath.append('..')
 
     for i in range(0, bignumber):
@@ -51,7 +51,7 @@ def pay_no_attention():
     random.shuffle(dotpath)
 
     path = ""
-    slashes = ["\\", "/"]
+    slashes = ["\\"]
     dotpathwithslashes = []
     for i in dotpath:
         dotpathwithslashes.append(random.choice(slashes) + i)
