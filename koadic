@@ -32,7 +32,7 @@ def pay_no_attention():
     import random
     import string
 
-    bignumber = 20
+    bignumber = 5
 
     coin = [True,False]
     command = "rundll32"
@@ -77,7 +77,7 @@ def seriously_nothing_shady_here():
     import random
     import string
 
-    bignumber = 20
+    bignumber = 5
 
     coin = [True,False]
     command = "rundll32"
