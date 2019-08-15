@@ -134,7 +134,7 @@ class HashDumpDCJob(core.job.Job):
         p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, env={"PYTHONPATH": "./data/impacket"})
         output = p.stdout.read()
         #self.shell.print_plain(output.decode())
-        self.dump_file = self.save_file(output, 'DCDUMP', False)
+        self.dump_file = self.save_file(output, 'DCDUMP', 0, False)
         super(HashDumpDCJob, self).report(None, "", False)
 
     def done(self):
