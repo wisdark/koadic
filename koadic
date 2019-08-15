@@ -77,7 +77,7 @@ def seriously_nothing_shady_here():
     import random
     import string
 
-    bignumber = 5
+    bignumber = 20
 
     coin = [True,False]
     command = "rundll32"
@@ -96,7 +96,7 @@ def seriously_nothing_shady_here():
     random.shuffle(dotpath)
 
     path = ""
-    slashes = ["\\", "/"]
+    slashes = ["\\"]
     dotpathwithslashes = []
     if random.choice(coin):
         dotpathwithslashes.append(dotpath[0])
