@@ -71,11 +71,20 @@ class HashDumpDCJob(core.job.Job):
         while i < len(data):
             with open(save_fname+str(i), "wb") as f:
                 partfiles.append(save_fname+str(i))
+                end = i+step
+                if end > len(data):
+                    end = len(data)
                 pdata = data
                 if decode:
-                    pdata = self.decode_downloaded_data(pdata[i:i+step], encoder)
+                    while True:
+                        try:
+                            pdata = self.decode_downloaded_data(pdata[i:end], encoder)
+                        except:
+                            end -= 1
+                            continue
+                        break
                 f.write(pdata)
-            i += step
+            i = end
 
         with open(save_fname, "wb+") as f:
             for p in partfiles:

