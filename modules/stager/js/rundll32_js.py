@@ -14,5 +14,5 @@ class RunDLL32JSStager(core.stager.Stager):
 
         self.stagetemplate = b"~SCRIPT~"
         self.stagecmd = self.loader.load_script("data/stager/js/rundll32_js/rundll32_js.cmd")
-        self.forktemplate = self.stagetemplate
-        self.forkcmd = self.stagecmd
+        self.forktemplate = self.loader.load_script("data/stager/js/mshta/template.hta")
+        self.forkcmd = self.loader.load_script("data/stager/js/rundll32/rundll32.cmd")
