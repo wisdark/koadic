@@ -107,30 +107,45 @@ def print_creds_das(shell, domain):
 
     das = shell.domain_info[domain_key]["Domain Admins"]
 
-    formats = "\t{0:9}{1:17}{2:<20}{3:<20}{4:<25}{5:<42}"
+    # formats = "\t{0:9}{1:17}{2:<20}{3:<20}{4:<25}{5:<10}"
+    formats = "\t{0:9}{1:17}{2:<20}{3:<20}{4:<34}{5:<10}"
     shell.print_plain("")
 
-    shell.print_plain(formats.format("Cred ID", "IP", "USERNAME", "DOMAIN", "PASSWORD", "HASH"))
-    shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
+    # shell.print_plain(formats.format("Cred ID", "IP", "USERNAME", "DOMAIN", "PASSWORD", "HASH"))
+    # shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
+    shell.print_plain(formats.format("Cred ID", "IP", "USERNAME", "DOMAIN", "PASS / HASH", "TYPE"))
+    shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*11, "-"*4))
     for key in shell.creds_keys:
-        credpass = shell.creds[key]["Password"]
+        # credpass = shell.creds[key]["Password"]
         creduser = shell.creds[key]["Username"]
         creddomain = shell.creds[key]["Domain"]
-        credntlm = shell.creds[key]["NTLM"]
+        # credntlm = shell.creds[key]["NTLM"]
         if (creduser.lower() in das and
             (creddomain.lower() == domain.lower() or
-                creddomain.lower() == alt_domain.lower()) and
-            (credpass or
-                credntlm)):
-        
-            if len(credpass) > 23:
-                credpass = credpass[:20] + "..."
-            if len(creduser) > 18:
-                creduser = creduser[:15] + "..."
-            if len(creddomain) > 18:
-                creddomain = creddomain[:15] + "..."
+                creddomain.lower() == alt_domain.lower())):
+            #     creddomain.lower() == alt_domain.lower()) and
+            # (credpass or
+            #     credntlm)):
 
-            shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], creduser, creddomain, credpass, shell.creds[key]["NTLM"]))
+            # if len(credpass) > 23:
+            #     credpass = credpass[:20] + "..."
+            # if len(creduser) > 18:
+            #         creduser = creduser[:15] + "..."
+            # if len(creddomain) > 18:
+            #     creddomain = creddomain[:15] + "..."
+            # shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], creduser, creddomain, credpass, shell.creds[key]["NTLM"]))
+
+            for credtype in ["Password", "NTLM", "LM", "SHA1", "DCC", "DPAPI"]:
+                if shell.creds[key][credtype]:
+                    credcred = shell.creds[key][credtype]
+                    if len(credcred) > 32:
+                        credcred = credcred[:29] + "..."
+                    if len(creduser) > 18:
+                        creduser = creduser[:15] + "..."
+                    if len(creddomain) > 18:
+                        creddomain = creddomain[:15] + "..."
+
+                    shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], creduser, creddomain, credcred, credtype))
 
     shell.print_plain("")
 
