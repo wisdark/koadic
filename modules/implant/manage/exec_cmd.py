@@ -4,7 +4,7 @@ import uuid
 
 class ExecCmdJob(core.job.Job):
     def report(self, handler, data, sanitize = False):
-        self.results = self.decode_downloaded_data(data, self.session.encoder, True).decode("cp"+self.session.shellchcp)
+        self.results = self.decode_downloaded_data(data, handler.get_header("encoder", 1252), True).decode("cp"+handler.get_header("shellchcp", '437'))
         handler.reply(200)
         self.done()
 
