@@ -205,10 +205,15 @@ class Handler(BaseHTTPRequestHandler):
                 module = self.session.stager.options.get('MODULE')
                 if module:
                     plugin = self.session.shell.plugins[module]
-                    old_zombie = plugin.options.get("ZOMBIE")
+                    import copy
+                    old_options = copy.deepcopy(plugin.options)
+                    new_options = self.session.stager.options.get('_MODULEOPTIONS_')
+                    for o in new_options.options:
+                        plugin.options.set(o.name, o.value)
                     plugin.options.set("ZOMBIE", str(self.session.id))
                     plugin.run()
-                    plugin.options.set("ZOMBIE", old_zombie)
+                    for o in old_options.options:
+                        plugin.options.set(o.name, o.value)
 
                 return self.reply(200)
 
@@ -226,7 +231,7 @@ class Handler(BaseHTTPRequestHandler):
 
     def handle_oneshot(self):
         plugin = self.shell.plugins[self.options.get("MODULE")]
-        options = copy.deepcopy(plugin.options)
+        options = self.options.get('_MODULEOPTIONS_')
         workload = self.loader.load_script("data/"+self.options.get("MODULE")+".js", plugin.options)
         j = plugin.job(self.shell, -1, plugin.STATE, workload, options)
         if j.create == False:
@@ -469,7 +474,7 @@ class Handler(BaseHTTPRequestHandler):
         if "Koadic.shell.exec" not in script and userinfoflag and useriselevatedflag and usercwdflag and useripaddrsflag:
             stdlib = stdlib.split("//shell.exec.start")[0] + stdlib.split("//shell.exec.end")[1]
             shellexecflag = True
-        if "Koadic.user.shellchcp" not in script and userinfoflag and shellexecflag:
+        if "Koadic.user.shellchcp" not in script and userinfoflag and shellexecflag and httpaddheadersflag:
             stdlib = stdlib.split("//user.shellchcp.start")[0] + stdlib.split("//user.shellchcp.end")[1]
         fileget32bitfolderflag = False
         if "Koadic.file.get32BitFolder" not in script and workforkflag:
