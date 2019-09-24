@@ -5,6 +5,9 @@ import string
 
 class DotNet2JSJob(core.job.Job):
     def create(self):
+        if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":
+            self.error("0", "This job requires an elevated session. Set IGNOREADMIN to true to run anyway.", "Not elevated", "")
+            return False
         self.fork32Bit = True
         arch = self.options.get("ARCH")
         if self.session_id == -1:
@@ -32,9 +35,6 @@ class DotNet2JSJob(core.job.Job):
             return
 
         self.mimi_output = ""
-        if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":
-            self.error("0", "This job requires an elevated session. Set IGNOREADMIN to true to run anyway.", "Not elevated", "")
-            return False
 
         self.script = self.script.replace(b"~ONESHOTAUTO~", b"false")
         self.script = self.script.replace(b"~SHIMX64B64~", b"false")
