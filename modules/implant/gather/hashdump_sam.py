@@ -103,12 +103,13 @@ class HashDumpSAMJob(core.job.Job):
             self.security_encoder = handler.get_header("encoder", 1252)
             return
 
-        # dump sam here
+        if data.decode() == "Complete":
+            # dump sam here
 
-        import threading
-        self.finished = False
-        threading.Thread(target=self.finish_up).start()
-        handler.reply(200)
+            import threading
+            self.finished = False
+            threading.Thread(target=self.finish_up).start()
+            handler.reply(200)
 
     def finish_up(self):
 
@@ -187,7 +188,6 @@ class HashDumpSAMJob(core.job.Job):
 
         p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, env={"PYTHONPATH": "./data/impacket"})
         output = p.stdout.read().decode()
-        self.shell.print_plain(output)
         self.results = output
 
         cp = core.cred_parser.CredParse(self)
@@ -196,7 +196,7 @@ class HashDumpSAMJob(core.job.Job):
         super(HashDumpSAMJob, self).report(None, "", False)
 
     def done(self):
-        pass
+        self.display()
 
     def display(self):
-        pass
+        self.shell.print_plain(self.results)
