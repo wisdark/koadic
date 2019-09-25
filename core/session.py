@@ -123,6 +123,7 @@ class Session(object):
     def kill(self):
         self.killed = True
         self.set_dead()
+        self.shell.print_good("Zombie %d: Killed!" % self.id)
 
     def set_dead(self):
         if self.status != self.DEAD:
