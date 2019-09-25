@@ -62,7 +62,7 @@ try
     Koadic.work.report('',{'Task': 'upload'});
     Koadic.http.upload(res_file, 'dump', ~CERTUTIL~, 'Task');
 
-    Koadic.work.report('',{'Task': 'deldmp'});
+    Koadic.work.report('',{'Task': 'delbin'});
     Koadic.file.deleteFile(res_file);
 
 }
