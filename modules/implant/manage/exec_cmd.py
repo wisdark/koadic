@@ -6,6 +6,7 @@ class ExecCmdJob(core.job.Job):
     def report(self, handler, data, sanitize = False):
         self.results = self.decode_downloaded_data(data, handler.get_header("encoder", 1252), True).decode("cp"+handler.get_header("shellchcp", '437'))
         handler.reply(200)
+        self.completed = 4
         self.done()
 
     def done(self):
