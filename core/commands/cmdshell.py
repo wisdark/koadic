@@ -156,11 +156,13 @@ def execute(shell, cmd):
     if len(splitted) > 1:
         target = splitted[1]
 
-        for server in shell.stagers:
-            for session in server.sessions:
-                if target == str(session.id):
-                    run_cmdshell(shell, session)
-                    return
+        for session in [session for server in shell.stagers for session in server.sessions]:
+            if target == str(session.id) and not session.killed:
+                run_cmdshell(shell, session)
+                return
+            elif session.killed:
+                shell.print_error("This zombie has been killed, you can not interact with it.")
+                return
 
         shell.print_error("Zombie #%s not found." % (target))
     else:
