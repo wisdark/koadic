@@ -78,6 +78,12 @@ Free certificates are available at: https://letsencrypt.org/getting-started/
 (koadic: sta/js/mshta)$ set KEYPATH  /path/to/privkey.pem
 ```
 
+### Future Improvements (a.k.a. Koadic 2.0)
+- Rewrite and redesign the server stack to be cleaner.
+- Support multiple listeners on the same port.
+- Dynamic server routing based on request headers.
+- Actual VBScript support.
+
 ### Disclaimer
 Code samples are provided for educational purposes. Adequate defenses can only be built by researching attack techniques available to malicious actors. Using this code against target systems without prior permission is illegal in most jurisdictions. The authors are not liable for any damages from misuse of this information or code.
 
