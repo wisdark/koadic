@@ -28,6 +28,7 @@ class Job(object):
         self.key = uuid.uuid4().hex
         self.results = ""
         self.ip = ""
+        self.computer = ""
 
         if self.session_id != -1:
             self.session = [session for stager in self.shell.stagers for session in stager.sessions if session.id == self.session_id][0]
