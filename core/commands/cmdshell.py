@@ -52,6 +52,9 @@ def run_cmdshell(shell, session):
     ip = session.ip
 
     emucwd = session.realcwd
+    startdrive = emucwd.split(":")[0]
+    curdrive = startdrive
+    drivepathmap = {}
 
     while True:
         shell.state = exec_cmd_name
@@ -126,11 +129,25 @@ def run_cmdshell(shell, session):
                                         varpath = job.results
                                         break
                         emucwd = varpath.split()[0]
-
-                    cmd = "cd "+emucwd+ " & cd"
+                    if curdrive == startdrive:
+                        cmd = "cd "+emucwd+ " & cd"
+                    else:
+                        cmd = curdrive+": & cd "+emucwd+ " & cd"
+                elif len(cmd.split()) == 1 and cmd[-1] == ":":
+                    drivepathmap[curdrive] = emucwd
+                    curdrive = cmd.split(":")[0].upper()
+                    if curdrive in drivepathmap:
+                        emucwd = drivepathmap[curdrive]
+                    else:
+                        emucwd = curdrive+":\\"
+                    shell.print_plain("Drive changed to "+curdrive+":")
+                    continue
                 else:
                     if emucwd:
-                        cmd = "cd "+emucwd+" & "+cmd
+                        if curdrive == startdrive:
+                            cmd = "cd "+emucwd+" & "+cmd
+                        else:
+                            cmd = curdrive+": & cd "+emucwd+" & "+cmd
 
                 plugin.options.set("CMD", cmd)
                 plugin.run()
