@@ -146,6 +146,7 @@ def print_creds_das(shell, domain):
                         creddomain = creddomain[:15] + "..."
 
                     shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], creduser, creddomain, credcred, credtype))
+                    break
 
     shell.print_plain("")
 
