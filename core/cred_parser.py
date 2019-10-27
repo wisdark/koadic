@@ -15,8 +15,6 @@ class CredParse(object):
             self.j_ip = self.session.ip
             self.j_computer = self.session.computer
 
-
-
     def new_cred(self):
         cred = {}
         cred["IP"] = ""
