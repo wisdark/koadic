@@ -5,14 +5,13 @@ DESCRIPTION = "sets a variable for the current module"
 def autocomplete(shell, line, text, state):
 
     env = shell.plugins[shell.state]
-    # todo, here we can provide some defaults for bools/enums? i.e. True/False
     if len(line.split()) > 1:
         optionname = line.split()[1]
         if optionname in [x.name for x in env.options.options if not x.hidden]:
             option = [x for x in env.options.options if x.name == optionname][0]
             options = []
             if option.boolean:
-                options = [x for x in ["true", "false"] if x.upper().startswith(text.upper())]
+                options = [x for x in ['true', 'false'] if x.upper().startswith(text.upper())]
             if option.file:
                 options = filepaths(text)
             if option.implant:
