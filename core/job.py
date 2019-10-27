@@ -31,7 +31,7 @@ class Job(object):
         self.computer = ""
 
         if self.session_id != -1:
-            self.session = [session for stager in self.shell.stagers for session in stager.sessions if session.id == self.session_id][0]
+            self.session = [session for skey, session in self.shell.sessions.items() if session.id == self.session_id][0]
             self.ip = self.session.ip
             self.computer = self.session.computer
 
@@ -181,6 +181,6 @@ class Job(object):
                 try:
                     append(mapping[ord(i)])
                 except:
-                    print("ENCODING ERROR: "+str(ord(i))+" <- Please add a mapping to core/mappings.py with \"chr("+str(ord(i))+").encode('cp"+encoder+"')\"")
+                    print(f"ENCODING ERROR: {str(ord(i))} <- Please add a mapping to core/mappings.py with \"chr({str(ord(i))}).encode('cp{encoder}')\"")
 
         return b"".join(b_list)
