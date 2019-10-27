@@ -6,8 +6,8 @@ def autocomplete(shell, line, text, state):
 
     options = []
 
-    for server in shell.stagers:
-        for session in server.sessions:
+    for skey, session in shell.sessions.items():
+        if session.killed == False:
             options.append(str(session.id))
 
     try:
@@ -25,6 +25,13 @@ def get_prompt(shell, id, ip, cwd, isreadline = True):
                                  shell.colors.colorize("koadic", [shell.colors.BOLD], isreadline),
                                  shell.colors.colorize("ZOMBIE %s (%s)" % (id, ip), [shell.colors.CYAN], isreadline),
                                  shell.colors.colorize(" - %s]> " % (cwd), [shell.colors.NORMAL], isreadline))
+
+def cmdshell_help(shell):
+    shell.print_plain("\tdownload PATH  - download a file off of the target")
+    shell.print_plain("\tupload LPATH   - upload a local relatively pathed file to the target in the current directory")
+    shell.print_plain("\tcd [/d] PATH   - this operates mostly how you would expect")
+    shell.print_plain("\tDRIVE_LETTER:  - change the shell to the defined drive letter (e.g. D:)")
+    shell.print_plain("\texit / quit    - leave this shell and return to Koadic")
 
 def run_cmdshell(shell, session):
     import copy
@@ -56,6 +63,8 @@ def run_cmdshell(shell, session):
     curdrive = startdrive
     drivepathmap = {}
 
+    shell.print_status("Press '?' for extra commands")
+
     while True:
         shell.state = exec_cmd_name
         shell.prompt = get_prompt(shell, id, ip, emucwd, True)
@@ -72,6 +81,9 @@ def run_cmdshell(shell, session):
             if len(cmd) > 0:
                 if cmd.lower() in ['exit','quit']:
                     return
+                elif cmd.split()[0] == '?':
+                    cmdshell_help(shell)
+                    continue
                 elif cmd.split()[0].lower() == 'download' and len(cmd.split()) > 1:
                     old_download_zombie = download_file_plugin.options.get("ZOMBIE")
                     old_download_rfile = download_file_plugin.options.get("RFILE")
@@ -100,10 +112,15 @@ def run_cmdshell(shell, session):
                     continue
                 elif cmd.split()[0].lower() == 'cd' and len(cmd.split()) > 1:
                     dest = " ".join(cmd.split(" ")[1:])
+
+                    if "/d" in dest:
+                        dest = " ".join(dest.split(" ")[1:])
+
                     if ":" not in dest and ".." not in dest:
                         if emucwd[-1] != "\\":
                             emucwd += "\\"
                         emucwd += dest
+
                     elif ".." in dest:
                         for d in dest.split("\\"):
                             if ".." in d:
@@ -115,24 +132,35 @@ def run_cmdshell(shell, session):
                         if len(emucwd.split("\\")) == 1:
                             emucwd += "\\"
 
-                    else:
-                        emucwd = dest
-
                     if dest[0] == "%" and dest[-1] == "%":
                         plugin.options.set("CMD", "echo %s" % dest)
                         plugin.run()
-                        j = plugin.ret_jobs[0]
-                        for job in shell.jobs:
-                            if job.id == j:
-                                while True:
-                                    if job.results:
-                                        varpath = job.results
-                                        break
+                        job = plugin.ret_jobs[0]
+                        while True:
+                            if job.results:
+                                varpath = job.results
+                                break
                         emucwd = varpath.split()[0]
-                    if curdrive == startdrive:
-                        cmd = "cd "+emucwd+ " & cd"
-                    else:
-                        cmd = curdrive+": & cd "+emucwd+ " & cd"
+
+                    if ":" in dest:
+                        drive = dest.split(":")[0]
+                        if drive != curdrive:
+                            drivepathmap[curdrive] = emucwd
+                            curdrive = drive
+                            if dest[-1] == ":":
+                                if curdrive in drivepathmap:
+                                    emucwd = drivepathmap[curdrive]
+                                else:
+                                    emucwd = curdrive+":\\"
+                            else:
+                                emucwd = dest
+
+                            shell.print_plain("Drive changed to "+curdrive)
+                        else:
+                            if dest[-1] != ":":
+                                emucwd = dest
+
+                    cmd = "cd /d "+emucwd+ " & cd"
                 elif len(cmd.split()) == 1 and cmd[-1] == ":":
                     drivepathmap[curdrive] = emucwd
                     curdrive = cmd.split(":")[0].upper()
@@ -140,14 +168,11 @@ def run_cmdshell(shell, session):
                         emucwd = drivepathmap[curdrive]
                     else:
                         emucwd = curdrive+":\\"
-                    shell.print_plain("Drive changed to "+curdrive+":")
+                    shell.print_plain("Drive changed to "+curdrive)
                     continue
                 else:
                     if emucwd:
-                        if curdrive == startdrive:
-                            cmd = "cd "+emucwd+" & "+cmd
-                        else:
-                            cmd = curdrive+": & cd "+emucwd+" & "+cmd
+                        cmd = "cd /d "+emucwd+" & "+cmd
 
                 plugin.options.set("CMD", cmd)
                 plugin.run()
@@ -173,11 +198,13 @@ def execute(shell, cmd):
     if len(splitted) > 1:
         target = splitted[1]
 
-        for session in [session for server in shell.stagers for session in server.sessions]:
-            if target == str(session.id) and not session.killed:
+        for session in [session for skey, session in shell.sessions.items()]:
+            if target != str(session.id):
+                continue
+            if not session.killed:
                 run_cmdshell(shell, session)
                 return
-            elif session.killed:
+            else:
                 shell.print_error("This zombie has been killed, you can not interact with it.")
                 return
 
