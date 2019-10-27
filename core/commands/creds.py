@@ -11,16 +11,25 @@ def autocomplete(shell, line, text, state):
 def help(shell):
     shell.print_plain("")
     shell.print_plain("Use %s to sort on a column name" % (shell.colors.colorize("creds --sort column", shell.colors.BOLD)))
+    shell.print_plain("Use %s to lazy search across credentials" % (shell.colors.colorize("creds --search text", shell.colors.BOLD)))
     shell.print_plain("Use %s for full credential details" % (shell.colors.colorize("creds -a", shell.colors.BOLD)))
     shell.print_plain("Use %s for specific user credentials (add --like for partial names)" % (shell.colors.colorize("creds -u user1,user2,user3,...", shell.colors.BOLD)))
     shell.print_plain("Use %s for domain admin credentials" % (shell.colors.colorize("creds -d domain", shell.colors.BOLD)))
+    shell.print_plain("Use %s for domain credentials" % (shell.colors.colorize("creds -D domain", shell.colors.BOLD)))
     shell.print_plain("Use %s to write credentials to a file" % (shell.colors.colorize("creds -x", shell.colors.BOLD)))
     shell.print_plain("Use %s to edit credentials" % (shell.colors.colorize("creds --edit", shell.colors.BOLD)))
     shell.print_plain("")
     shell.print_plain("NOTE: A listing that ends in [+] means extra information is available.")
     shell.print_plain("")
 
-def print_creds(shell, sortcol="Normal"):
+def print_creds(shell, sortcol="Normal", domain="", search=""):
+
+    domains = []
+    if domain:
+        domains = [j for i in shell.domain_info for j in i]
+        if not domain.lower() in domains:
+            shell.print_warning("\nDomain information not gathered, results may not be complete")
+
     formats = "\t{0:9}{1:17}{2:<20}{3:<20}{4:<25}{5:<42}"
 
     results = []
@@ -50,13 +59,39 @@ def print_creds(shell, sortcol="Normal"):
     shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
 
     for r in results:
+
+        if search:
+            searchflag = False
+
+        if search and search.lower() in r["Cred ID"].lower():
+            searchflag = True
+
+        if search and search.lower() in r["IP"].lower():
+            searchflag = True
+
+        if search and search.lower() in r["NTLM"].lower():
+            searchflag = True
+
         tmpuser = r["Username"]
+        if search and search.lower() in tmpuser.lower():
+            searchflag = True
         if len(tmpuser) > 18:
             tmpuser = tmpuser[:15] + "..."
+
         tmpdomain = r["Domain"]
+        if search and search.lower() in tmpdomain.lower():
+            searchflag = True
+        if domains:
+            if not tmpdomain.lower() in domains:
+                continue
+        elif domain and domain.lower() != tmpdomain.lower():
+                continue
         if len(tmpdomain) > 18:
             tmpdomain = tmpdomain[:15] + "..."
+
         tmppass = r["Password"]
+        if search and search.lower() in tmppass.lower():
+            searchflag = True
         if len(tmppass) > 23:
             tmppass = tmppass[:20] + "..."
         extraflag = ""
@@ -64,6 +99,9 @@ def print_creds(shell, sortcol="Normal"):
             if r["Extra"][key]:
                 extraflag = "[+]"
                 break
+
+        if search and not searchflag:
+            continue
 
         shell.print_plain(formats.format(r["Cred ID"], r["IP"], tmpuser, tmpdomain, tmppass, r["NTLM"])+extraflag)
 
@@ -439,6 +477,18 @@ def execute(shell, cmd):
 
         elif splitted[1] == "--edit":
             creds_edit_shell(shell)
+
+        elif splitted[1] == "-D":
+            if len(splitted) < 3:
+                shell.print_error("Need to provide a domain")
+            else:
+                print_creds(shell, "Normal", splitted[2])
+
+        elif splitted[1] == "--search":
+            if len(splitted) < 3:
+                shell.print_error("Need to provide text to search for")
+            else:
+                print_creds(shell, "Normal", "", splitted[2])
 
         else:
             shell.print_error("Unknown option '"+splitted[1]+"'")
