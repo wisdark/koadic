@@ -16,8 +16,10 @@ class Shell(object):
         self.version = version
         self.actions = core.loader.load_plugins("core/commands")
         self.plugins = core.loader.load_plugins("modules", True, self)
-        self.stagers = []
-        self.jobs = []
+        self.servers = {}
+        self.sessions = {}
+        self.stagers = {}
+        self.jobs = {}
         self.repeatjobs = {}
         self.state = "stager/js/mshta"
         self.colors = core.colors.Colors()
@@ -252,32 +254,35 @@ class Shell(object):
                     return "Failed"
 
         for job in restore_map['jobs']:
-            fs_job = RestoreJob(self)
+            rs_job = RestoreJob(self)
             for k,v in job.items():
-                setattr(fs_job, k, v)
-            self.jobs.append(fs_job)
+                setattr(rs_job, k, v)
+            self.jobs[rs_job.key] = rs_job
 
         class RestoreStager():
+            def __init__(self, payload):
+                self.payload = payload
+
+        class RestorePayload():
             def __init__(self):
-                pass
+                self.id = '-1'
 
         class RestoreSession():
-            def __init__(self):
-                pass
+            def __init__(self, shell):
+                self.shell = shell
 
             def set_reconnect(self):
                 pass
 
-        fs = RestoreStager()
-        fs.sessions = []
-        fs.payload_id = '-1'
+            def kill(self):
+                self.killed = True
+                self.shell.print_good("Zombie %d: Killed!" % self.id)
+
+        rs_stager = RestoreStager(RestorePayload())
         for session in restore_map['sessions']:
-            fs_session = RestoreSession()
+            rs_session = RestoreSession(self)
             for k,v in session.items():
-                setattr(fs_session, k, v)
-            fs_session.stager = fs
+                setattr(rs_session, k, v)
+            rs_session.stager = rs_stager
 
-            fs.sessions.append(fs_session)
-
-        self.stagers.append(fs)
-
+            self.sessions[rs_session.key] = rs_session
