@@ -11,9 +11,7 @@ def help(shell):
 
 def execute(shell, cmd):
     splitted = cmd.split()
-    all_sessions = []
-    for stager in shell.stagers:
-        all_sessions.extend(stager.sessions)
+    all_sessions = [session for skey, session in shell.sessions.items()]
     all_sessions.sort(key=lambda s: s.id)
 
 
@@ -92,7 +90,7 @@ def print_jobs(shell, session):
     shell.print_plain(formats.format("JOB", "NAME", "STATUS", "ERRNO"))
     shell.print_plain(formats.format("----", "---------", "-------", "-------"))
 
-    for job in [j for j in shell.jobs if session.id == j.session_id]:
+    for job in [j for jkey, j in shell.jobs.items() if session.id == j.session_id]:
         last = job.name.split("/")[-1]
         jobname = [n[0:3] for n in job.name.split("/")[:-1]]
         jobname.append(last)
@@ -108,7 +106,7 @@ def print_session(shell, session):
     print_data(shell, "Last Seen", datetime.datetime.fromtimestamp(session.last_active).strftime('%Y-%m-%d %H:%M:%S'))
     if session.ip != session.origin_ip:
         print_data(shell, "Staged From", session.origin_ip)
-    print_data(shell, "Listener", session.stager.payload_id)
+    print_data(shell, "Listener", session.stager.payload.id)
     shell.print_plain("")
     print_data(shell, "IP", session.ip)
     print_data(shell, "User", session.user)
