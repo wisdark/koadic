@@ -20,7 +20,7 @@ class CreateServiceJob(core.job.Job):
 class CreateServiceImplant(core.implant.Implant):
 
     NAME = "SYSTEM via SC.exe"
-    DESCRIPTION = "Elevate from administrative session to SYSTEM via SC.exe. Drops no files to disk."
+    DESCRIPTION = "Elevate from an administrative session to SYSTEM via SC.exe. Drops no files to disk."
     AUTHORS = ["TheNaterz", "jennamagius"]
     STATE = "implant/elevate/system_createservice"
 
