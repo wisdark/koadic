@@ -18,13 +18,13 @@ def kill_zombie(shell, id):
         return
 
     if id.lower() == "all":
-        [session.kill() for stager in shell.stagers for session in stager.sessions if session.killed == False]
+        [session.kill() for skey, session in shell.sessions.items() if session.killed == False]
 
     elif id.lower() == "dead":
-        [session.kill() for stager in shell.stagers for session in stager.sessions if session.status == 0 and session.killed == False]
+        [session.kill() for skey, session in shell.sessions.items() if session.status == 0 and session.killed == False]
 
     else:
-        [session.kill() for stager in shell.stagers for session in stager.sessions if session.id == int(id) and session.killed == False]
+        [session.kill() for skey, session in shell.sessions.items() if session.id == int(id) and session.killed == False]
 
     if id.lower() == "all":
         shell.print_good("All Zombies Killed!")
