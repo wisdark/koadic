@@ -23,16 +23,15 @@ class Extant(object):
 
         max_delta = 10
 
-        for stager in self.shell.stagers:
-            for session in stager.sessions:
-                delta = now - session.last_active
-                #delta = datetime.timedelta(seconds=int(delta))
+        for skey, session in self.shell.sessions.items():
+            delta = now - session.last_active
+            #delta = datetime.timedelta(seconds=int(delta))
 
-                if session.status == core.session.Session.ALIVE:
-                    if delta > max_delta:
-                        self.shell.play_sound('TIMEOUT')
-                        session.set_dead()
-                else:
-                    if delta < max_delta:
-                        self.shell.play_sound('RECONNECT')
-                        session.set_reconnect()
+            if session.status == core.session.Session.ALIVE:
+                if delta > max_delta:
+                    self.shell.play_sound('TIMEOUT')
+                    session.set_dead()
+            else:
+                if delta < max_delta:
+                    self.shell.play_sound('RECONNECT')
+                    session.set_reconnect()
