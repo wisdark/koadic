@@ -75,6 +75,7 @@ def print_listener_options(shell, id):
     shell.print_error(f"No payload {id}")
 
 def kill_listener(shell, id):
+    import os
     for port in shell.stagers:
         for endpoint in shell.stagers[port]:
             stager = shell.stagers[port][endpoint]
@@ -95,6 +96,11 @@ def kill_listener(shell, id):
                         shell.prompt = "Continue? y/N: "
                         shell.clean_prompt = shell.prompt
                         option = shell.get_command(shell.prompt)
+
+                        if shell.spool:
+                            spool = open(shell.spool, 'a+')
+                            spool.write(shell.prompt + option + os.linesep)
+                            spool.close()
 
                         if option.lower() == 'y':
                             for session in sessions:

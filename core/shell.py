@@ -32,6 +32,7 @@ class Shell(object):
         self.rest_thread = ""
         self.continuesession = ""
         self.update_restore = False
+        self.spool = False
 
     def run(self, autorun = [], restore_map = {}):
         self.main_thread_id = threading.current_thread().ident
@@ -54,8 +55,17 @@ class Shell(object):
 
                 if len(cmd) == 0:
                     cmd = self.get_command(self.prompt, self.autocomplete, self.base_filenames)
+                    if self.spool:
+                        spool = open(self.spool, 'a+')
+                        spool.write(self.clean_prompt + cmd + os.linesep)
+                        spool.close()
                 else:
                     print(self.clean_prompt + cmd)
+                    if self.spool:
+                        spool = open(self.spool, 'a+')
+                        spool.write(self.clean_prompt + cmd + os.linesep)
+                        spool.close()
+
 
                 self.run_command(cmd)
 
@@ -176,12 +186,21 @@ class Shell(object):
 
     def print_plain(self, text, redraw = False):
         sys.stdout.write("\033[1K\r" + text + os.linesep)
+        if self.spool:
+            spool = open(self.spool, 'a+')
+            spool.write("\033[1K\r" + text + os.linesep)
+            # spool.write(text + os.linesep)
+            spool.close()
         sys.stdout.flush()
 
         if redraw or threading.current_thread().ident != self.main_thread_id:
             import readline
             #sys.stdout.write("\033[s")
             sys.stdout.write(self.clean_prompt + readline.get_line_buffer())
+            # if self.spool:
+            #     spool = open(self.spool, 'a+')
+            #     spool.write(self.clean_prompt + readline.get_line_buffer())
+            #     spool.close()
             #sys.stdout.write("\033[u\033[B")
             sys.stdout.flush()
 

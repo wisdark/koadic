@@ -25,6 +25,7 @@ class HashDumpDCImplant(core.implant.Implant):
     def run(self):
 
         import os.path
+        import os
         if not os.path.isfile("data/impacket/examples/secretsdump.py"):
             old_prompt = self.shell.prompt
             old_clean_prompt = self.shell.clean_prompt
@@ -36,6 +37,12 @@ class HashDumpDCImplant(core.implant.Implant):
                 import readline
                 readline.set_completer(None)
                 option = self.shell.get_command(self.shell.prompt)
+
+                if self.shell.spool:
+                    spool = open(self.shell.spool, 'a+')
+                    spool.write(self.shell.clean_prompt + option + os.linesep)
+                    spool.close()
+
                 if option.lower() == "y":
                     from subprocess import call
                     call(["git", "submodule", "init"])

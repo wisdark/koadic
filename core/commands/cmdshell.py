@@ -35,6 +35,7 @@ def cmdshell_help(shell):
 
 def run_cmdshell(shell, session):
     import copy
+    import os
 
     exec_cmd_name = 'implant/manage/exec_cmd'
     download_file_name = 'implant/util/download_file'
@@ -77,6 +78,10 @@ def run_cmdshell(shell, session):
             import readline
             readline.set_completer(None)
             cmd = shell.get_command(shell.prompt)
+            if shell.spool:
+                spool = open(shell.spool, 'a+')
+                spool.write(shell.clean_prompt + cmd + os.linesep)
+                spool.close()
 
             if len(cmd) > 0:
                 if cmd.lower() in ['exit','quit']:

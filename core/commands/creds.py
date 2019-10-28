@@ -230,14 +230,16 @@ def creds_edit_shell(shell):
     old_prompt = shell.prompt
     old_clean_prompt = shell.clean_prompt
 
-    print("Choose a Cred ID to edit. Type 'new' to add a credential. Type 'del' to delete a credential:")
+    shell.print_plain("Choose a Cred ID to edit. Type 'new' to add a credential. Type 'del' to delete a credential:")
     shell.prompt = "> "
     shell.clean_prompt = shell.prompt
+
+    import os
 
     try:
         import readline
         readline.set_completer(None)
-        option = shell.get_command(shell.prompt)
+        option = creds_edit_shell_prompt(shell)
 
         try:
             int(option)
@@ -254,27 +256,28 @@ def creds_edit_shell(shell):
                 for domain in shell.domain_info:
                     shell.print_plain("\tFQDN: "+domain[0]+" | NetBIOS: "+domain[1])
                 shell.print_plain("")
+
             shell.print_plain("Domain? (required)")
-            domain = shell.get_command(shell.prompt)
+            domain = creds_edit_shell_prompt(shell)
             shell.print_plain("Username? (required)")
-            user = shell.get_command(shell.prompt)
+            user = creds_edit_shell_prompt(shell)
             new_key = (domain.lower(), user.lower())
             if new_key in shell.creds_keys:
                 shell.print_error("User already in creds")
                 return
             shell.creds_keys.append(new_key)
             shell.print_plain("Password?")
-            password = shell.get_command(shell.prompt)
+            password = creds_edit_shell_prompt(shell)
             shell.print_plain("NTLM?")
-            ntlm = shell.get_command(shell.prompt)
+            ntlm = creds_edit_shell_prompt(shell)
             shell.print_plain("LM?")
-            lm = shell.get_command(shell.prompt)
+            lm = creds_edit_shell_prompt(shell)
             shell.print_plain("SHA1?")
-            sha1 = shell.get_command(shell.prompt)
+            sha1 = creds_edit_shell_prompt(shell)
             shell.print_plain("DCC?")
-            dcc = shell.get_command(shell.prompt)
+            dcc = creds_edit_shell_prompt(shell)
             shell.print_plain("DPAPI?")
-            dpapi = shell.get_command(shell.prompt)
+            dpapi = creds_edit_shell_prompt(shell)
             c = {}
             c["Username"] = user
             c["Domain"] = domain
@@ -299,7 +302,7 @@ def creds_edit_shell(shell):
             shell.prompt = "del > "
             shell.clean_prompt = shell.prompt
             shell.print_plain("Which Cred ID do you want to delete?")
-            cred = shell.get_command(shell.prompt)
+            cred = creds_edit_shell_prompt(shell)
             if int(cred) < len(shell.creds_keys) and int(cred) >= 0:
                 key = shell.creds_keys[int(cred)]
                 shell.print_plain("IP: "+shell.creds[key]["IP"])
@@ -314,7 +317,7 @@ def creds_edit_shell(shell):
                 shell.print_plain("")
 
                 shell.print_plain("Are you sure you want to delete these creds?")
-                confirm = shell.get_command(shell.prompt)
+                confirm = creds_edit_shell_prompt(shell)
                 if confirm.lower() == "y":
                     del shell.creds[key]
                     shell.creds_keys.remove(key)
@@ -342,7 +345,7 @@ def creds_edit_shell(shell):
             shell.print_plain("")
 
             shell.print_plain("Which section would you like to edit?")
-            option = shell.get_command(shell.prompt)
+            option = creds_edit_shell_prompt(shell)
             if option.lower() in [k.lower() for k in shell.creds[key]]:
                 for subkey in shell.creds[key]:
                     if option.lower() == subkey.lower():
@@ -355,9 +358,9 @@ def creds_edit_shell(shell):
                         shell.print_plain("  "+item)
                     shell.print_plain("")
                 shell.print_plain("New value?")
-                val = shell.get_command(shell.prompt)
+                val = creds_edit_shell_prompt(shell)
                 shell.print_plain("Are you sure you want to change the value to '"+val+"'?")
-                confirm = shell.get_command(shell.prompt)
+                confirm = creds_edit_shell_prompt(shell)
                 if confirm.lower() == "y":
                     if subkey == "Username" or subkey == "Domain":
                         new_key_list = list(key)
@@ -370,7 +373,7 @@ def creds_edit_shell(shell):
 
                         if new_key in shell.creds_keys:
                             shell.print_warning("There is already a credential with this key. Continuing will merge the creds. Continue?")
-                            confirm = shell.get_command(shell.prompt)
+                            confirm = creds_edit_shell_prompt(shell)
                             if confirm.lower() == "y":
                                 for k in shell.creds[key]:
                                     if k == "Username" or k == "Domain":
@@ -439,6 +442,17 @@ def creds_edit_shell(shell):
     finally:
         shell.prompt = old_prompt
         shell.clean_prompt = old_clean_prompt
+
+def creds_edit_shell_prompt(shell):
+    import os
+    val = shell.get_command(shell.prompt)
+
+    if shell.spool:
+        spool = open(shell.spool, 'a+')
+        spool.write(shell.prompt + val + os.linesep)
+        spool.close()
+
+    return val
 
 
 def execute(shell, cmd):
