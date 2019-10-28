@@ -98,9 +98,7 @@ def kill_listener(shell, id):
                         option = shell.get_command(shell.prompt)
 
                         if shell.spool:
-                            spool = open(shell.spool, 'a+')
-                            spool.write(shell.prompt + option + os.linesep)
-                            spool.close()
+                            shell.spool_log(shell.prompt, option)
 
                         if option.lower() == 'y':
                             for session in sessions:

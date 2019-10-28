@@ -79,9 +79,7 @@ def run_cmdshell(shell, session):
             readline.set_completer(None)
             cmd = shell.get_command(shell.prompt)
             if shell.spool:
-                spool = open(shell.spool, 'a+')
-                spool.write(shell.clean_prompt + cmd + os.linesep)
-                spool.close()
+                shell.spool_log(shell.clean_prompt, cmd)
 
             if len(cmd) > 0:
                 if cmd.lower() in ['exit','quit']:

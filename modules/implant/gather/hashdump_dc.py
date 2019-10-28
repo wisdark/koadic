@@ -39,9 +39,7 @@ class HashDumpDCImplant(core.implant.Implant):
                 option = self.shell.get_command(self.shell.prompt)
 
                 if self.shell.spool:
-                    spool = open(self.shell.spool, 'a+')
-                    spool.write(self.shell.clean_prompt + option + os.linesep)
-                    spool.close()
+                    self.shell.spool_log(self.shell.clean_prompt, option)
 
                 if option.lower() == "y":
                     from subprocess import call

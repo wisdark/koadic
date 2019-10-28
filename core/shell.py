@@ -33,6 +33,7 @@ class Shell(object):
         self.continuesession = ""
         self.update_restore = False
         self.spool = False
+        self.spool_lock = threading.Lock()
 
     def run(self, autorun = [], restore_map = {}):
         self.main_thread_id = threading.current_thread().ident
@@ -55,16 +56,11 @@ class Shell(object):
 
                 if len(cmd) == 0:
                     cmd = self.get_command(self.prompt, self.autocomplete, self.base_filenames)
-                    if self.spool:
-                        spool = open(self.spool, 'a+')
-                        spool.write(self.clean_prompt + cmd + os.linesep)
-                        spool.close()
                 else:
                     print(self.clean_prompt + cmd)
-                    if self.spool:
-                        spool = open(self.spool, 'a+')
-                        spool.write(self.clean_prompt + cmd + os.linesep)
-                        spool.close()
+
+                if self.spool:
+                        self.spool_log(self.clean_prompt, cmd)
 
 
                 self.run_command(cmd)
@@ -184,23 +180,23 @@ class Shell(object):
                           if a.startswith("stager")])
         print(self.banner % (self.version, stager_len, implant_len))
 
+    def spool_log(self, prompt, text):
+        with self.spool_lock:
+            with open(self.spool, 'a+') as f:
+                f.write(prompt + text + os.linesep)
+                f.flush()
+
     def print_plain(self, text, redraw = False):
         sys.stdout.write("\033[1K\r" + text + os.linesep)
         if self.spool:
-            spool = open(self.spool, 'a+')
-            spool.write("\033[1K\r" + text + os.linesep)
-            # spool.write(text + os.linesep)
-            spool.close()
+            self.spool_log("\033[1K\r", text)
+
         sys.stdout.flush()
 
         if redraw or threading.current_thread().ident != self.main_thread_id:
             import readline
             #sys.stdout.write("\033[s")
             sys.stdout.write(self.clean_prompt + readline.get_line_buffer())
-            # if self.spool:
-            #     spool = open(self.spool, 'a+')
-            #     spool.write(self.clean_prompt + readline.get_line_buffer())
-            #     spool.close()
             #sys.stdout.write("\033[u\033[B")
             sys.stdout.flush()
 
