@@ -83,8 +83,8 @@ class StagerWizard(core.plugin.Plugin):
 
         # if not, then we need to start a server
         else:
-            keypath = self.options.get('KEYPATH').split()
-            certpath = self.options.get('CERTPATH').split()
+            keypath = self.options.get('KEYPATH').strip()
+            certpath = self.options.get('CERTPATH').strip()
             if self.start_server(srvport, keypath, certpath):
                 self.shell.stagers[srvport] = {}
                 self.spawn_stager(srvport, endpoint);

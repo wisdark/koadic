@@ -48,8 +48,9 @@ class Server(threading.Thread):
         self.http.options = self.options
 
         if self.keypath and self.certpath:
+            self.keypath = os.path.abspath(self.keypath)
             self.certpath = os.path.abspath(self.certpath)
-            self.http.socket = ssl.wrap_socket(self.http.socket, keyfile=self.keypath, certfile=certpath, server_side = True)
+            self.http.socket = ssl.wrap_socket(self.http.socket, keyfile=self.keypath, certfile=self.certpath, server_side = True)
 
     def run(self):
 
