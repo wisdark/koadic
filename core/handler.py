@@ -153,7 +153,11 @@ class Handler(BaseHTTPRequestHandler):
 
         if self.headers['host']:
             self.shell.print_verbose(f"handler::parse_params() - Host header present: {self.headers['host']}")
-            request_host, request_port = self.headers['host'].split(":")
+            if ':' in self.headers['host']:
+                request_host, request_port = self.headers['host'].split(":")
+            else:
+                request_host = self.headers['host']
+                request_port = self.port
             if str(request_host) != str(self.options.get('SRVHOST')) or str(request_port) != str(self.options.get('SRVPORT')):
                 self.shell.print_verbose(f"handler::parse_params() - host change detected: Stager - {self.options.get('SRVHOST')}:{self.options.get('SRVPORT')} | Zombie - {self.headers['host']}")
                 if self.options.get('AUTOFWD') == 'true':
