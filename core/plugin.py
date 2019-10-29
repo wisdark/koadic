@@ -56,9 +56,10 @@ class Plugin(object):
                     workload = workloads[session.stager.WORKLOAD]
                     options = copy.deepcopy(self.options)
                     j = job(self.shell, session.id, self.STATE, workload, options)
-                    self.shell.jobs[j.key] = j
-                    self.ret_jobs.append(j)
-                    self.shell.update_restore = True
+                    if j.create:
+                        self.shell.jobs[j.key] = j
+                        self.ret_jobs.append(j)
+                        self.shell.update_restore = True
 
         if checkrepeat:
             if self.options.get("REPEAT") == "true":

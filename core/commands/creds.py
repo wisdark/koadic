@@ -448,9 +448,7 @@ def creds_edit_shell_prompt(shell):
     val = shell.get_command(shell.prompt)
 
     if shell.spool:
-        spool = open(shell.spool, 'a+')
-        spool.write(shell.prompt + val + os.linesep)
-        spool.close()
+        shell.spool_log(shell.prompt, val)
 
     return val
 

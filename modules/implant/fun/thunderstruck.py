@@ -1,8 +1,16 @@
 import core.job
 import core.implant
 import uuid
+import urllib.request
 
 class ThunderstruckJob(core.job.Job):
+    def create(self):
+        if self.session_id == -1:
+            response = urllib.request.urlopen(self.options.get("VIDEOURL")).read().decode()
+            ms = response.split('approxDurationMs\\":\\"')[1].split("\\")[0]
+            seconds = int(ms)//1000
+            self.options.set("SECONDS", str(seconds+1))
+
     def done(self):
         self.display()
 
@@ -22,8 +30,6 @@ class ThunderstruckImplant(core.implant.Implant):
         self.options.register("SECONDS", "", "video length", hidden=True)
 
     def run(self):
-
-        import urllib.request
         self.shell.print_status("Retrieving video length...")
         response = urllib.request.urlopen(self.options.get("VIDEOURL")).read().decode()
         ms = response.split('approxDurationMs\\":\\"')[1].split("\\")[0]
@@ -34,6 +40,6 @@ class ThunderstruckImplant(core.implant.Implant):
 
         payloads = {}
         #payloads["vbs"] = self.loader.load_script("data/implant/fun/thunderstruck.vbs", self.options)
-        payloads["js"] = self.loader.load_script("data/implant/fun/thunderstruck.js", self.options)
+        payloads["js"] = "data/implant/fun/thunderstruck.js"
 
         self.dispatch(payloads, ThunderstruckJob)

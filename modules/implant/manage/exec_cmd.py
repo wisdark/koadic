@@ -3,6 +3,10 @@ import core.implant
 import uuid
 
 class ExecCmdJob(core.job.Job):
+    def create(self):
+        self.options.set("FCMD", self.options.get('CMD').replace("\\", "\\\\").replace('"', '\\"'))
+        self.options.set("FDIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
+
     def report(self, handler, data, sanitize = False):
         self.results = self.decode_downloaded_data(data, handler.get_header("encoder", 1252), True).decode("cp"+handler.get_header("shellchcp", '437'))
         handler.reply(200)
@@ -35,13 +39,8 @@ class ExecCmdImplant(core.implant.Implant):
         return ExecCmdJob
 
     def run(self):
-        # generate new file every time this is run
-        # self.options.set("FILE", uuid.uuid4().hex)
-        self.options.set("FCMD", self.options.get('CMD').replace("\\", "\\\\").replace('"', '\\"'))
-        self.options.set("FDIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
-
         payloads = {}
         #payloads["vbs"] = self.load_script("data/implant/manage/exec_cmd.vbs", self.options)
-        payloads["js"] = self.loader.load_script("data/implant/manage/exec_cmd.js", self.options)
+        payloads["js"] = "data/implant/manage/exec_cmd.js"
 
         self.dispatch(payloads, self.job)

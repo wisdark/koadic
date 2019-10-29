@@ -1,7 +1,7 @@
 try
 {
     var ie = new ActiveXObject("InternetExplorer.Application");
-    ie.Visible = 1;
+    ie.Visible = 0;
     ie.Navigate2("~VIDEOURL~");
 
     for (var i = 0; i < 50; ++i)

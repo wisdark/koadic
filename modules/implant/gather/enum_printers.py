@@ -22,10 +22,9 @@ class EnumPrintersImplant(core.implant.Implant):
     def job(self):
         return EnumPrintersJob
 
-
     def run(self):
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/gather/enum_printers.js", self.options)
+        payloads["js"] = "data/implant/gather/enum_printers.js"
         self.dispatch(payloads, self.job)
 
     

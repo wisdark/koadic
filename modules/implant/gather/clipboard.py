@@ -26,5 +26,5 @@ class ClipboardImplant(core.implant.Implant):
 
     def run(self):
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/gather/clipboard.js", self.options)
+        payloads["js"] = "data/implant/gather/clipboard.js"
         self.dispatch(payloads, self.job)

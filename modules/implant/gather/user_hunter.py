@@ -1,10 +1,14 @@
 import core.implant
 import core.job
 import string
+import uuid
 
 class UserHunterJob(core.job.Job):
     def create(self):
         self.fork32Bit = True
+        self.options.set("DLLUUID", uuid.uuid4().hex)
+        self.options.set("MANIFESTUUID", uuid.uuid4().hex)
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
     def report(self, handler, data, sanitize = False):
         data = data.decode('latin-1')
@@ -73,13 +77,7 @@ class UserHunterImplant(core.implant.Implant):
         return UserHunterJob
 
     def run(self):
-
-        import uuid
-        self.options.set("DLLUUID", uuid.uuid4().hex)
-        self.options.set("MANIFESTUUID", uuid.uuid4().hex)
-        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
-
         workloads = {}
-        workloads["js"] = self.loader.load_script("data/implant/gather/user_hunter.js", self.options)
+        workloads["js"] = "data/implant/gather/user_hunter.js"
 
         self.dispatch(workloads, self.job)

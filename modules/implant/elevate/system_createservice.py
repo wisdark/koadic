@@ -4,11 +4,13 @@ import uuid
 
 class CreateServiceJob(core.job.Job):
     def create(self):
+        id = self.options.get("PAYLOAD")
+        payload = self.load_payload(id)
+        self.options.set("PAYLOAD_DATA", payload)
+        if self.session_id == -1:
+            return
         if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":
             self.error("0", "This job requires an elevated session. Set IGNOREADMIN to true to run anyway.", "Not elevated", "")
-            return False
-        if self.session_id == -1:
-            self.error("0", "This job is not yet compatible with ONESHOT stagers.", "ONESHOT job error", "")
             return False
 
     def done(self):
@@ -39,9 +41,7 @@ class CreateServiceImplant(core.implant.Implant):
             self.shell.print_error("Payload %s not found." % id)
             return
 
-        self.options.set("PAYLOAD_DATA", payload)
-
         workloads = {}
-        workloads["js"] = self.loader.load_script("data/implant/elevate/system_createservice.js", self.options)
+        workloads["js"] = "data/implant/elevate/system_createservice.js"
 
         self.dispatch(workloads, self.job)

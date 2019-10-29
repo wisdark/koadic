@@ -3,6 +3,9 @@ import core.implant
 import uuid
 
 class EnableRDesktopJob(core.job.Job):
+    def create(self):
+        mode = "0" if self.options.get("ENABLE") == "true" else "1"
+        self.options.set("MODE", mode)
     def done(self):
         self.results = "Completed"
         self.display()
@@ -26,11 +29,8 @@ class EnableRDesktopImplant(core.implant.Implant):
         return EnableRDesktopJob
 
     def run(self):
-        mode = "0" if self.options.get("ENABLE") == "true" else "1"
-        self.options.set("MODE", mode)
-
         workloads = {}
         #workloads["vbs"] = self.load_script("data/implant/manage/enable_rdesktop.vbs", self.options)
-        workloads["js"] = self.loader.load_script("data/implant/manage/enable_rdesktop.js", self.options)
+        workloads["js"] = "data/implant/manage/enable_rdesktop.js"
 
         self.dispatch(workloads, self.job)
