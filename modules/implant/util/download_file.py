@@ -35,11 +35,11 @@ class DownloadFileImplant(core.implant.Implant):
             files = file.read().splitlines()
             for f in files:
                 self.options.set("RFILEF", f.replace("\\", "\\\\").replace('"', '\\"'))
-                payloads["js"] = self.loader.load_script("data/implant/util/download_file.js", self.options)
+                payloads["js"] = "data/implant/util/download_file.js"
                 self.dispatch(payloads, self.job)
         else:
             self.options.set("RFILEF", self.options.get('RFILE').replace("\\", "\\\\").replace('"', '\\"'))
-            payloads["js"] = self.loader.load_script("data/implant/util/download_file.js", self.options)
+            payloads["js"] = "data/implant/util/download_file.js"
             self.dispatch(payloads, self.job)
 
 class DownloadFileJob(core.job.Job):

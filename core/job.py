@@ -2,6 +2,7 @@ from core.mappings import mappings
 import string
 import threading
 import uuid
+import core.loader
 
 
 class Job(object):
@@ -14,10 +15,9 @@ class Job(object):
     JOB_ID = 0
     JOB_ID_LOCK = threading.Lock()
 
-    def __init__(self, shell, session_id, name, script, options):
+    def __init__(self, shell, session_id, name, workload, options):
         self.fork32Bit = False
         self.completed = Job.CREATED
-        self.script = script
         self.shell = shell
         self.options = options
         self.session_id = session_id
@@ -46,6 +46,8 @@ class Job(object):
         else:
             self.create = False
 
+        self.script = core.loader.load_script(workload, self.options)
+
     def create(self):
         pass
 
@@ -57,6 +59,33 @@ class Job(object):
         #self.shell.print_status("Zombie %d: Job %d (%s) running." % (self.session.id, self.id, self.name))
         self.completed = Job.RUNNING
         return self.script
+
+    def load_payload(self, id):
+        try:
+            for port in self.shell.stagers:
+                for endpoint in self.shell.stagers[port]:
+                    stager = self.shell.stagers[port][endpoint]
+                    if int(stager.get_payload_id()) == int(id):
+                        return stager.get_payload_data().decode()
+        except:
+            pass
+
+        return None
+
+    def convert_shellcode(self, shellcode):
+        decis = []
+        count = 0
+        for i in range(0, len(shellcode), 2):
+            count += 1
+            hexa = shellcode[i:i+2]
+            deci = int(hexa, 16)
+
+            if count % 25 == 0:
+                decis.append(" _\\n" + str(deci))
+            else:
+                decis.append(str(deci))
+
+        return ",".join(decis)
 
     def error(self, errno, errdesc, errname, data):
         self.errno = str(errno)

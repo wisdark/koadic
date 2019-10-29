@@ -4,9 +4,11 @@ import uuid
 
 class EventVwrJob(core.job.Job):
     def create(self):
+        id = self.options.get("PAYLOAD")
+        payload = self.load_payload(id)
+        self.options.set("PAYLOAD_DATA", payload)
         if self.session_id == -1:
-            self.error("0", "This job is not yet compatible with ONESHOT stagers.", "ONESHOT job error", "")
-            return False
+            return
         if (int(self.session.build) < 7600 or int(self.session.build) > 15030) and self.options.get("IGNOREBUILD") == "false":
             self.error("0", "The target may not be vulnerable to this implant. Set IGNOREBUILD to true to run anyway.", "Target build not vuln", "")
             return False
@@ -40,9 +42,7 @@ class EventVwrImplant(core.implant.Implant):
             self.shell.print_error("Payload %s not found." % id)
             return
 
-        self.options.set("PAYLOAD_DATA", payload)
-
         workloads = {}
-        workloads["js"] = self.loader.load_script("data/implant/elevate/bypassuac_eventvwr.js", self.options)
+        workloads["js"] = "data/implant/elevate/bypassuac_eventvwr.js"
 
         self.dispatch(workloads, self.job)

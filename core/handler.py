@@ -257,7 +257,7 @@ class Handler(BaseHTTPRequestHandler):
     def handle_oneshot(self):
         plugin = self.shell.plugins[self.options.get("MODULE")]
         options = self.options.get('_MODULEOPTIONS_')
-        workload = core.loader.load_script(f"data/{self.options.get('MODULE')}.js", plugin.options)
+        workload = f"data/{self.options.get('MODULE')}.js"
         j = plugin.job(self.shell, -1, plugin.STATE, workload, options)
         if j.create == False:
             script = b"Koadic.exit();"

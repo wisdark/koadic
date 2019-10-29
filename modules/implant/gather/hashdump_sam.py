@@ -46,16 +46,15 @@ class HashDumpSAMImplant(core.implant.Implant):
                 self.shell.prompt = old_prompt
                 self.shell.clean_prompt = old_clean_prompt
 
-        self.options.set("RPATH", self.options.get('RPATH').replace("\\", "\\\\").replace('"', '\\"'))
-
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/gather/hashdump_sam.js", self.options)
+        payloads["js"] = "data/implant/gather/hashdump_sam.js"
 
         self.dispatch(payloads, self.job)
 
 class HashDumpSAMJob(core.job.Job):
 
     def create(self):
+        self.options.set("RPATH", self.options.get('RPATH').replace("\\", "\\\\").replace('"', '\\"'))
         if self.session_id == -1:
             return
         if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":

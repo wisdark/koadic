@@ -5,62 +5,50 @@ import string
 
 class DotNet2JSJob(core.job.Job):
     def create(self):
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
+        self.fork32Bit = True
+        arch = self.options.get("ARCH")
+        self.mimi_output = ""
+        if self.session_id == -1:
+            if arch == 'auto':
+                self.options.set("ONESHOTAUTO", "true")
+                self.options.set("SHIMB64", "false")
+                self.options.set("SHIMOFFSET", "false")
+            else:
+                self.options.set("ONESHOTAUTO", "false")
+                if arch == '64':
+                    self.options.set("SHIMB64", self.options.get("SHIMX64B64"))
+                    self.options.set("SHIMOFFSET", self.options.get("SHIMX64OFFSET"))
+                elif arch == '32':
+                    self.options.set("SHIMB64", self.options.get("SHIMX86B64"))
+                    self.options.set("SHIMOFFSET", self.options.get("SHIMX86OFFSET"))
+                self.options.set("SHIMX64B64", "false")
+                self.options.set("SHIMX86B64", "false")
+                self.options.set("SHIMX64OFFSET", "false")
+                self.options.set("SHIMX86OFFSET", "false")
+            self.errstat = 0
+            return
         if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":
             self.error("0", "This job requires an elevated session. Set IGNOREADMIN to true to run anyway.", "Not elevated", "")
             return False
-        self.fork32Bit = True
-        arch = self.options.get("ARCH")
-        if self.session_id == -1:
-            if arch == 'auto':
-                self.script = self.script.replace(b"~ONESHOTAUTO~", b"true")
-                self.script = self.script.replace(b"~SHIMB64~", b"false")
-                self.script = self.script.replace(b"~SHIMOFFSET~", b"false")
-                self.script = self.script.replace(b"~SHIMX64B64~", self.options.get("SHIMX86B64").encode())
-                self.script = self.script.replace(b"~SHIMX64OFFSET~", self.options.get("SHIMX86OFFSET").encode())
-                self.script = self.script.replace(b"~SHIMX86B64~", self.options.get("SHIMX64B64").encode())
-                self.script = self.script.replace(b"~SHIMX86OFFSET~", self.options.get("SHIMX64OFFSET").encode())
-            else:
-                self.script = self.script.replace(b"~ONESHOTAUTO~", b"false")
-                self.script = self.script.replace(b"~SHIMX64B64~", b"false")
-                self.script = self.script.replace(b"~SHIMX86B64~", b"false")
-                self.script = self.script.replace(b"~SHIMX64OFFSET~", b"false")
-                self.script = self.script.replace(b"~SHIMX86OFFSET~", b"false")
-                if arch == '64':
-                    self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX64B64").encode())
-                    self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX64OFFSET").encode())
-                elif arch == '32':
-                    self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
-                    self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
-            self.errstat = 0
-            return
 
-        self.mimi_output = ""
-
-        self.script = self.script.replace(b"~ONESHOTAUTO~", b"false")
-        self.script = self.script.replace(b"~SHIMX64B64~", b"false")
-        self.script = self.script.replace(b"~SHIMX86B64~", b"false")
-        self.script = self.script.replace(b"~SHIMX64OFFSET~", b"false")
-        self.script = self.script.replace(b"~SHIMX86OFFSET~", b"false")
+        self.options.set("ONESHOTAUTO", "false")
 
         # cant change this earlier, has to be job specific
         # i dont like it, but this is how we do this to make payload smaller
         if arch == 'auto':
-            self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
-            self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
-            # if self.session.arch == "64":
-            #     self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX64B64").encode())
-            #     self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX64OFFSET").encode())
-            # else:
-            #     self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
-            #     self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
+            self.options.set("SHIMB64", self.options.get("SHIMX86B64"))
+            self.options.set("SHIMOFFSET", self.options.get("SHIMX86OFFSET"))
         elif arch == '64':
-            self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX64B64").encode())
-            self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX64OFFSET").encode())
+            self.options.set("SHIMB64", self.options.get("SHIMX64B64"))
+            self.options.set("SHIMOFFSET", self.options.get("SHIMX64OFFSET"))
         elif arch == '32':
-            self.script = self.script.replace(b"~SHIMB64~", self.options.get("SHIMX86B64").encode())
-            self.script = self.script.replace(b"~SHIMOFFSET~", self.options.get("SHIMX86OFFSET").encode())
-
-
+            self.options.set("SHIMB64", self.options.get("SHIMX86B64"))
+            self.options.set("SHIMOFFSET", self.options.get("SHIMX86OFFSET"))
+        self.options.set("SHIMX64B64", "false")
+        self.options.set("SHIMX86B64", "false")
+        self.options.set("SHIMX64OFFSET", "false")
+        self.options.set("SHIMX86OFFSET", "false")
         self.errstat = 0
 
     def parse_mimikatz(self, data):
@@ -146,6 +134,10 @@ class DotNet2JSImplant(core.implant.Implant):
         self.options.register("SHIMX86OFFSET", "6202", "Offset to the reflective loader", advanced = True)
         self.options.register("SHIMX64OFFSET", "7620", "Offset to the reflective loader", advanced = True)
 
+        self.options.register("ONESHOTAUTO", "", "", hidden = True)
+        self.options.register("SHIMB64", "", "", hidden = True)
+        self.options.register("SHIMOFFSET", "", "", hidden = True)
+
         # self.options.register("SHIMB64", "", "calculated bytes for arr_DLL", advanced = True)
         # self.options.register("SHIMOFFSET", "", "Offset to the reflective loader", advanced = True)
 
@@ -168,10 +160,7 @@ class DotNet2JSImplant(core.implant.Implant):
             return ret
 
     def run(self):
-
-        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
-
         workloads = {}
-        workloads["js"] = self.loader.load_script("data/implant/inject/mimikatz_dotnet2js.js", self.options)
+        workloads["js"] = "data/implant/inject/mimikatz_dotnet2js.js"
 
         self.dispatch(workloads, self.job)

