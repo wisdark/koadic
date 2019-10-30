@@ -55,5 +55,5 @@ class PsExecLiveImplant(core.implant.Implant):
         self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/pivot/exec_psexec.js", self.options)
+        payloads["js"] = "data/implant/pivot/exec_psexec.js"
         self.dispatch(payloads, self.job)

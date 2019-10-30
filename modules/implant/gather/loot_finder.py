@@ -65,6 +65,6 @@ class LootFinderImplant(core.implant.Implant):
             return
 
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/gather/loot_finder.js", self.options)
+        payloads["js"] = "data/implant/gather/loot_finder.js"
 
         self.dispatch(payloads, self.job)

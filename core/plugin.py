@@ -15,7 +15,6 @@ class Plugin(object):
         self.options = Options()
         self.shell = shell
 
-        self.loader = core.loader
         self.job = self.job()
 
         self.load()

