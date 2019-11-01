@@ -1,7 +1,10 @@
+import os
+
 DESCRIPTION = "write output to a file"
 
 def autocomplete(shell, line, text, state):
-    pass
+    options = filepaths(text)
+    return options[state]
 
 def help(shell):
     shell.print_plain("")
@@ -9,6 +12,34 @@ def help(shell):
     shell.print_plain("Use %s to spool to a defined file" % (shell.colors.colorize("spool FILEPATH", shell.colors.BOLD)))
     shell.print_plain("Use %s to stop spooling" % (shell.colors.colorize("spool off", shell.colors.BOLD)))
     shell.print_plain("")
+
+def filepaths(text):
+    import readline
+    everything = readline.get_line_buffer()
+    cursor_idx = readline.get_begidx()
+    idx = 0
+    for chunk in everything.split(" "):
+        fullpath = chunk
+        idx += len(chunk) + 1
+        if idx > cursor_idx:
+            break
+
+    if os.path.isfile(fullpath):
+        return None
+    if "/" in fullpath:
+        d = os.path.dirname(fullpath)
+    else:
+        d = "."
+
+    res = []
+    for candidate in os.listdir(d):
+        if not candidate.startswith(text):
+            continue
+        if os.path.isdir(d+os.path.sep+candidate):
+            res.append(candidate + os.path.sep)
+        else:
+            res.append(candidate + " ")
+    return res
 
 def execute(shell, cmd):
 
