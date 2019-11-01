@@ -29,6 +29,7 @@ class Job(object):
         self.results = ""
         self.ip = ""
         self.computer = ""
+        self.escape_flag = False
 
         if self.session_id != -1:
             self.session = [session for skey, session in self.shell.sessions.items() if session.id == self.session_id][0]
@@ -183,24 +184,22 @@ class Job(object):
         mapping = mappings
 
         b_list = []
-        escape_flag = False
         special_char = {
             '0': null_char,
             '\\': slash_char
         }
 
         append = b_list.append
-
         for i in data.decode('utf-8'):
             # Decide on slash char
-            if escape_flag:
-                escape_flag = False
+            if self.escape_flag:
+                self.escape_flag = False
                 append(special_char[i])
                 continue
 
             if i == '\\' and not text:
                 # EAT the slash
-                escape_flag = True
+                self.escape_flag = True
             else:
                 # collisions will go here
                 if i == '€' and encoder == "1251":

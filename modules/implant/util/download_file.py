@@ -58,12 +58,13 @@ class DownloadFileJob(core.job.Job):
             i = 0
             step = int(self.options.get("CHUNKSIZE"))
             partfiles = []
-            while i < len(data):
+            datalen = len(data)
+            while i < datalen:
                 with open(self.save_fname+str(i), "wb") as f:
                     partfiles.append(self.save_fname+str(i))
                     end = i+step
-                    if end > len(data):
-                        end = len(data)
+                    if end > datalen:
+                        end = datalen
                     while True:
                         try:
                             pdata = self.decode_downloaded_data(data[i:end], handler.get_header("encoder", "1252"))
