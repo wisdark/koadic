@@ -80,8 +80,6 @@ implant/utils/upload_file | Uploads a file from the listening server to the targ
 
 ### Future Improvements (a.k.a. Koadic 2.0)
 - Rewrite and redesign the server stack to be cleaner.
-- Support multiple listeners on the same port.
-- Dynamic server routing based on request headers.
 - Actual VBScript support.
 
 ### Disclaimer
