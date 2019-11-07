@@ -163,7 +163,11 @@ class Stager():
 
         if self.options.get('MODULE'):
             import copy
-            plugin = self.shell.plugins[self.options.get("MODULE")]
+            module = self.options.get("MODULE")
+            if '/' not in module:
+                module = [k for k in self.shell.plugins if k.lower().split('/')[-1] == module.lower()][0]
+                self.options.set("MODULE", module)
+            plugin = self.shell.plugins[module]
             options = copy.deepcopy(plugin.options)
             self.options.set('_MODULEOPTIONS_', options)
 

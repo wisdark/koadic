@@ -496,9 +496,15 @@ Koadic.work.fork = function(jobkey, fork32Bit)
 
     cmd = cmd.replace("***K***", Koadic.work.make_url(jobkey));
     try {
-      Koadic.WMI.createProcess(cmd);
-    } catch (e) {
+    //   Koadic.WMI.createProcess(cmd);
+    // } catch (e) {
         Koadic.WS.Run(cmd, 0, false);
+    } catch (e) {
+        try {
+            Koadic.WMI.createProcess(cmd);
+        } catch (e) {
+            Koadic.exit();
+        }
     }
 }
 //work.fork.end
