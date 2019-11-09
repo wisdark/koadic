@@ -34,7 +34,7 @@ class SchTasksJob(core.job.Job):
         if upload == "true":
             dropper_script = core.loader.load_script(self.options.get("LDROPFILE"), self.options)
             template = core.loader.load_script("data/stager/js/mshta/template.hta")
-            fdata = handler.post_process_script(dropper_script, template, self.options, self.session, False)
+            fdata = self.linter.post_process_script(dropper_script, template, self.options, self.session, False)
 
             headers = {}
             headers['Content-Type'] = 'application/octet-stream'

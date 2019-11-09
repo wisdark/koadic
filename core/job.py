@@ -3,6 +3,7 @@ import string
 import threading
 import uuid
 import core.loader
+from core.linter import Linter
 
 
 class Job(object):
@@ -30,6 +31,7 @@ class Job(object):
         self.ip = ""
         self.computer = ""
         self.escape_flag = False
+        self.linter = Linter()
 
         if self.session_id != -1:
             self.session = [session for skey, session in self.shell.sessions.items() if session.id == self.session_id][0]
