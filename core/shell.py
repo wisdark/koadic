@@ -72,13 +72,18 @@ class Shell(object):
             except Exception:
                 self.print_plain(traceback.format_exc())
 
-    def confirm_exit(self):
+    def confirm_prompt(self, msg):
         sys.stdout.write(os.linesep)
         try:
             res = "n"
-            res = self.get_command("Exit? y/N: ")
+            res = self.get_command("%s " % (msg))
         except:
             sys.stdout.write(os.linesep)
+
+        return res.strip().lower()
+
+    def confirm_exit(self):
+        res = self.confirm_prompt("Exit? y/N:")
 
         if res.strip().lower() == "y":
             self.run_command("exit")

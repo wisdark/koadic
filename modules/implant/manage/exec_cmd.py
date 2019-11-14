@@ -39,6 +39,10 @@ class ExecCmdImplant(core.implant.Implant):
         return ExecCmdJob
 
     def run(self):
+        stuff = self.options.get("CMD").lower()
+        if "powershell" in stuff and self.shell.confirm_prompt("Really run PowerShell? HET! y/N:") != "y":
+            return
+
         payloads = {}
         #payloads["vbs"] = self.load_script("data/implant/manage/exec_cmd.vbs", self.options)
         payloads["js"] = "data/implant/manage/exec_cmd.js"
