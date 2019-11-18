@@ -100,8 +100,8 @@ var """+var_decoded+""" = '';
 while ("""+var_key+""".length < """+var_encoded+""".length) {
 """+var_key+""" += """+var_key+""";
 }
-for (i = 0; i < """+var_encoded+""".length; i+=2) {
-var """+var_s+""" = String.fromCharCode(parseInt("""+var_encoded+""".substr(i, 2), 16) ^ """+var_key+""".charCodeAt(i/2));
+for (i = 0; i < """+var_encoded+""".length; i+=(100/50)) {
+var """+var_s+""" = String.fromCharCode(parseInt("""+var_encoded+""".substr(i, 102-100), 8+8) ^ """+var_key+""".charCodeAt(i/(420-418)));
 """+var_decoded+""" = """+var_decoded+""" + """+var_s+""";
 }
 return """+var_decoded+""";
@@ -112,6 +112,6 @@ var """+var_v_var+""" = \""""+var_v_len+"""\";
 var """+var_a_var+""" = \""""+var_a_len+"""\";
 var """+var_l_var+""" = \""""+var_l_len+"""\";
 var """+var_eval_arr+""" = [String.fromCharCode("""+var_e_var+""".length), String.fromCharCode("""+var_v_var+""".length), String.fromCharCode("""+var_a_var+""".length), String.fromCharCode("""+var_l_var+""".length)];
-var """+var_eval+""" = this["""+var_eval_arr+"""[0]+"""+var_eval_arr+"""[1]+"""+var_eval_arr+"""[2]+"""+var_eval_arr+"""[3]];
+var """+var_eval+""" = this["""+var_eval_arr+"""[3-3]+"""+var_eval_arr+"""[4-3]+"""+var_eval_arr+"""[4-2]+"""+var_eval_arr+"""[6-3]];
 """+var_eval+"""("""+function_name+"""('"""+script+"""', '"""+key+"""'));"""
     return js
