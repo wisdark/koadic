@@ -181,10 +181,10 @@ class Handler(BaseHTTPRequestHandler):
             return False
         self.init_session()
         template = self.options.get("_STAGETEMPLATE_")
-        self.session.bitsadmindata = self.linter.post_process_script(self.options.get("_STAGE_"), template, self.options, self.session)
+        self.session.bitsadmindata = self.linter.post_process_script(self.options.get("_STAGE_"), template, self.options, self.session).decode()
         self.shell.continuesession = self.session
         headers = {}
-        headers['Content-Length'] = len(self.session.bitsadmindata)
+        headers['Content-Length'] = len(self.session.bitsadmindata.encode())
         self.reply(200, '', headers)
 
     # the initial stage is a GET request
@@ -294,21 +294,21 @@ class Handler(BaseHTTPRequestHandler):
     def handle_bitsadmin_stage(self):
         rangeheader = self.get_header('range')
         headers = {}
-        headers['Content-Length'] = len(self.session.bitsadmindata)
+        headers['Content-Length'] = len(self.session.bitsadmindata.encode())
         headers['Accept-Ranges'] = "bytes"
-        headers['Content-Range'] = f"bytes 0-{str(len(self.session.bitsadmindata)-1)}/{str(len(self.session.bitsadmindata))}"
+        headers['Content-Range'] = f"bytes 0-{str(len(self.session.bitsadmindata.encode())-1)}/{str(len(self.session.bitsadmindata.encode()))}"
         headers['Content-Type'] = 'application/octet-stream'
         if rangeheader:
             rangehead = rangeheader.split("=")[1]
-            if int(rangehead.split("-")[1]) > len(self.session.bitsadmindata)-1:
-                end = len(self.session.bitsadmindata)-1
+            if int(rangehead.split("-")[1]) > len(self.session.bitsadmindata.encode())-1:
+                end = len(self.session.bitsadmindata.encode())-1
             else:
                 end = int(rangehead.split("-")[1])
-            headers['Content-Range'] = f"bytes {rangehead.split('-')[0]}-{str(end)}/{str(len(self.session.bitsadmindata))}"
-            partdata = self.session.bitsadmindata[int(rangehead.split("-")[0]):end+1]
+            headers['Content-Range'] = f"bytes {rangehead.split('-')[0]}-{str(end)}/{str(len(self.session.bitsadmindata.encode()))}"
+            partdata = self.session.bitsadmindata.encode()[int(rangehead.split("-")[0]):end+1]
             return self.reply(206, partdata, headers)
         else:
-            return self.reply(200, self.session.bitsadmindata, headers)
+            return self.reply(200, self.session.bitsadmindata.encode(), headers)
 
     def handle_job(self):
         script = self.job.payload()
