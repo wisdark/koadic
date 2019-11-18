@@ -138,8 +138,8 @@ if __name__ == "__main__":
     else:
         banner = open("data/banner.txt", "rb").read().decode("unicode_escape")
 
-    pay_no_attention()
-    seriously_nothing_shady_here()
+    # pay_no_attention()
+    # seriously_nothing_shady_here()
 
     shell = core.shell.Shell(banner, __version__)
     shell.run(autorun, restore)
