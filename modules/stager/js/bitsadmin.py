@@ -12,6 +12,7 @@ class BitsadminStager(core.stager.StagerWizard):
     def __init__(self, shell):
         super(BitsadminStager, self).__init__(shell) # stupid hack inc!
         self.options.set("ENDPOINTTYPE", ".wsf")
+        self.options.set("OBFUSCATE", "")
 
     def load(self):
         #self.options.set("SRVPORT", 9999)
