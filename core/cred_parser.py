@@ -425,11 +425,11 @@ class CredParse(object):
                 cred_dict = locals().get(cred_header+"_all")
                 if not cred_dict:
                     continue
-                if cred_header == 'tspkg':
-                    try:
-                        cred_dict = sorted(cred_dict, key=lambda k: k['Domain'])
-                    except:
-                        continue
+                # if cred_header == 'tspkg':
+                #     try:
+                #         cred_dict = sorted(cred_dict, key=lambda k: k['Domain'])
+                #     except:
+                #         continue
                 else:
                     try:
                         cred_dict = sorted(cred_dict, key=lambda k: k['Username'])
@@ -441,10 +441,10 @@ class CredParse(object):
                     if "Domain" not in cred:
                         cred["Domain"] = "."
                         ckeys.append("Domain")
-                    if cred_header == 'tspkg':
-                        tmp = cred["Domain"]
-                        cred["Domain"] = cred["Username"]
-                        cred["Username"] = tmp
+                    # if cred_header == 'tspkg':
+                    #     tmp = cred["Domain"]
+                    #     cred["Domain"] = cred["Username"]
+                    #     cred["Username"] = tmp
                     key_d = cred["Domain"]
                     key_u = cred["Username"]
                     if "\\" in cred["Domain"]:
