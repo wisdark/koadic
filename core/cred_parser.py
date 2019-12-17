@@ -15,8 +15,6 @@ class CredParse(object):
             self.j_ip = self.session.ip
             self.j_computer = self.session.computer
 
-
-
     def new_cred(self):
         cred = {}
         cred["IP"] = ""
@@ -75,7 +73,7 @@ class CredParse(object):
                     c["NTLM"] = hparts[3]
                     c["Domain"] = self.j_computer
                 else:
-                    c["DCC"] = hparts[1]
+                    c["DCC"] = "$DCC2$10240#" + c["Username"] + "#" + hparts[1]
                     c["Domain"] = hparts[3]
 
                 key = tuple([c["Domain"].lower(), c["Username"].lower()])
@@ -248,7 +246,6 @@ class CredParse(object):
                                 c["Username"] = c["Domain"].split("@")[0]
                                 c["Domain"] = c["Domain"].split("@")[1]
                             elif "@" in c["Username"]:
-                                print(c["Username"])
                                 c["Domain"] = c["Username"].split("@")[1]
                                 c["Username"] = c["Username"].split("@")[0]
 
@@ -258,9 +255,9 @@ class CredParse(object):
                             if c["Password"] == "(null)":
                                 c["Password"] = ""
                             if c["NTLM"].lower() == "d5024392098eb98bcc70051c47c6fbb2":
-                                # https://twitter.com/TheColonial/status/993599227686088704
-                                # Did you think this was some kind of game, OJ?
                                 c["Password"] = "(null)"
+                            if c["Password"][0:7] == "_TBAL_{" and c["Password"][-1] == "}":
+                                c["Password"] = ""
                             self.shell.creds[key] = c
 
                         else:
@@ -270,6 +267,8 @@ class CredParse(object):
 
                             if "Password" in cred:
                                 cpass = cred["Password"]
+                                if cpass[0:7] == "_TBAL_{" and cpass[-1] == "}":
+                                    cpass = ""
                                 if not self.shell.creds[key]["Password"] and cpass != "(null)" and cpass:
                                     self.shell.creds[key]["Password"] = cpass
                                 elif self.shell.creds[key]["Password"] != cpass and cpass != "(null)" and cpass:
@@ -362,6 +361,214 @@ class CredParse(object):
                             elif self.shell.creds[key]["LM"] != lm and lm:
                                 if lm not in self.shell.creds[key]["Extra"]["LM"]:
                                     self.shell.creds[key]["Extra"]["LM"].append(lm)
+
+            return data
+        except Exception as e:
+            data += "\n\n\n"
+            data += traceback.format_exc()
+            return data
+
+    def parse_pypykatz(self, json_results):
+        try:
+            from tabulate import tabulate
+            logon_sessions = json_results['logon_sessions']
+            cred_headers = ["msv","tspkg","wdigest","kerberos","ssp","credman"]
+            msv_all = []
+            tspkg_all = []
+            wdigest_all = []
+            kerberos_all = []
+            ssp_all = []
+            credman_all = []
+
+            translation = {
+                'username': 'Username',
+                'domainname': 'Domain',
+                'NThash': 'NTLM',
+                'SHAHash': 'SHA1',
+                'LMHash': 'LM',
+                'password': 'Password'
+            }
+
+            for l in logon_sessions:
+                current_session = logon_sessions[l]
+                msv = collections.OrderedDict()
+                tspkg = collections.OrderedDict()
+                wdigest = collections.OrderedDict()
+                kerberos = collections.OrderedDict()
+                ssp = collections.OrderedDict()
+                credman = collections.OrderedDict()
+
+                for index, cred_header in enumerate(cred_headers):
+                    cred_dict = locals().get(cred_header)
+                    cred_sec = current_session[cred_header+'_creds']
+                    if cred_sec:
+                        for i in cred_sec:
+                            for k in i:
+                                if type(i[k]) == list or k == 'luid' or k == 'credtype':
+                                    continue
+                                if k in translation and i[k]:
+                                    cred_dict[translation[k]] = i[k]
+                    if cred_dict:
+                        cred_list = locals().get(cred_header+"_all")
+                        cred_list.append(cred_dict)
+
+            for cred_header in cred_headers:
+                cred_list = locals().get(cred_header+"_all")
+                tmp = [collections.OrderedDict(t) for t in set([tuple(d.items()) for d in cred_list])]
+                del cred_list[:]
+                cred_list.extend(tmp)
+
+            parsed_data = "Results\n\n"
+
+            for cred_header in cred_headers:
+                banner = cred_header+" credentials\n"+(len(cred_header)+12)*"="+"\n\n"
+                cred_dict = locals().get(cred_header+"_all")
+                if not cred_dict:
+                    continue
+                # if cred_header == 'tspkg':
+                #     try:
+                #         cred_dict = sorted(cred_dict, key=lambda k: k['Domain'])
+                #     except:
+                #         continue
+                else:
+                    try:
+                        cred_dict = sorted(cred_dict, key=lambda k: k['Username'])
+                    except:
+                        continue
+                ckeys = []
+                [[ckeys.append(k) for k in row if k not in ckeys] for row in cred_dict]
+                for cred in cred_dict:
+                    if "Domain" not in cred:
+                        cred["Domain"] = "."
+                        ckeys.append("Domain")
+                    # if cred_header == 'tspkg':
+                    #     tmp = cred["Domain"]
+                    #     cred["Domain"] = cred["Username"]
+                    #     cred["Username"] = tmp
+                    key_d = cred["Domain"]
+                    key_u = cred["Username"]
+                    if "\\" in cred["Domain"]:
+                        key_d = cred["Domain"].split("\\")[0]
+                        key_u = cred["Domain"].split("\\")[1]
+                    elif "\\" in cred["Username"]:
+                        key_d = cred["Username"].split("\\")[0]
+                        key_u = cred["Username"].split("\\")[1]
+
+                    if "@" in cred["Domain"]:
+                        key_d = cred["Domain"].split("@")[1]
+                        key_u = cred["Domain"].split("@")[0]
+                    elif "@" in cred["Username"]:
+                        key_d = cred["Username"].split("@")[1]
+                        key_u = cred["Username"].split("@")[0]
+
+                    if cred["Domain"] == ".":
+                        key_d = self.j_computer
+
+                    key = tuple([key_d.lower(), key_u.lower()])
+
+                    domains = [j for i in self.shell.domain_info for j in i]
+                    if key_d.lower() in domains:
+                        domain_key = [i for i in self.shell.domain_info if key_d.lower() in i][0]
+                        other_domain = [i for i in domain_key if i != key_d.lower()][0]
+                    else:
+                        other_domain = ""
+
+                    other_key = tuple([other_domain, key_u.lower()])
+
+                    my_key = ""
+                    for creds_key in self.shell.creds_keys:
+                        if creds_key == key or creds_key == other_key:
+                            my_key = creds_key
+
+                    if not my_key:
+                        self.shell.creds_keys.append(key)
+                        c = self.new_cred()
+                        c["IP"] = self.j_ip
+                        # translation = {
+                        #     'username': 'Username',
+                        #     'domainname': 'Domain',
+                        #     'NThash': 'NTLM',
+                        #     'LMHash': 'LM',
+                        #     'SHAHash': 'SHA1',
+                        #     'password': 'Password',
+                        # }
+                        for subkey in cred:
+                            # if subkey in translation:
+                            c[subkey] = cred[subkey]
+
+                        if "\\" in c["Domain"]:
+                            c["Username"] = c["Domain"].split("\\")[1]
+                            c["Domain"] = c["Domain"].split("\\")[0]
+                        elif "\\" in c["Username"]:
+                            c["Domain"] = c["Username"].split("\\")[0]
+                            c["Username"] = c["Username"].split("\\")[1]
+
+                        if "@" in c["Domain"]:
+                            c["Username"] = c["Domain"].split("@")[0]
+                            c["Domain"] = c["Domain"].split("@")[1]
+                        elif "@" in c["Username"]:
+                            c["Domain"] = c["Username"].split("@")[1]
+                            c["Username"] = c["Username"].split("@")[0]
+
+                        if c["Domain"] == ".":
+                            c["Domain"] = self.j_computer
+
+                        if c["Password"] == "(null)":
+                            c["Password"] = ""
+                        if c["NTLM"].lower() == "d5024392098eb98bcc70051c47c6fbb2":
+                            c["Password"] = "(null)"
+                        if c["Password"][0:7] == "_TBAL_{" and c["Password"][-1] == "}":
+                            c["Password"] = ""
+                        self.shell.creds[key] = c
+
+                    else:
+                        key = my_key
+                        if self.j_ip != self.shell.creds[key]["IP"] and self.j_ip not in self.shell.creds[key]["Extra"]["IP"]:
+                            self.shell.creds[key]["Extra"]["IP"].append(self.j_ip)
+
+                        if "Password" in cred:
+                            cpass = cred["Password"]
+                            if cpass[0:7] == "_TBAL_{" and cpass[-1] == "}":
+                                cpass = ""
+                            if not self.shell.creds[key]["Password"] and cpass != "(null)" and cpass:
+                                self.shell.creds[key]["Password"] = cpass
+                            elif self.shell.creds[key]["Password"] != cpass and cpass != "(null)" and cpass:
+                                if cpass not in self.shell.creds[key]["Extra"]["Password"]:
+                                    self.shell.creds[key]["Extra"]["Password"].append(cpass)
+
+                        if "NTLM" in cred:
+                            cntlm = cred["NTLM"]
+                            if not self.shell.creds[key]["NTLM"]:
+                                self.shell.creds[key]["NTLM"] = cntlm
+                                if cntlm.lower() == "d5024392098eb98bcc70051c47c6fbb2":
+                                    self.shell.creds[key]["Password"] = "(null)"
+                            elif self.shell.creds[key]["NTLM"] != cntlm and cntlm:
+                                if cntlm not in self.shell.creds[key]["Extra"]["NTLM"]:
+                                    self.shell.creds[key]["Extra"]["NTLM"].append(cntlm)
+
+                        if "SHA1" in cred:
+                            csha1 = cred["SHA1"]
+                            if not self.shell.creds[key]["SHA1"]:
+                                self.shell.creds[key]["SHA1"] = csha1
+                            elif self.shell.creds[key]["SHA1"] != csha1 and csha1:
+                                if csha1 not in self.shell.creds[key]["Extra"]["SHA1"]:
+                                    self.shell.creds[key]["Extra"]["SHA1"].append(csha1)
+
+                        if "DPAPI" in cred:
+                            cdpapi = cred["DPAPI"]
+                            if not self.shell.creds[key]["DPAPI"]:
+                                self.shell.creds[key]["DPAPI"] = cdpapi
+                            elif self.shell.creds[key]["DPAPI"] != cdpapi and cdpapi:
+                                if cdpapi not in self.shell.creds[key]["Extra"]["DPAPI"]:
+                                    self.shell.creds[key]["Extra"]["DPAPI"].append(cdpapi)
+
+                separators = collections.OrderedDict([(k, "-"*len(k)) for k in ckeys])
+                cred_dict = [separators] + cred_dict
+                parsed_data += banner
+                parsed_data += tabulate(cred_dict, headers="keys", tablefmt="plain")
+                parsed_data += "\n\n"
+
+            data = parsed_data
 
             return data
         except Exception as e:

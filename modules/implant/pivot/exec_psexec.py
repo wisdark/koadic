@@ -37,8 +37,6 @@ class PsExecLiveImplant(core.implant.Implant):
         return PsExecLiveJob
 
     def run(self):
-        # generate new file every time this is run
-        # self.options.set("FILE", uuid.uuid4().hex)
         cred_id = self.options.get("CREDID")
         if cred_id:
             key = self.shell.creds_keys[int(cred_id)]
@@ -57,5 +55,5 @@ class PsExecLiveImplant(core.implant.Implant):
         self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/pivot/exec_psexec.js", self.options)
+        payloads["js"] = "data/implant/pivot/exec_psexec.js"
         self.dispatch(payloads, self.job)

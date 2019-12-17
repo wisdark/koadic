@@ -15,7 +15,10 @@ def autocomplete(shell, line, text, state):
         prefix += "/"
 
     options = []
+    tmp = list(shell.plugins.keys())
     for plugin in shell.plugins:
+        tmp.append(plugin.split("/")[-1])
+    for plugin in tmp:
         if not plugin.startswith(fulltext):
             continue
         chunk = plugin[len(prefix):]
@@ -37,6 +40,8 @@ def execute(shell, cmd):
 
     if len(splitted) > 1:
         module = splitted[1]
+        if "/" not in module:
+            module = [k for k in shell.plugins if k.lower().split('/')[-1] == module.lower()][0]
         if module not in shell.plugins:
             shell.print_error("No module named %s" % (module))
             return

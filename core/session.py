@@ -38,6 +38,7 @@ class Session(object):
         self.ip = ip
         self.origin_ip = ip
         self.user_agent = user_agent
+        self.fullystaged = False
 
         self.stager = stager
         self.shell = stager.shell
@@ -45,8 +46,7 @@ class Session(object):
         self.first_seen = time.time()
         self.update_active()
 
-        self.shell.print_good(
-            "Zombie %d: Staging new connection (%s)" % (self.id, self.ip))
+        self.shell.print_good(f"Zombie {self.id}: Staging new connection ({self.ip}) on Stager {self.stager.payload.id}")
 
         self.shell.update_restore = True
 
@@ -105,20 +105,27 @@ class Session(object):
 
             self.realcwd = self.realcwd.encode('cp'+self.encoder).decode('cp'+self.shellchcp)
 
+            if "%" in self.domain and len(self.dc.split(".")) > 1:
+                self.domain = self.dc.split(".")[-2]
+                self.user = self.domain+"\\"+self.user.split("\\")[1]
+
         except Exception as e:
             self.shell.print_warning("parsing error")
             self.shell.print_warning(repr(e))
 
+        self.fullystaged = True
         self.shell.print_good(
             "Zombie %d: %s @ %s -- %s" % (self.id, self.user, self.computer, self.os))
 
         if self.shell.continuesession:
             self.shell.continuesession = ""
+            self.bitsadmindata = ""
 
 
     def kill(self):
         self.killed = True
         self.set_dead()
+        self.shell.print_good("Zombie %d: Killed!" % self.id)
 
     def set_dead(self):
         if self.status != self.DEAD:
@@ -144,7 +151,7 @@ class Session(object):
         return None
 
     def get_created_job(self):
-        jobs = [job for job in self.shell.jobs if job.session_id == self.id]
+        jobs = [job for jkey, job in self.shell.jobs.items() if job.session_id == self.id]
         for job in jobs:
             if job.completed == Job.CREATED:
                 self.shell.print_verbose("session::get_created_job - fetched job.key = %s" % (job.key))

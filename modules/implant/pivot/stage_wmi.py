@@ -58,6 +58,6 @@ class SWbemServicesImplant(core.implant.Implant):
                 self.shell.print_warning("Cred has no Domain!")
 
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/pivot/exec_wmi.js", self.options)
+        payloads["js"] = "data/implant/pivot/exec_wmi.js"
 
         self.dispatch(payloads, self.job)

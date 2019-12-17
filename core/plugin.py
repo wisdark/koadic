@@ -15,7 +15,6 @@ class Plugin(object):
         self.options = Options()
         self.shell = shell
 
-        self.loader = core.loader
         self.job = self.job()
 
         self.load()
@@ -49,27 +48,29 @@ class Plugin(object):
                     splitted.append(str(i))
 
         self.ret_jobs = []
-        for server in self.shell.stagers:
-            for session in server.sessions:
-                if (target.lower().strip() == "all" or str(session.id) in splitted) and not session.killed:
-                    if server.stager.WORKLOAD in workloads:
-                        self.shell.print_verbose("Server: %s Sesson %s" % (server,session))
-                        workload = workloads[server.stager.WORKLOAD]
-                        options = copy.deepcopy(self.options)
-                        j = job(self.shell, session.id, self.STATE, workload, options)
-                        self.shell.jobs.append(j)
-                        self.ret_jobs.append(j.id)
+        for skey, session in self.shell.sessions.items():
+            if (target.lower().strip() == "all" or str(session.id) in splitted) and not session.killed:
+                if session.stager.WORKLOAD in workloads and session.fullystaged:
+                    self.shell.print_verbose("Stager: %s Session %s" % (session.stager,session))
+                    workload = workloads[session.stager.WORKLOAD]
+                    options = copy.deepcopy(self.options)
+                    j = job(self.shell, session.id, self.STATE, workload, options)
+                    if j.create:
+                        self.shell.jobs[j.key] = j
+                        self.ret_jobs.append(j)
                         self.shell.update_restore = True
 
         if checkrepeat:
-            if options.get("REPEAT") == "true":
-                self.repeat(self.shell, workloads, options)
+            if self.options.get("REPEAT") == "true":
+                self.repeat(self.shell, workloads, self.options)
 
     def load_payload(self, id):
         try:
-            for server in self.shell.stagers:
-                if int(server.payload_id) == int(id):
-                    return server.get_payload().decode()
+            for port in self.shell.stagers:
+                for endpoint in self.shell.stagers[port]:
+                    stager = self.shell.stagers[port][endpoint]
+                    if int(stager.get_payload_id()) == int(id):
+                        return stager.get_payload_data().decode()
         except:
             pass
 

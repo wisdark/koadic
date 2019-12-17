@@ -5,23 +5,33 @@ def autocomplete(shell, line, text, state):
 
 def help(shell):
     shell.print_plain("")
-    shell.print_plain("Usage: kill [#/ALL]")
+    shell.print_plain("Usage: kill #")
+    shell.print_plain("       kill all")
+    shell.print_plain("       kill dead")
     shell.print_plain("")
 
 def kill_zombie(shell, id):
     formats = "\t{0:<5}{1:<10}{2:<20}{3:<40}"
 
-    for stager in shell.stagers:
-        for session in stager.sessions:
-            if id.lower() == "all":
-                session.kill()
-                continue
+    if not id.isdigit() and id.lower() not in ["all", "dead"]:
+        shell.print_error("Not a valid argument to kill: %s" % id)
+        return
 
-            if session.id == int(id):
-                session.kill()
+    if id.lower() == "all":
+        [session.kill() for skey, session in shell.sessions.items() if session.killed == False]
+
+    elif id.lower() == "dead":
+        [session.kill() for skey, session in shell.sessions.items() if session.status == 0 and session.killed == False]
+
+    else:
+        [session.kill() for skey, session in shell.sessions.items() if session.id == int(id) and session.killed == False]
+
+    if id.lower() == "all":
+        shell.print_good("All Zombies Killed!")
+    elif id.lower() == "dead":
+        shell.print_good("Dead Zombies Killed!")
 
     shell.play_sound('KILL')
-    shell.print_good("Zombie %s: Killed!" % id)
 
 def execute(shell, cmd):
 

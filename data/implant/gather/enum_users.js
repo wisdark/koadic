@@ -24,26 +24,8 @@ try
             for (var f = new Enumerator(users); !f.atEnd(); f.moveNext())
             {
                 var user = f.item();
-                var info = "";
-                info += user.Domain + "\n";
-                info += user.SID + "\n";
-                info += user.Caption + "\n";
-                info += user.Description + "\n";
-                info += user.LocalAccount + "\n";
-                info += user.SIDType + "\n";
-                info += user.Status + "\n";
-                info += user.InstallDate + "\n";
-                info += "--------\n";
-                info += session.Caption + "\n";
-                info += session.Description + "\n";
-                info += session.InstallDate + "\n";
-                info += session.Name + "\n";
-                info += session.Status + "\n";
-                info += session.StartTime + "\n";
-                info += session.AuthenticationPackage + "\n";
-                info += session.LogonId + "\n";
-                info += session.LogonType + "\n";
-                alert(info);
+                var info = user.Caption;
+                Koadic.work.report(info);
             }
         }
     }
@@ -51,5 +33,5 @@ try
 {
     Koadic.work.error(e);
 }
-
+Koadic.work.report("Complete");
 Koadic.exit();

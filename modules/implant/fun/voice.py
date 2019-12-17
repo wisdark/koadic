@@ -24,9 +24,8 @@ class VoiceImplant(core.implant.Implant):
         return VoiceJob
 
     def run(self):
-
         payloads = {}
         #payloads["vbs"] = self.load_script("data/implant/fun/voice.vbs", self.options)
-        payloads["js"] = self.loader.load_script("data/implant/fun/voice.js", self.options)
+        payloads["js"] = "data/implant/fun/voice.js"
 
         self.dispatch(payloads, self.job)

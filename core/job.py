@@ -2,6 +2,8 @@ from core.mappings import mappings
 import string
 import threading
 import uuid
+import core.loader
+from core.linter import Linter
 
 
 class Job(object):
@@ -14,10 +16,9 @@ class Job(object):
     JOB_ID = 0
     JOB_ID_LOCK = threading.Lock()
 
-    def __init__(self, shell, session_id, name, script, options):
+    def __init__(self, shell, session_id, name, workload, options):
         self.fork32Bit = False
         self.completed = Job.CREATED
-        self.script = script
         self.shell = shell
         self.options = options
         self.session_id = session_id
@@ -28,9 +29,12 @@ class Job(object):
         self.key = uuid.uuid4().hex
         self.results = ""
         self.ip = ""
+        self.computer = ""
+        self.escape_flag = False
+        self.linter = Linter()
 
         if self.session_id != -1:
-            self.session = [session for stager in self.shell.stagers for session in stager.sessions if session.id == self.session_id][0]
+            self.session = [session for skey, session in self.shell.sessions.items() if session.id == self.session_id][0]
             self.ip = self.session.ip
             self.computer = self.session.computer
 
@@ -45,6 +49,8 @@ class Job(object):
         else:
             self.create = False
 
+        self.script = core.loader.load_script(workload, self.options)
+
     def create(self):
         pass
 
@@ -56,6 +62,33 @@ class Job(object):
         #self.shell.print_status("Zombie %d: Job %d (%s) running." % (self.session.id, self.id, self.name))
         self.completed = Job.RUNNING
         return self.script
+
+    def load_payload(self, id):
+        try:
+            for port in self.shell.stagers:
+                for endpoint in self.shell.stagers[port]:
+                    stager = self.shell.stagers[port][endpoint]
+                    if int(stager.get_payload_id()) == int(id):
+                        return stager.get_payload_data().decode()
+        except:
+            pass
+
+        return None
+
+    def convert_shellcode(self, shellcode):
+        decis = []
+        count = 0
+        for i in range(0, len(shellcode), 2):
+            count += 1
+            hexa = shellcode[i:i+2]
+            deci = int(hexa, 16)
+
+            if count % 25 == 0:
+                decis.append(" _\\n" + str(deci))
+            else:
+                decis.append(str(deci))
+
+        return ",".join(decis)
 
     def error(self, errno, errdesc, errname, data):
         self.errno = str(errno)
@@ -153,24 +186,22 @@ class Job(object):
         mapping = mappings
 
         b_list = []
-        escape_flag = False
         special_char = {
             '0': null_char,
             '\\': slash_char
         }
 
         append = b_list.append
-
         for i in data.decode('utf-8'):
             # Decide on slash char
-            if escape_flag:
-                escape_flag = False
+            if self.escape_flag:
+                self.escape_flag = False
                 append(special_char[i])
                 continue
 
             if i == '\\' and not text:
                 # EAT the slash
-                escape_flag = True
+                self.escape_flag = True
             else:
                 # collisions will go here
                 if i == '€' and encoder == "1251":
@@ -180,6 +211,6 @@ class Job(object):
                 try:
                     append(mapping[ord(i)])
                 except:
-                    print("ENCODING ERROR: "+str(ord(i))+" <- Please add a mapping to core/mappings.py with \"chr("+str(ord(i))+").encode('cp"+encoder+"')\"")
+                    print(f"ENCODING ERROR: {str(ord(i))} <- Please add a mapping to core/mappings.py with \"chr({str(ord(i))}).encode('cp{encoder}')\"")
 
         return b"".join(b_list)

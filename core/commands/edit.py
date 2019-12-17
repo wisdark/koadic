@@ -28,6 +28,7 @@ def execute(shell, cmd):
     py_file = "modules/"+shell.state+".py"
     js_file = "data/"+shell.state+".js"
     vbs_file = "data/"+shell.state+".vbs"
+    dropper_file = "data/"+shell.state+".dropper"
 
     splitted = cmd.split()
 
@@ -39,6 +40,8 @@ def execute(shell, cmd):
             file = js_file
         elif ftype == "vbs" or ftype == "vbscript":
             file = vbs_file
+        elif ftype == "dropper":
+            file = dropper_file
         else:
             return
 

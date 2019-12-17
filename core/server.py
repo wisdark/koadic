@@ -25,92 +25,32 @@ class ThreadedHTTPServer(ThreadingMixIn, HTTPServer):
     pass
 
 class Server(threading.Thread):
-    def __init__(self, stager, handler):
+    def __init__(self, port, handler, keypath, certpath, shell, options):
         threading.Thread.__init__(self)
         self.daemon = True
 
-        self.loader = core.loader
-        self.sessions = []
-        self.stager = stager
-        self.shell = stager.shell
-        self.module = self.shell.state
-        self.payload = stager.options.get("_STAGECMD_")
-        self.payload_id = core.payload.Payload().id
         self.handler_class = handler
+        self.port = port
+        self.keypath = keypath
+        self.certpath = certpath
+        self.shell = shell
+        self.options = options
         self.killed = False
 
-        self._create_options()
         self._setup_server()
 
     def _setup_server(self):
-        self.http = ThreadedHTTPServer(('0.0.0.0', int(self.options.get('SRVPORT'))), self.handler_class)
+        self.http = ThreadedHTTPServer(('0.0.0.0', self.port), self.handler_class)
         self.http.timeout = None
         self.http.daemon_threads = True
         self.http.server = self
-        self.http.stager = self.stager
+        self.http.shell = self.shell
+        self.http.options = self.options
 
-        self.is_https = False
-
-        keyt = self.options.get('KEYPATH')
-        cert = self.options.get('CERTPATH')
-
-        if cert and cert != "" and keyt and keyt != "":
-            self.is_https = True
-            cert = os.path.abspath(cert)
-            self.http.socket = ssl.wrap_socket(self.http.socket, keyfile=keyt, certfile=cert, server_side = True)
-
-        url = self._build_url()
-
-        self.options.register("URL", url, "url to the stager", hidden=True)
-
-    def _create_options(self):
-        self.options = copy.deepcopy(self.stager.options)
-        self.options.register("SESSIONKEY", "", "unique key for a session", hidden=True)
-        self.options.register("JOBKEY", "", "unique key for a job", hidden=True)
-
-    def print_payload(self):
-        self.shell.print_command(self.get_payload().decode())
-
-    def get_session(self, key):
-        for session in self.sessions:
-            if session.key == key:
-                return session
-
-        return None
-
-    def get_payload(self):
-        #fixed = []
-        #for payload in self.payloads:
-        payload = self.payload
-        payload = self.loader.apply_options(payload, self.options)
-        #payload = payload.replace(b"~URL~", self.options.get("URL").encode())
-        #fixed.append(payload)
-
-        return payload
-
-    def _build_url(self):
-        hostname = self.options.get("SRVHOST")
-        if hostname == '0.0.0.0':
-            s = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-            try:
-                s.connect(('8.8.8.8', 80))
-                hostname = s.getsockname()[0]
-            finally:
-                s.close()
-
-        #self.hostname = "127.0.0.1"
-        self.hostname = hostname
-        self.port = str(self.options.get("SRVPORT"))
-
-        prefix = "https" if self.is_https else "http"
-        url = prefix + "://" + self.hostname + ':' + self.port
-
-        endpoint = self.options.get("FENDPOINT").strip()
-
-        if len(endpoint) > 0:
-            url += "/" + endpoint
-
-        return url
+        if self.keypath and self.certpath:
+            self.keypath = os.path.abspath(self.keypath)
+            self.certpath = os.path.abspath(self.certpath)
+            self.http.socket = ssl.wrap_socket(self.http.socket, keyfile=self.keypath, certfile=self.certpath, server_side = True)
 
     def run(self):
 

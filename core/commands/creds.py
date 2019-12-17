@@ -1,21 +1,35 @@
 DESCRIPTION = "shows collected credentials"
 
 def autocomplete(shell, line, text, state):
-    pass
+    if "-d" in line.split():
+        options = [x + " " for y in shell.domain_info for x in y if x.upper().startswith(text.upper())]
+        try:
+            return options[state]
+        except:
+            return None
 
 def help(shell):
     shell.print_plain("")
     shell.print_plain("Use %s to sort on a column name" % (shell.colors.colorize("creds --sort column", shell.colors.BOLD)))
+    shell.print_plain("Use %s to lazy search across credentials" % (shell.colors.colorize("creds --search text", shell.colors.BOLD)))
     shell.print_plain("Use %s for full credential details" % (shell.colors.colorize("creds -a", shell.colors.BOLD)))
     shell.print_plain("Use %s for specific user credentials (add --like for partial names)" % (shell.colors.colorize("creds -u user1,user2,user3,...", shell.colors.BOLD)))
     shell.print_plain("Use %s for domain admin credentials" % (shell.colors.colorize("creds -d domain", shell.colors.BOLD)))
+    shell.print_plain("Use %s for domain credentials" % (shell.colors.colorize("creds -D domain", shell.colors.BOLD)))
     shell.print_plain("Use %s to write credentials to a file" % (shell.colors.colorize("creds -x", shell.colors.BOLD)))
     shell.print_plain("Use %s to edit credentials" % (shell.colors.colorize("creds --edit", shell.colors.BOLD)))
     shell.print_plain("")
     shell.print_plain("NOTE: A listing that ends in [+] means extra information is available.")
     shell.print_plain("")
 
-def print_creds(shell, sortcol="Normal"):
+def print_creds(shell, sortcol="Normal", domain="", search=""):
+
+    domains = []
+    if domain:
+        domains = [j for i in shell.domain_info for j in i]
+        if not domain.lower() in domains:
+            shell.print_warning("\nDomain information not gathered, results may not be complete")
+
     formats = "\t{0:9}{1:17}{2:<20}{3:<20}{4:<25}{5:<42}"
 
     results = []
@@ -45,13 +59,39 @@ def print_creds(shell, sortcol="Normal"):
     shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
 
     for r in results:
+
+        if search:
+            searchflag = False
+
+        if search and search.lower() in r["Cred ID"].lower():
+            searchflag = True
+
+        if search and search.lower() in r["IP"].lower():
+            searchflag = True
+
+        if search and search.lower() in r["NTLM"].lower():
+            searchflag = True
+
         tmpuser = r["Username"]
+        if search and search.lower() in tmpuser.lower():
+            searchflag = True
         if len(tmpuser) > 18:
             tmpuser = tmpuser[:15] + "..."
+
         tmpdomain = r["Domain"]
+        if search and search.lower() in tmpdomain.lower():
+            searchflag = True
+        if domains:
+            if not tmpdomain.lower() in domains:
+                continue
+        elif domain and domain.lower() != tmpdomain.lower():
+                continue
         if len(tmpdomain) > 18:
             tmpdomain = tmpdomain[:15] + "..."
+
         tmppass = r["Password"]
+        if search and search.lower() in tmppass.lower():
+            searchflag = True
         if len(tmppass) > 23:
             tmppass = tmppass[:20] + "..."
         extraflag = ""
@@ -59,6 +99,9 @@ def print_creds(shell, sortcol="Normal"):
             if r["Extra"][key]:
                 extraflag = "[+]"
                 break
+
+        if search and not searchflag:
+            continue
 
         shell.print_plain(formats.format(r["Cred ID"], r["IP"], tmpuser, tmpdomain, tmppass, r["NTLM"])+extraflag)
 
@@ -102,30 +145,46 @@ def print_creds_das(shell, domain):
 
     das = shell.domain_info[domain_key]["Domain Admins"]
 
-    formats = "\t{0:9}{1:17}{2:<20}{3:<20}{4:<25}{5:<42}"
+    # formats = "\t{0:9}{1:17}{2:<20}{3:<20}{4:<25}{5:<10}"
+    formats = "\t{0:9}{1:17}{2:<20}{3:<20}{4:<34}{5:<10}"
     shell.print_plain("")
 
-    shell.print_plain(formats.format("Cred ID", "IP", "USERNAME", "DOMAIN", "PASSWORD", "HASH"))
-    shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
+    # shell.print_plain(formats.format("Cred ID", "IP", "USERNAME", "DOMAIN", "PASSWORD", "HASH"))
+    # shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*8, "-"*4))
+    shell.print_plain(formats.format("Cred ID", "IP", "USERNAME", "DOMAIN", "PASS / HASH", "TYPE"))
+    shell.print_plain(formats.format("-"*7, "--", "-"*8,  "-"*6, "-"*11, "-"*4))
     for key in shell.creds_keys:
-        credpass = shell.creds[key]["Password"]
+        # credpass = shell.creds[key]["Password"]
         creduser = shell.creds[key]["Username"]
         creddomain = shell.creds[key]["Domain"]
-        credntlm = shell.creds[key]["NTLM"]
+        # credntlm = shell.creds[key]["NTLM"]
         if (creduser.lower() in das and
             (creddomain.lower() == domain.lower() or
-                creddomain.lower() == alt_domain.lower()) and
-            (credpass or
-                credntlm)):
-        
-            if len(credpass) > 23:
-                credpass = credpass[:20] + "..."
-            if len(creduser) > 18:
-                creduser = creduser[:15] + "..."
-            if len(creddomain) > 18:
-                creddomain = creddomain[:15] + "..."
+                creddomain.lower() == alt_domain.lower())):
+            #     creddomain.lower() == alt_domain.lower()) and
+            # (credpass or
+            #     credntlm)):
 
-            shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], creduser, creddomain, credpass, shell.creds[key]["NTLM"]))
+            # if len(credpass) > 23:
+            #     credpass = credpass[:20] + "..."
+            # if len(creduser) > 18:
+            #         creduser = creduser[:15] + "..."
+            # if len(creddomain) > 18:
+            #     creddomain = creddomain[:15] + "..."
+            # shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], creduser, creddomain, credpass, shell.creds[key]["NTLM"]))
+
+            for credtype in ["Password", "NTLM", "LM", "SHA1", "DCC", "DPAPI"]:
+                if shell.creds[key][credtype]:
+                    credcred = shell.creds[key][credtype]
+                    if len(credcred) > 32:
+                        credcred = credcred[:29] + "..."
+                    if len(creduser) > 18:
+                        creduser = creduser[:15] + "..."
+                    if len(creddomain) > 18:
+                        creddomain = creddomain[:15] + "..."
+
+                    shell.print_plain(formats.format(str(shell.creds_keys.index(key)), shell.creds[key]["IP"], creduser, creddomain, credcred, credtype))
+                    break
 
     shell.print_plain("")
 
@@ -171,14 +230,16 @@ def creds_edit_shell(shell):
     old_prompt = shell.prompt
     old_clean_prompt = shell.clean_prompt
 
-    print("Choose a Cred ID to edit. Type 'new' to add a credential. Type 'del' to delete a credential:")
+    shell.print_plain("Choose a Cred ID to edit. Type 'new' to add a credential. Type 'del' to delete a credential:")
     shell.prompt = "> "
     shell.clean_prompt = shell.prompt
+
+    import os
 
     try:
         import readline
         readline.set_completer(None)
-        option = shell.get_command(shell.prompt)
+        option = creds_edit_shell_prompt(shell)
 
         try:
             int(option)
@@ -195,27 +256,28 @@ def creds_edit_shell(shell):
                 for domain in shell.domain_info:
                     shell.print_plain("\tFQDN: "+domain[0]+" | NetBIOS: "+domain[1])
                 shell.print_plain("")
+
             shell.print_plain("Domain? (required)")
-            domain = shell.get_command(shell.prompt)
+            domain = creds_edit_shell_prompt(shell)
             shell.print_plain("Username? (required)")
-            user = shell.get_command(shell.prompt)
+            user = creds_edit_shell_prompt(shell)
             new_key = (domain.lower(), user.lower())
             if new_key in shell.creds_keys:
                 shell.print_error("User already in creds")
                 return
             shell.creds_keys.append(new_key)
             shell.print_plain("Password?")
-            password = shell.get_command(shell.prompt)
+            password = creds_edit_shell_prompt(shell)
             shell.print_plain("NTLM?")
-            ntlm = shell.get_command(shell.prompt)
+            ntlm = creds_edit_shell_prompt(shell)
             shell.print_plain("LM?")
-            lm = shell.get_command(shell.prompt)
+            lm = creds_edit_shell_prompt(shell)
             shell.print_plain("SHA1?")
-            sha1 = shell.get_command(shell.prompt)
+            sha1 = creds_edit_shell_prompt(shell)
             shell.print_plain("DCC?")
-            dcc = shell.get_command(shell.prompt)
+            dcc = creds_edit_shell_prompt(shell)
             shell.print_plain("DPAPI?")
-            dpapi = shell.get_command(shell.prompt)
+            dpapi = creds_edit_shell_prompt(shell)
             c = {}
             c["Username"] = user
             c["Domain"] = domain
@@ -240,7 +302,7 @@ def creds_edit_shell(shell):
             shell.prompt = "del > "
             shell.clean_prompt = shell.prompt
             shell.print_plain("Which Cred ID do you want to delete?")
-            cred = shell.get_command(shell.prompt)
+            cred = creds_edit_shell_prompt(shell)
             if int(cred) < len(shell.creds_keys) and int(cred) >= 0:
                 key = shell.creds_keys[int(cred)]
                 shell.print_plain("IP: "+shell.creds[key]["IP"])
@@ -255,7 +317,7 @@ def creds_edit_shell(shell):
                 shell.print_plain("")
 
                 shell.print_plain("Are you sure you want to delete these creds?")
-                confirm = shell.get_command(shell.prompt)
+                confirm = creds_edit_shell_prompt(shell)
                 if confirm.lower() == "y":
                     del shell.creds[key]
                     shell.creds_keys.remove(key)
@@ -283,7 +345,7 @@ def creds_edit_shell(shell):
             shell.print_plain("")
 
             shell.print_plain("Which section would you like to edit?")
-            option = shell.get_command(shell.prompt)
+            option = creds_edit_shell_prompt(shell)
             if option.lower() in [k.lower() for k in shell.creds[key]]:
                 for subkey in shell.creds[key]:
                     if option.lower() == subkey.lower():
@@ -296,9 +358,9 @@ def creds_edit_shell(shell):
                         shell.print_plain("  "+item)
                     shell.print_plain("")
                 shell.print_plain("New value?")
-                val = shell.get_command(shell.prompt)
+                val = creds_edit_shell_prompt(shell)
                 shell.print_plain("Are you sure you want to change the value to '"+val+"'?")
-                confirm = shell.get_command(shell.prompt)
+                confirm = creds_edit_shell_prompt(shell)
                 if confirm.lower() == "y":
                     if subkey == "Username" or subkey == "Domain":
                         new_key_list = list(key)
@@ -311,7 +373,7 @@ def creds_edit_shell(shell):
 
                         if new_key in shell.creds_keys:
                             shell.print_warning("There is already a credential with this key. Continuing will merge the creds. Continue?")
-                            confirm = shell.get_command(shell.prompt)
+                            confirm = creds_edit_shell_prompt(shell)
                             if confirm.lower() == "y":
                                 for k in shell.creds[key]:
                                     if k == "Username" or k == "Domain":
@@ -381,6 +443,15 @@ def creds_edit_shell(shell):
         shell.prompt = old_prompt
         shell.clean_prompt = old_clean_prompt
 
+def creds_edit_shell_prompt(shell):
+    import os
+    val = shell.get_command(shell.prompt)
+
+    if shell.spool:
+        shell.spool_log(shell.prompt, val)
+
+    return val
+
 
 def execute(shell, cmd):
     condense_creds(shell)
@@ -418,6 +489,18 @@ def execute(shell, cmd):
 
         elif splitted[1] == "--edit":
             creds_edit_shell(shell)
+
+        elif splitted[1] == "-D":
+            if len(splitted) < 3:
+                shell.print_error("Need to provide a domain")
+            else:
+                print_creds(shell, "Normal", splitted[2])
+
+        elif splitted[1] == "--search":
+            if len(splitted) < 3:
+                shell.print_error("Need to provide text to search for")
+            else:
+                print_creds(shell, "Normal", "", splitted[2])
 
         else:
             shell.print_error("Unknown option '"+splitted[1]+"'")

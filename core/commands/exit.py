@@ -34,7 +34,7 @@ def execute(shell, cmd):
     restore_map['creds_keys'] = convert_to_parsable(shell.creds_keys)
     restore_map['domain_info'] = convert_to_parsable(shell.domain_info)
     restore_map['jobs'] = []
-    for j in shell.jobs:
+    for jkey, j in shell.jobs.items():
         new_j = {}
         new_j['results'] = j.results
         new_j['id'] = j.id
@@ -42,10 +42,11 @@ def execute(shell, cmd):
         new_j['completed'] = j.completed
         new_j['ip'] = j.ip
         new_j['name'] = j.name
+        new_j['key'] = j.key
         restore_map['jobs'].append(new_j)
 
     restore_map['sessions'] = []
-    for s in [vars(session) for stager in shell.stagers for session in stager.sessions]:
+    for s in [vars(session) for skey, session in shell.sessions.items()]:
         new_s = dict(s)
         try:
             new_s.pop('stager')

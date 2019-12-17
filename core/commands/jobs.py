@@ -9,8 +9,8 @@ def help(shell):
     shell.print_plain("")
 
 def print_job(shell, id):
-    for job in shell.jobs:
-        if job.id == int(id):
+    for jkey, job in shell.jobs.items():
+        if job.id == int(id) and job.status_string() in ["Complete", "Failed"]:
             job.display()
 
 def print_all_jobs(shell):
@@ -20,7 +20,7 @@ def print_all_jobs(shell):
 
     shell.print_plain(formats.format("ID", "STATUS", "ZOMBIE", "NAME"))
     shell.print_plain(formats.format("-"*4,  "-"*9, "-"*10, "-"*20))
-    for job in shell.jobs:
+    for jkey, job in shell.jobs.items():
         if job.session_id != -1:
             zombie = "%s (%d)" % (job.ip, job.session_id)
         else:

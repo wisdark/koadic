@@ -1,7 +1,11 @@
 DESCRIPTION = "shows collected domain information"
 
 def autocomplete(shell, line, text, state):
-    pass
+    options = [x + " " for y in shell.domain_info for x in y if x.upper().startswith(text.upper())]
+    try:
+        return options[state]
+    except:
+        return None
 
 def help(shell):
     shell.print_plain("")
@@ -47,7 +51,7 @@ def print_domain_admins(shell, domain_key):
         elif (domain_key[1], da) in shell.creds_keys:
             c_key = (domain_key[1], da)
 
-        if c_key and (shell.creds[c_key]["Password"] or shell.creds[c_key]["NTLM"]):
+        if c_key and (shell.creds[c_key]["Password"] or shell.creds[c_key]["NTLM"] or shell.creds[c_key]["LM"] or shell.creds[c_key]["SHA1"] or shell.creds[c_key]["DCC"] or shell.creds[c_key]["DPAPI"]):
             loc = das.index(da)
             das[loc] = da+"*"
 

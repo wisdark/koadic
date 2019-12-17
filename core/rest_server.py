@@ -120,36 +120,44 @@ class RestServer():
         # Listeners
         @rest_api.route('/api/listeners', methods=['GET'])
         def get_listeners():
-            if len(self.shell.stagers) == 0 or len([s for s in self.shell.stagers if not s.killed]) == 0:
+            if not self.shell.stagers:
                 return jsonify(success=False, error="No payloads yet.")
 
             stager_list = []
 
-            for stager in self.shell.stagers:
-                if not stager.killed:
-                    stager_list.append({"payload_id":stager.payload_id, "hostname":stager.hostname, "port":stager.port, "module":stager.module})
+            for stager in sorted([stager for keypair in [endpoint for port,endpoint in self.shell.stagers.items()] for endpoint, stager in keypair.items() if not stager.killed], key=lambda s:s.payload.id):
+                stager_list.append({"payload_id":stager.payload.id, "hostname":stager.hostname, "port":stager.port, "module":stager.module})
 
             return jsonify(success=True, listeners=stager_list)
 
         @rest_api.route('/api/listeners/<string:listener_id>', methods=['GET', 'DELETE'])
         def listener(listener_id):
             if request.method == 'GET':
-                for stager in self.shell.stagers:
-                    if str(stager.payload_id) == listener_id and not stager.killed:
-                        payload = stager.get_payload().decode()
+                for stager in sorted([stager for keypair in [endpoint for port,endpoint in self.shell.stagers.items()] for endpoint, stager in keypair.items() if not stager.killed], key=lambda s:s.payload.id):
+                    if str(stager.payload.id) == listener_id:
+                        payload = stager.get_payload_data().decode()
                         return jsonify(success=True, payload=payload)
                 return jsonify(success=False, error="No payload %s." % listener_id)
 
             elif request.method == 'DELETE':
-                for stager in self.shell.stagers:
-                    if str(stager.payload_id) == listener_id and not stager.killed:
-                        if len(stager.sessions) > 0 and len([z for z in stager.sessions if not z.killed]) > 0:
-                            return jsonify(success=False, error="Zombies attached.", zombies=[str(s.id) for s in stager.sessions])
+                for stager in sorted([stager for keypair in [endpoint for port,endpoint in self.shell.stagers.items()] for endpoint, stager in keypair.items() if not stager.killed], key=lambda s:s.payload.id):
+                    if str(stager.payload.id) == listener_id:
+                        sessions = [session for skey, session in shell.sessions.items() if int(session.stager.payload.id) == int(listener_id) and not session.killed]
+
+                        if len(sessions) > 0:
+                            return jsonify(success=False, error="Zombies attached.", zombies=[str(s.id) for s in sessions])
                         else:
-                            stager.http.shutdown()
-                            stager.http.socket.close()
-                            stager.http.server_close()
+                            for session in sessions:
+                                session.kill()
                             stager.killed = True
+                            del self.shell.stagers[stager.port][stager.endpoint]
+                            if not self.shell.stagers[stager.port]:
+                                server = self.shell.servers[stager.port]
+                                server.http.shutdown()
+                                server.http.socket.close()
+                                server.http.server_close()
+                                del self.shell.servers[port]
+                                del self.shell.stagers[port]
                             return jsonify(success=True)
 
                 return jsonify(success=False, error="No payload %s." % listener_id)
@@ -418,9 +426,8 @@ class RestServer():
         # Zombies
         @rest_api.route('/api/zombies', methods=['GET'])
         def get_zombies():
-            all_sessions = []
-            for stager in self.shell.stagers:
-                all_sessions.extend(stager.sessions)
+            all_sessions = [session for skey, session in self.shell.sessions.items()]
+
             if not all_sessions:
                 return jsonify(success=False, error="No live zombies.")
             all_sessions.sort(key=lambda s: s.id)
@@ -443,9 +450,7 @@ class RestServer():
 
         @rest_api.route('/api/zombies/<int:zombie_id>', methods=['GET'])
         def get_zombie(zombie_id):
-            all_sessions = []
-            for stager in self.shell.stagers:
-                all_sessions.extend(stager.sessions)
+            all_sessions = [session for skey, session in self.shell.sessions.items()]
             if not all_sessions:
                 return jsonify(success=False, error="No live zombies.")
             if zombie_id > len(all_sessions) or zombie_id < 0:
@@ -474,9 +479,7 @@ class RestServer():
 
         @rest_api.route('/api/zombies/killed', methods=['GET'])
         def get_killed_zombies(zombie_id):
-            all_sessions = []
-            for stager in self.shell.stagers:
-                all_sessions.extend(stager.sessions)
+            all_sessions = [session for skey, session in self.shell.sessions.items()]
             if not all_sessions:
                 return jsonify(success=False, error="No zombies.")
             all_sessions.sort(key=lambda s: s.id)
@@ -503,15 +506,13 @@ class RestServer():
         @rest_api.route('/api/jobs', methods=['GET'])
         def get_all_jobs():
             results = []
-            for stager in self.shell.stagers:
-                for session in stager.sessions:
-                    for job in session.jobs:
-                        res_j = {}
-                        res_j["ID"] = job.id
-                        res_j["Status"] = job.status_string()
-                        res_j["Zombie"] = session.id
-                        res_j["Name"] = job.name
-                        results.append(res_j)
+            for jkey, job in self.shell.jobs.items():
+                res_j = {}
+                res_j["ID"] = job.id
+                res_j["Status"] = job.status_string()
+                res_j["Zombie"] = session.id
+                res_j["Name"] = job.name
+                results.append(res_j)
             if results:
                 return jsonify(success=True, jobs=results)
             else:
@@ -519,11 +520,9 @@ class RestServer():
 
         @rest_api.route('/api/jobs/<int:job_id>', methods=['GET'])
         def get_job(job_id):
-            for stager in self.shell.stagers:
-                for session in stager.sessions:
-                    for job in session.jobs:
-                        if job.id == job_id:
-                            return jsonify(success=True, results=job.results)
+            for jkey, job in self.shell.jobs.items():
+                if job.id == job_id:
+                    return jsonify(success=True, results=job.results)
             return jsonify(success=False, error="Job does not exist.")
 
         # Modules

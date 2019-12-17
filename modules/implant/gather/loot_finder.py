@@ -2,6 +2,25 @@ import core.implant
 import uuid
 
 class LootFinderJob(core.job.Job):
+    def create(self):
+        if self.session_id == -1:
+            if not self.options.get("LOOTEXTS") and not self.options.get("LOOTFILES"):
+                self.shell.print_error("Need to define extensions or files to look for!")
+                return False
+
+        if self.options.get("LOOTEXTS"):
+            extension_list = "".join(self.options.get("LOOTEXTS").split()).split(",")
+            self.options.set("LOOTE", " ".join(["\\\\"+x+"$" for x in extension_list]))
+
+        if self.options.get("LOOTFILES"):
+            files_list = "".join(self.options.get("LOOTFILES").replace(".", "\\\\.").split()).split(",")
+            self.options.set("LOOTF", " ".join(["."+x+".*" for x in files_list]))
+
+        if self.options.get("LOOTDIR")[-1] != "\\":
+            self.options.set("LOOTDIR", self.options.get("LOOTDIR")+"\\")
+
+        self.options.set("LOOTD", self.options.get("LOOTDIR").replace("\\", "\\\\"))
+        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
 
     def done(self):
         self.results = self.data
@@ -41,26 +60,11 @@ class LootFinderImplant(core.implant.Implant):
         return LootFinderJob
 
     def run(self):
-
         if not self.options.get("LOOTEXTS") and not self.options.get("LOOTFILES"):
             self.shell.print_error("Need to define extensions or files to look for!")
             return
 
-        if self.options.get("LOOTEXTS"):
-            extension_list = "".join(self.options.get("LOOTEXTS").split()).split(",")
-            self.options.set("LOOTE", " ".join(["\\\\"+x+"$" for x in extension_list]))
-
-        if self.options.get("LOOTFILES"):
-            files_list = "".join(self.options.get("LOOTFILES").replace(".", "\\\\.").split()).split(",")
-            self.options.set("LOOTF", " ".join(["."+x+".*" for x in files_list]))
-
-        if self.options.get("LOOTDIR")[-1] != "\\":
-            self.options.set("LOOTDIR", self.options.get("LOOTDIR")+"\\")
-
-        self.options.set("LOOTD", self.options.get("LOOTDIR").replace("\\", "\\\\"))
-        self.options.set("DIRECTORY", self.options.get('DIRECTORY').replace("\\", "\\\\").replace('"', '\\"'))
-
         payloads = {}
-        payloads["js"] = self.loader.load_script("data/implant/gather/loot_finder.js", self.options)
+        payloads["js"] = "data/implant/gather/loot_finder.js"
 
         self.dispatch(payloads, self.job)

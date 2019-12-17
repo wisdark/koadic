@@ -74,7 +74,7 @@ class ScanTCPImplant(core.implant.Implant):
 
         payloads = {}
         #payloads["vbs"] = self.load_script("data/implant/scan/tcp.vbs", options)
-        payloads["js"] = self.loader.load_script("data/implant/scan/tcp.js", options)
+        payloads["js"] = "data/implant/scan/tcp.js"
         #print(payloads["js"])
 
 

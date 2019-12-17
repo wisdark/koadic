@@ -4,9 +4,11 @@ import uuid
 
 class CompDefaultsJob(core.job.Job):
     def create(self):
+        id = self.options.get("PAYLOAD")
+        payload = self.load_payload(id)
+        self.options.set("PAYLOAD_DATA", payload)
         if self.session_id == -1:
-            self.error("0", "This job is not yet compatible with ONESHOT stagers.", "ONESHOT job error", "")
-            return False
+            return
         if int(self.session.build) < 10240 and self.options.get("IGNOREBUILD") == "false":
             self.error("0", "The target may not be vulnerable to this implant. Set IGNOREBUILD to true to run anyway.", "Target build not vuln", "")
             return False
@@ -38,11 +40,9 @@ class CompDefaultImplant(core.implant.Implant):
 
         if payload is None:
             self.shell.print_error("Payload %s not found." % id)
-            return
-
-        self.options.set("PAYLOAD_DATA", payload)
+            return False
 
         workloads = {}
-        workloads["js"] = self.loader.load_script("data/implant/elevate/bypassuac_compdefaults.js", self.options)
+        workloads["js"] = "data/implant/elevate/bypassuac_compdefaults.js"
 
         self.dispatch(workloads, self.job)

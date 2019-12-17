@@ -45,7 +45,7 @@ class RestoreClock(object):
         restore_map['creds_keys'] = self.convert_to_parsable(self.shell.creds_keys)
         restore_map['domain_info'] = self.convert_to_parsable(self.shell.domain_info)
         restore_map['jobs'] = []
-        for j in self.shell.jobs:
+        for jkey, j in self.shell.jobs.items():
             new_j = {}
             new_j['results'] = j.results
             new_j['id'] = j.id
@@ -56,7 +56,7 @@ class RestoreClock(object):
             restore_map['jobs'].append(new_j)
 
         restore_map['sessions'] = []
-        for s in [vars(session) for stager in self.shell.stagers for session in stager.sessions]:
+        for s in [vars(session) for skey, session in self.shell.sessions.items()]:
             new_s = dict(s)
             try:
                 new_s.pop('stager')
