@@ -4,7 +4,7 @@ Koadic, or COM Command & Control, is a Windows post-exploitation rootkit similar
 
 It is possible to serve payloads completely in memory from stage 0 to beyond, as well as use cryptographically secure communications over SSL and TLS (depending on what the victim OS has enabled).
 
-Recent versions Koadic are developd on Python 3, it is not a priority to have Python 2 support (End of Life).
+Recent versions Koadic are developed on Python 3, it is not a priority to have Python 2 support (End of Life).
 
 ### Install
 
