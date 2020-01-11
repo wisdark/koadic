@@ -19,6 +19,7 @@ class Job(object):
     def __init__(self, shell, session_id, name, workload, options):
         self.fork32Bit = False
         self.completed = Job.CREATED
+        self.hidden = False
         self.shell = shell
         self.options = options
         self.session_id = session_id
