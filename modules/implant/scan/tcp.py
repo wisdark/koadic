@@ -2,6 +2,13 @@ import core.job
 import core.implant
 
 class ScanTCPJob(core.job.Job):
+    def create(self):
+        hosts = self.parse_ips(self.options.get("RHOSTS"))
+        ports = self.parse_ports(self.options.get("RPORTS"))
+
+        self.options.set("RHOSTSARRAY", self.make_js_array("ips", hosts))
+        self.options.set("RPORTSARRAY", self.make_js_array("ports", ports))
+
     def done(self):
         self.display()
 
@@ -57,21 +64,16 @@ class ScanTCPImplant(core.implant.Implant):
 
     def load(self):
         self.options.register("RHOSTS", "", "name/IP of the remotes")
+        self.options.register("RHOSTSARRAY", "", "script array", hidden=True)
         self.options.register("RPORTS", "22,80,135,139,443,445,3389", "ports to scan")
-        self.options.register("TIMEOUT", "2", "longer is more accurate")
+        self.options.register("RPORTSARRAY", "", "script array", hidden=True)
+        self.options.register("TIMEOUT", "3", "longer is more accurate")
         self.options.register("CHECKLIVE", "true", "check if host is up before checking ports", enum=["true", "false"])
 
     def job(self):
         return ScanTCPJob
 
     def run(self):
-        options = self.options.copy()
-        hosts = self.parse_ips(options.get("RHOSTS"))
-        ports = self.parse_ports(options.get("RPORTS"))
-
-        options.set("RHOSTS", self.make_js_array("ips", hosts))
-        options.set("RPORTS", self.make_js_array("ports", ports))
-
         payloads = {}
         #payloads["vbs"] = self.load_script("data/implant/scan/tcp.vbs", options)
         payloads["js"] = "data/implant/scan/tcp.js"

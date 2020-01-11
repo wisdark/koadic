@@ -42,9 +42,9 @@ function TestPort(ip, port)
 }
 
 
-~RHOSTS~
+~RHOSTSARRAY~
 
-~RPORTS~
+~RPORTSARRAY~
 
 function status_string(status, ip, port, err)
 {
@@ -61,7 +61,7 @@ try
         if (~CHECKLIVE~)
         {
             // ghetto check if the IP is up
-            var testport = TestPort(ip, 1);
+            var testport = TestPort(ip, 0);
             test = testport.status;
             testerrno = testport.errno;
         }
