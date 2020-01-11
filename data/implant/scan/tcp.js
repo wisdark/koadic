@@ -61,7 +61,7 @@ try
         if (~CHECKLIVE~)
         {
             // ghetto check if the IP is up
-            var testport = TestPort(ip, 0);
+            var testport = TestPort(ip, 1);
             test = testport.status;
             testerrno = testport.errno;
         }
