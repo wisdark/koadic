@@ -96,6 +96,8 @@ class Shell(object):
             "?": "help",
             "exploit": "run",
             "execute": "run",
+            "ruin": "run",
+            "doit": "run",
             "options": "info",
             "quit": "exit",
             "sessions": "zombies",
