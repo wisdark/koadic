@@ -8,4 +8,4 @@ def help(shell):
 
 def execute(shell, cmd):
 
-    print(open("data/shamrock.txt", "rb").read().decode("unicode_escape")[0:1583])
+    print(open("data/shamrock.txt", "rb").read().decode("unicode_escape"))

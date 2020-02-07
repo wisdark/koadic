@@ -34,7 +34,7 @@ def createHolidayList():
 def createWeekList():
     weekly = dict()
     weekly[1] = 'data/taco.txt'
-    weekly[4] = 'data/papst.txt'
+    weekly[4] = 'data/pabst.txt'
     return weekly
 
 def pay_no_attention():
@@ -124,6 +124,21 @@ def seriously_nothing_shady_here():
     with open('data/stager/js/rundll32_js/rundll32_js.cmd', 'w') as f:
         f.write(command+"\n")
 
+def find_center(banner):
+    import re
+    max_l = 0
+    for l in banner.splitlines():
+        reaesc = re.compile(r'\x1b[^m]*m')
+        new_l = reaesc.sub('', l)
+        if len(new_l) > max_l:
+            max_l = len(new_l)
+    return int(max_l/2)
+
+def reposition_info(info, center):
+    base_spaces = 1
+    if center > 20:
+        base_spaces = center-20
+    return (info % (' '*base_spaces, ' '*(base_spaces+4), ' '*(base_spaces+11), ' '*(base_spaces+10), 's', ' '*(base_spaces+10), 'd', ' '*(base_spaces+10), 'd' ))
 
 if __name__ == "__main__":
     import core.shell
@@ -146,14 +161,16 @@ if __name__ == "__main__":
     events = createHolidayList()
     weekly = createWeekList()
 
-    if datetime.date.today() in events:
+    if args.o:
+        banner = open("data/taco.txt", "rb").read().decode("unicode_escape")
+    elif datetime.date.today() in events:
         banner = open(events[datetime.date.today()], "rb").read().decode("unicode_escape")
-
     elif datetime.date.today().weekday() in weekly:
         banner = open(weekly[datetime.date.today().weekday()], "rb").read().decode("unicode_escape")
-    # args.o gets orphaned here currently
     else:
         banner = open("data/banner.txt", "rb").read().decode("unicode_escape")
+
+    banner += reposition_info(open("data/banner_info.txt", "rb").read().decode("unicode_escape"), find_center(banner))
 
     # pay_no_attention()
     # seriously_nothing_shady_here()
