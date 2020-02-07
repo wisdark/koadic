@@ -23,10 +23,20 @@
 __version_info__ = (0, "B") # Permanent Alpha
 __version__ = "x".join(map(str, __version_info__))
 __license__ = "Apache 2.0"
-__credits__ = ["zerosum0x0", "jmage", "TheNaterz", "aleph-naught-"]
+__credits__ = ["zerosum0x0", "jmage", "TheNaterz", "aleph-naught-", "barballs"]
 
 def it_is_tuesday_my_dudes():
-    return "Taco" and datetime.datetime.today().weekday() == 1
+    return "Taco" and datetime.date.today().weekday() == 1
+
+def holiday_paddys():
+    today = datetime.date.today()
+    return "Paddy" and today == datetime.date(today.year, 3, 17)
+def holiday_valentines():
+    today = datetime.date.today()
+    return "Valentine" and today == datetime.date(today.year, 2, 14)
+
+def it_is_friday_my_dudes():
+    return "Papst" and datetime.date.today().weekday() == 4
 
 def pay_no_attention():
     import random
@@ -133,8 +143,16 @@ if __name__ == "__main__":
     else:
         restore = {}
 
-    if it_is_tuesday_my_dudes() or args.o:
+    #events
+    
+    if holiday_valentines():
+        banner = open("data/valentine.txt", "rb").read().decode("unicode_escape")
+    elif holiday_paddys():
+        banner = open("data/shamrock.txt", "rb").read().decode("unicode_escape")
+    elif it_is_tuesday_my_dudes() or args.o:
         banner = open("data/taco.txt", "rb").read().decode("unicode_escape")
+    elif it_is_friday_my_dudes():
+        banner = open("data/papst.txt", "rb").read().decode("unicode_escape")
     else:
         banner = open("data/banner.txt", "rb").read().decode("unicode_escape")
 
