@@ -1,4 +1,4 @@
-DESCRIPTION = "taco time"
+DESCRIPTION = "PBR Friday"
 
 def autocomplete(shell, line, text, state):
     return None
@@ -8,4 +8,4 @@ def help(shell):
 
 def execute(shell, cmd):
 
-    print(open("data/taco.txt", "rb").read().decode("unicode_escape"))
+    print(open("data/pabst.txt", "rb").read().decode("unicode_escape"))
