@@ -25,18 +25,17 @@ __version__ = "x".join(map(str, __version_info__))
 __license__ = "Apache 2.0"
 __credits__ = ["zerosum0x0", "jmage", "TheNaterz", "aleph-naught-", "barballs"]
 
-def it_is_tuesday_my_dudes():
-    return "Taco" and datetime.date.today().weekday() == 1
+def createHolidayList():
+    holidays = dict()
+    holidays[datetime.date(datetime.date.today().year, 2, 14)] = 'data/valentine.txt'
+    holidays[datetime.date(datetime.date.today().year, 3, 17)] = 'data/shamrock.txt'
+    return holidays
 
-def holiday_paddys():
-    today = datetime.date.today()
-    return "Paddy" and today == datetime.date(today.year, 3, 17)
-def holiday_valentines():
-    today = datetime.date.today()
-    return "Valentine" and today == datetime.date(today.year, 2, 14)
-
-def it_is_friday_my_dudes():
-    return "Papst" and datetime.date.today().weekday() == 4
+def createWeekList():
+    weekly = dict()
+    weekly[1] = 'data/taco.txt'
+    weekly[4] = 'data/papst.txt'
+    return weekly
 
 def pay_no_attention():
     import random
@@ -144,15 +143,15 @@ if __name__ == "__main__":
         restore = {}
 
     #events
-    
-    if holiday_valentines():
-        banner = open("data/valentine.txt", "rb").read().decode("unicode_escape")
-    elif holiday_paddys():
-        banner = open("data/shamrock.txt", "rb").read().decode("unicode_escape")
-    elif it_is_tuesday_my_dudes() or args.o:
-        banner = open("data/taco.txt", "rb").read().decode("unicode_escape")
-    elif it_is_friday_my_dudes():
-        banner = open("data/papst.txt", "rb").read().decode("unicode_escape")
+    events = createHolidayList()
+    weekly = createWeekList()
+
+    if datetime.date.today() in events:
+        banner = open(events[datetime.date.today()], "rb").read().decode("unicode_escape")
+
+    elif datetime.date.today().weekday() in weekly:
+        banner = open(weekly[datetime.date.today().weekday()], "rb").read().decode("unicode_escape")
+    # args.o gets orphaned here currently
     else:
         banner = open("data/banner.txt", "rb").read().decode("unicode_escape")
 
