@@ -59,7 +59,7 @@ class StagerWizard(core.plugin.Plugin):
         self.options.register("SESSIONKEY", "", "unique key for a session", hidden=True)
         self.options.register("JOBKEY", "", "unique key for a job", hidden=True)
         self.options.register("URL", "", "url to the stager", hidden=True)
-        self.options.register('CLASSICMODE', '', ';)', hidden = True)
+        self.options.register('CLASSICMODE', '', ';)', hidden = True, enum=['true', 'false'])
         self.options.register('_EXPIREEPOCH_', '', 'time to expire', hidden = True)
         self.options.register('_MODULEOPTIONS_', '', 'options for module on run', hidden = True)
         self.options.register('ENDPOINTTYPE', '', 'filetype to append to endpoint if needed', hidden = True)
@@ -70,6 +70,9 @@ class StagerWizard(core.plugin.Plugin):
         if self.options.get('ONESHOT') == 'true' and not self.options.get('MODULE'):
             self.shell.print_error('A ONESHOT Zombie needs a MODULE')
             return
+
+        if self.options.get('CLASSICMODE') == 'true':
+            self.options.set('ENDPOINT', self.random_string(4000))
 
         srvport = int(str(self.options.get('SRVPORT')).strip())
         endpoint = self.options.get('ENDPOINT').strip()
@@ -155,9 +158,6 @@ class Stager():
         self.options.set('ENDPOINT', self.options.get('ENDPOINT').strip())
         self.options.set('FENDPOINT', self.options.get('ENDPOINT')+self.options.get('ENDPOINTTYPE'))
         self.options.set('_FORKCMD_', self.options.get('_FORKCMD_').decode().replace('\\','\\\\').replace('\"', '\\\"').encode())
-
-        if self.options.get('CLASSICMODE') == 'true':
-            self.options.set('FENDPOINT', self.random_string(4000))
 
         self.options.set('URL', self._build_url())
 

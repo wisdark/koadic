@@ -42,9 +42,9 @@ function TestPort(ip, port)
 }
 
 
-~RHOSTS~
+~RHOSTSARRAY~
 
-~RPORTS~
+~RPORTSARRAY~
 
 function status_string(status, ip, port, err)
 {

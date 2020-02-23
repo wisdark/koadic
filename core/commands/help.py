@@ -40,7 +40,7 @@ def help_command(shell, command):
 
 
 def help_all(shell):
-    formats = '\t{0:<12}{1:<16}'
+    formats = '\t{0:<14}{1:<16}'
 
     shell.print_plain("")
     shell.print_plain(formats.format("COMMAND", "DESCRIPTION"))

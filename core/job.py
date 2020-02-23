@@ -19,6 +19,7 @@ class Job(object):
     def __init__(self, shell, session_id, name, workload, options):
         self.fork32Bit = False
         self.completed = Job.CREATED
+        self.hidden = False
         self.shell = shell
         self.options = options
         self.session_id = session_id
@@ -89,6 +90,30 @@ class Job(object):
                 decis.append(str(deci))
 
         return ",".join(decis)
+
+    def parse_ips(self, ips):
+        import core.cidr
+        return core.cidr.get_ips(ips)
+
+    def parse_ports(self, ports):
+        import core.cidr
+        return core.cidr.get_ports(ports)
+
+    def make_vb_array(self, name, array):
+        ret = "dim %s(%d)\n" % (name, len(array) - 1)
+
+        count = 0
+        for el in array:
+            x = '%s(%d) = "%s"\n' % (name, count, str(el))
+            ret += x
+            count += 1
+
+        return ret
+
+    def make_js_array(self, name, array):
+        array = ['"%s"' % item for item in array]
+        ret = "var %s = [%s];" % (name, ", ".join(array))
+        return ret
 
     def error(self, errno, errdesc, errname, data):
         self.errno = str(errno)

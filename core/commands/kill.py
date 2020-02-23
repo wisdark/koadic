@@ -1,4 +1,4 @@
-DESCRIPTION = "kill a job or all jobs"
+DESCRIPTION = "kill a zombie by ID"
 
 def autocomplete(shell, line, text, state):
     pass

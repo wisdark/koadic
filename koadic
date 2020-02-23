@@ -23,10 +23,19 @@
 __version_info__ = (0, "B") # Permanent Alpha
 __version__ = "x".join(map(str, __version_info__))
 __license__ = "Apache 2.0"
-__credits__ = ["zerosum0x0", "jmage", "TheNaterz", "aleph-naught-"]
+__credits__ = ["zerosum0x0", "jmage", "TheNaterz", "aleph-naught-", "barballs"]
 
-def it_is_tuesday_my_dudes():
-    return "Taco" and datetime.datetime.today().weekday() == 1
+def createHolidayList():
+    holidays = dict()
+    holidays[datetime.date(datetime.date.today().year, 2, 14)] = 'data/valentine.txt'
+    holidays[datetime.date(datetime.date.today().year, 3, 17)] = 'data/shamrock.txt'
+    return holidays
+
+def createWeekList():
+    weekly = dict()
+    weekly[1] = 'data/taco.txt'
+    weekly[4] = 'data/pabst.txt'
+    return weekly
 
 def pay_no_attention():
     import random
@@ -115,6 +124,21 @@ def seriously_nothing_shady_here():
     with open('data/stager/js/rundll32_js/rundll32_js.cmd', 'w') as f:
         f.write(command+"\n")
 
+def find_center(banner):
+    import re
+    max_l = 0
+    for l in banner.splitlines():
+        reaesc = re.compile(r'\x1b[^m]*m')
+        new_l = reaesc.sub('', l)
+        if len(new_l) > max_l:
+            max_l = len(new_l)
+    return int(max_l/2)
+
+def reposition_info(info, center):
+    base_spaces = 1
+    if center > 20:
+        base_spaces = center-20
+    return (info % (' '*base_spaces, ' '*(base_spaces+4), ' '*(base_spaces+11), ' '*(base_spaces+10), 's', ' '*(base_spaces+10), 'd', ' '*(base_spaces+10), 'd' ))
 
 if __name__ == "__main__":
     import core.shell
@@ -133,10 +157,20 @@ if __name__ == "__main__":
     else:
         restore = {}
 
-    if it_is_tuesday_my_dudes() or args.o:
+    #events
+    events = createHolidayList()
+    weekly = createWeekList()
+
+    if args.o:
         banner = open("data/taco.txt", "rb").read().decode("unicode_escape")
+    elif datetime.date.today() in events:
+        banner = open(events[datetime.date.today()], "rb").read().decode("unicode_escape")
+    elif datetime.date.today().weekday() in weekly:
+        banner = open(weekly[datetime.date.today().weekday()], "rb").read().decode("unicode_escape")
     else:
         banner = open("data/banner.txt", "rb").read().decode("unicode_escape")
+
+    banner += reposition_info(open("data/banner_info.txt", "rb").read().decode("unicode_escape"), find_center(banner))
 
     # pay_no_attention()
     # seriously_nothing_shady_here()

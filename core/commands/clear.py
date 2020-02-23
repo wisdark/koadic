@@ -1,4 +1,4 @@
-DESCRIPTION = "taco time"
+DESCRIPTION = "clear the screen"
 
 def autocomplete(shell, line, text, state):
     return None
@@ -7,5 +7,4 @@ def help(shell):
     pass
 
 def execute(shell, cmd):
-
-    print(open("data/taco.txt", "rb").read().decode("unicode_escape"))
+    print("\x1b[2J\x1b[H")

@@ -11,7 +11,7 @@ try
 
     if (user != "" && pwd != "")
     {
-        if (domain != "" && domain != ".")
+        if (domain != "")
         {
             user = '"' + domain + "\\" + user + '"';
         }
@@ -30,7 +30,6 @@ try
         var drive = output.split(" ")[1];
         Koadic.shell.run("net use " + drive + " /delete", true);
     }
-
     Koadic.WS.Run("%comspec% /q /c " + UNC, 0, true);
 
     Koadic.work.report("Complete");
