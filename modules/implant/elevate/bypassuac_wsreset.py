@@ -9,6 +9,9 @@ class WsResetJob(core.job.Job):
         self.options.set("PAYLOAD_DATA", payload)
         if self.session_id == -1:
             return
+        if int(self.session.build) < 17134 and self.options.get("IGNOREBUILD") == "false":
+            self.error("0", "The target may not be vulnerable to this implant. Set IGNOREBUILD to true to run anyway.", "Target build not vuln", "")
+            return False
 
     def done(self):
         self.display()
