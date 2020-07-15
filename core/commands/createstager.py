@@ -15,6 +15,10 @@ def autocomplete(shell, line, text, state):
     prefix, suffix = fulltext.rsplit("/",maxsplit=1) if "/" in fulltext else ("",fulltext)
     if prefix:
         prefix += "/"
+    else:
+        prefix, suffix = fulltext.rsplit("=",maxsplit=1) if "=" in fulltext else ("",fulltext)
+        if prefix:
+            prefix += "="
 
     options = []
 
@@ -32,8 +36,23 @@ def autocomplete(shell, line, text, state):
                 shell.print_error("No stager named %s" % (stager))
                 return
         plugin = shell.plugins[stager]
-        options = [x.name + "=" for x in plugin.options.options if x.name.upper().startswith(text.upper()) and not x.hidden]
-        options += [x.alias + "=" for x in plugin.options.options if x.alias.upper().startswith(text.upper()) and not x.hidden and x.alias]
+        options = [x.name + "=" for x in plugin.options.options if x.name.upper().startswith(fulltext.split("=")[0].upper()) and not x.hidden]
+        options += [x.alias + "=" for x in plugin.options.options if x.alias.upper().startswith(fulltext.upper()) and not x.hidden and x.alias]
+        if prefix.endswith("="):
+            option = [x for x in plugin.options.options if x.name.upper()+"=" == prefix.upper() or x.alias.upper()+"=" == prefix.upper()[0]][0]
+            options = []
+            if option.boolean:
+                options = [prefix+x for x in ['true', 'false'] if x.upper().startswith(fulltext.split("=")[1].upper())]
+            if option.file:
+                options = filepaths(fulltext.split("=")[1])
+            if option.implant:
+                pass
+            if option.enum:
+                options = [prefix+x for x in option.enum if x.upper().startswith(fulltext.split("=")[1].upper())]
+            if options:
+                return options[state]
+
+
         try:
             return options[state]
         except:
